@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EPLAN_API_2022</RootNamespace>
-    <AssemblyName>EPLAN API 2022</AssemblyName>
+    <AssemblyName>EPLAN API 2022.EplAddIn</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -65,7 +65,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigAction_2022_Service.cs" />
+    <Compile Include="ConfigAction_2022.cs" />
     <Compile Include="EplanAddIn.cs" />
+    <Compile Include="IActionService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

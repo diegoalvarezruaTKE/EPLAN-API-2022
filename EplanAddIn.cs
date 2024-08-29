@@ -27,8 +27,8 @@ namespace EplanAddIn
             var ribbonBar = new RibbonBar();
             var ribbonTab = ribbonBar.AddTab("API 2022");
             var ribbonCommandGroup = ribbonTab.AddCommandGroup("Config");
-            ribbonCommandGroup.AddCommand("Configurador", "ConfigAction");
-            ribbonCommandGroup.AddCommand("Lista de Materiales", "MaterialesAction");
+            ribbonCommandGroup.AddCommand("Configurador 2022", "ConfigAction_2022");
+            //ribbonCommandGroup.AddCommand("Lista de Materiales", "MaterialesAction");
             return true;
         }
         public bool OnExit()
