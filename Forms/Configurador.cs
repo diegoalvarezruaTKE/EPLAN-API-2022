@@ -730,7 +730,11 @@ namespace EPLAN_API_2022.Forms
 
         private void ComboboxChanged(string data, string reference)
         {
-            Caracteristic c = oElectricList[0].CaractComercial[reference] as Caracteristic;
+            Caracteristic c;
+            //Check if Commercial or Engineering
+            c = oElectricList[0].CaractComercial[reference] as Caracteristic;
+            if (c is null)
+                c = oElectricList[0].CaractIng[reference] as Caracteristic;
 
             if (oProject != null)
             {
@@ -746,7 +750,11 @@ namespace EPLAN_API_2022.Forms
         private void TextboxChanged(string data, string reference)
         {
 
-            Caracteristic c = oElectricList[0].CaractComercial[reference] as Caracteristic;
+            Caracteristic c;
+            //Check if Commercial or Engineering
+            c = oElectricList[0].CaractComercial[reference] as Caracteristic;
+            if (c is null)
+                c = oElectricList[0].CaractIng[reference] as Caracteristic;
 
 
             if (oProject != null)
