@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using EPLAN_API_2022.Forms;
 
 namespace EPLAN_API_2022
 {
@@ -15,8 +17,10 @@ namespace EPLAN_API_2022
         }
         public void Execute()
         {
-            new Decider().Decide(EnumDecisionType.eOkDecision, "CSharpAction was called!", "Eplan.EplAddIn.Demo1", EnumDecisionReturn.eOK, EnumDecisionReturn.eOK);
-            // TODO: Add your Code here
+            Application.EnableVisualStyles();
+            //Application.SetCompatibleTextRenderingDefault(false);
+            //Application.Run(new Form1());
+            Application.Run(new Configurador());
         }
     }
 }
