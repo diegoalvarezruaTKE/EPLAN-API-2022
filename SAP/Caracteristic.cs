@@ -136,6 +136,7 @@ namespace EPLAN_API.SAP
                     AutoSize = true,
                     Size = new Size(35, 13),
                     Text = NameES,
+                    BackColor = Color.Tomato,
                 };
 
                 if (!IsNumeric && !IsText)
@@ -177,12 +178,12 @@ namespace EPLAN_API.SAP
             {
                 CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
                 textBox.Text = String.Format(culture, "{0:0.00}", NumVal);
-                label.BackColor = Color.Tomato;
+                label.BackColor = Color.Transparent;
             }
         }
 
         public bool setActualValue(String reference)
-        {   // Funcion para actuaizar el combobox y àra modificar el color de subrayado
+        {   
             if (IsNumeric)
                 return false;
 
@@ -201,7 +202,7 @@ namespace EPLAN_API.SAP
 
                         if (enabled)
                         {
-                            label.BackColor = Color.Tomato;
+                            label.BackColor = Color.Transparent;
                         }
                     }
                     else
@@ -253,7 +254,10 @@ namespace EPLAN_API.SAP
         {
             CurrentReference=Values.GetKey((sender as ComboBox).SelectedIndex) as string;
             if (Comboboxdata != null)
+            {
                 Comboboxdata(CurrentReference, NameReference);
+                label.BackColor= Color.Transparent;
+            }
             else
                 return;
         }
@@ -266,7 +270,10 @@ namespace EPLAN_API.SAP
                 Double.TryParse((sender as TextBox).Text, out val);
                 NumVal = val;
                 if (Textboxdata != null)
+                {
                     Textboxdata(NumVal.ToString(), NameReference);
+                    label.BackColor = Color.Transparent;
+                }
                 else
                     return;
             }

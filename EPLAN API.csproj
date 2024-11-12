@@ -111,6 +111,7 @@
     <Compile Include="Abstract\IActionService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="User\Draw.cs" />
+    <Compile Include="User\DrawStandardArmIntEN.cs" />
     <Compile Include="User\HCValue.cs" />
     <Compile Include="User\MotorCurrentData.cs" />
   </ItemGroup>

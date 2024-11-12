@@ -20,16 +20,17 @@ namespace EPLAN_API.User
         private PathInfo EPLANPaths;
         private Project oProject;
         private string drawingNumber;
-        //Delegate to pass info to configurador
-        public delegate void DrawDelegateToConfigurador();
+        public delegate void ProejctOpenedDelegate(Project project);
+        public event ProejctOpenedDelegate ProjectOpenedToConfigurador;
 
-        //Event of delegate
-        public event DrawDelegateToConfigurador DrawDataToConfigurador;
         public Draw(Electric oElectric) 
         { 
             electric = oElectric;
             EPLANPaths = new PathInfo();
+        }
 
+        public void StartDrawing()
+        {
             //Check if all caracteristic are filled
             if (electric.checkValues())
             {
@@ -39,7 +40,7 @@ namespace EPLAN_API.User
                     OpenProject();
                 }
             }
-            else 
+            else
             {
                 MessageBox.Show("No están valoradas todas las caracteristicas comerciales y de ingeniería", "Error");
             }
@@ -127,6 +128,36 @@ namespace EPLAN_API.User
 
             oProject = new ProjectManager().OpenProject(ProjectPath);
             oProject.ProjectName = String.Concat("0-55.1-3.", drawingNumber, ".00", "_", denominacionProyecto.Replace(' ', '_'));
+            ProjectOpened(oProject);
+        }
+
+        private void SelectDrawing()
+        {
+            Caracteristic ubicacionArmario = electric.CaractComercial["F53ZUB7"] as Caracteristic;
+            Caracteristic norma = electric.CaractComercial["FNORM"] as Caracteristic;
+            Caracteristic maniobra = electric.CaractIng["MANIOBRA"] as Caracteristic;
+
+            //Armario Standard
+            if (!maniobra.CurrentReference.Equals("BASIC"))
+            {
+                if (norma.CurrentReference.Equals("EN"))
+                {
+                    //Armario interior EN115
+                    if (ubicacionArmario.CurrentReference.Equals("INNENOBEN"))
+                        //new DrawStandardArmIntEN(oProject,electric);
+                        ;
+                    //Armario exterior EN115
+                    else
+                        ;
+                }
+                //Armario interior ASME
+                else if (norma.CurrentReference.Equals("ASME") ||
+                    norma.CurrentReference.Equals("CSA"))
+                    ;
+            }
+            //Armario Basic
+            else
+                ;
         }
 
         private void CopyFilesRecursively(string sourcePath, string targetPath)
@@ -144,9 +175,9 @@ namespace EPLAN_API.User
             }
         }
 
-        private void TextboxChanged(string data, string reference)
+        private void ProjectOpened(Project project)
         {
-            DrawDataToConfigurador();
+            ProjectOpenedToConfigurador(project);
         }
 
     }

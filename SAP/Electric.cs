@@ -289,6 +289,7 @@ namespace EPLAN_API.SAP
             #endregion
 
             #region 8 - CONTROL
+            //MAX
             SortedList TNCR_S_MAX = new SortedList();
             TNCR_S_MAX.Add("N", new String[] { "No disponible", "No disponible" });
             TNCR_S_MAX.Add("R", new String[] { "Preparado", "Preparado" });

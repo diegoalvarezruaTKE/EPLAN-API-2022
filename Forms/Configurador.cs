@@ -46,6 +46,7 @@ namespace EPLAN_API_2022.Forms
         #region EPLAN Functions
         private void ReadCaractFromProject()
         {
+            //Comercial
             foreach (Caracteristic c in oElectricList[0].CaractComercial.Values)
             {
                 try
@@ -55,7 +56,7 @@ namespace EPLAN_API_2022.Forms
 
                     if (!c.IsNumeric)
                     {
-                        c.setActualValue(propertyValue.ToMultiLangString().GetString(ISOCode.Language.L_es_ES));
+                        c.setActualValue(propertyValue.ToMultiLangString().GetString(ISOCode.Language.L_en_US));
                     }
                     else
                     {
@@ -68,9 +69,9 @@ namespace EPLAN_API_2022.Forms
 
                         string Svalue = propertyValue.ToMultiLangString().GetString(ISOCode.Language.L___);
 
-                        if (languageList.Contains(ISOCode.Language.L_es_ES))
+                        if (languageList.Contains(ISOCode.Language.L_en_US))
                         {
-                            Svalue = propertyValue.ToMultiLangString().GetString(ISOCode.Language.L_es_ES);
+                            Svalue = propertyValue.ToMultiLangString().GetString(ISOCode.Language.L_en_US);
                         }
 
                         if (Svalue.Contains(","))
@@ -85,11 +86,55 @@ namespace EPLAN_API_2022.Forms
                     ;
                 }
             }
+
+            //Ingenieria
+            foreach (Caracteristic c in oElectricList[0].CaractIng.Values)
+            {
+                try
+                {
+                    AnyPropertyId propertyId = new AnyPropertyId(oProject, c.NameReference);
+                    PropertyValue propertyValue = oProject.Properties[propertyId];
+
+                    if (!c.IsNumeric)
+                    {
+                        c.setActualValue(propertyValue.ToMultiLangString().GetString(ISOCode.Language.L_en_US));
+                    }
+                    else
+                    {
+                        CultureInfo esES = new CultureInfo("es-ES");
+                        CultureInfo enUS = new CultureInfo("en-US");
+
+                        LanguageList languageList = new LanguageList();
+                        propertyValue.ToMultiLangString().GetLanguageList(ref languageList);
+
+
+                        string Svalue = propertyValue.ToMultiLangString().GetString(ISOCode.Language.L___);
+
+                        if (languageList.Contains(ISOCode.Language.L_en_US))
+                        {
+                            Svalue = propertyValue.ToMultiLangString().GetString(ISOCode.Language.L_en_US);
+                        }
+
+                        if (Svalue.Contains(","))
+                            c.setActualNumVal(Convert.ToDouble(Svalue, esES));
+                        else
+                            c.setActualNumVal(Convert.ToDouble(Svalue, enUS));
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    ;
+                }
+            }
+
+
         }
 
         private void LoadCaractToProject()
         {
-            foreach (Caracteristic c in oElectricList[0].CaractComercial)
+            //Commercial
+            foreach (Caracteristic c in oElectricList[0].CaractComercial.Values)
             {
                 try
                 {
@@ -108,7 +153,7 @@ namespace EPLAN_API_2022.Forms
                         {
                             CultureInfo esES = CultureInfo.CreateSpecificCulture("es-ES");
                             MultiLangString value = new MultiLangString();
-                            value.AddString(ISOCode.Language.L_es_ES, String.Format(esES, "{0:0.00}", c.NumVal));
+                            value.AddString(ISOCode.Language.L_en_US, String.Format(esES, "{0:0.00}", c.NumVal));
                             propertyValue.Set(value);
                         }
                     }
@@ -116,7 +161,7 @@ namespace EPLAN_API_2022.Forms
                     {
                         CultureInfo esES = CultureInfo.CreateSpecificCulture("es-ES");
                         MultiLangString value = new MultiLangString();
-                        value.AddString(ISOCode.Language.L_es_ES, c.TextVal);
+                        value.AddString(ISOCode.Language.L_en_US, c.TextVal);
                         propertyValue.Set(value);
                     }
 
@@ -126,6 +171,46 @@ namespace EPLAN_API_2022.Forms
                     ;
                 }
             }
+
+            //Ingenieria
+            foreach (Caracteristic c in oElectricList[0].CaractIng.Values)
+            {
+                try
+                {
+                    AnyPropertyId propertyId = new AnyPropertyId(oProject, c.NameReference);
+                    PropertyValue propertyValue = oProject.Properties[propertyId];
+
+                    if (!c.IsText)
+                    {
+                        if (!c.IsNumeric)
+                        {
+                            MultiLangString langString = new MultiLangString();
+                            langString.AddString(ISOCode.Language.L_en_US, c.CurrentReference);
+                            propertyValue.Set(langString);
+                        }
+                        else
+                        {
+                            CultureInfo esES = CultureInfo.CreateSpecificCulture("es-ES");
+                            MultiLangString value = new MultiLangString();
+                            value.AddString(ISOCode.Language.L_en_US, String.Format(esES, "{0:0.00}", c.NumVal));
+                            propertyValue.Set(value);
+                        }
+                    }
+                    else
+                    {
+                        CultureInfo esES = CultureInfo.CreateSpecificCulture("es-ES");
+                        MultiLangString value = new MultiLangString();
+                        value.AddString(ISOCode.Language.L_en_US, c.TextVal);
+                        propertyValue.Set(value);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    ;
+                }
+            }
+
         }
 
         public void LoadSAPtoEPLAN(Dictionary<string, string> SAPCararct)
@@ -371,10 +456,6 @@ namespace EPLAN_API_2022.Forms
                         }
                     }
                 }
-
-                ConexMotor.combobox.Enabled = true;
-                ConexMotor.combobox.SelectedItem = ConexMotor.combobox.Items[ConexMotor.Values.IndexOfKey(ConexMotor.CurrentReference)];
-
                 #endregion
 
                 #region  Calculate Motor Current
@@ -533,10 +614,7 @@ namespace EPLAN_API_2022.Forms
                     }
                 }
 
-                cMotor.NumVal = corrienteMotor;
-                cMotor.textBox.Enabled = true;
-                CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
-                cMotor.textBox.Text = String.Format(culture, "{0:0.00}", corrienteMotor);
+                cMotor.setActualNumVal(corrienteMotor);
                 #endregion
 
                 #region  Calculate Motor conection
@@ -546,9 +624,7 @@ namespace EPLAN_API_2022.Forms
                     corrienteMotor = corrienteMotor / 1.732;
                 }
 
-                cTermico.NumVal = corrienteMotor;
-                cTermico.textBox.Enabled = true;
-                cTermico.textBox.Text = String.Format(culture, "{0:0.00}", corrienteMotor);
+                cTermico.setActualNumVal(corrienteMotor);
                 #endregion
 
                 #region Calculate motor cable secction
@@ -592,9 +668,6 @@ namespace EPLAN_API_2022.Forms
                         cSeccMotor.setActualValue("16"); // 4mm2 sin apantallar
                 }
 
-
-                cSeccMotor.combobox.Enabled = true;
-                cSeccMotor.combobox.SelectedItem = cSeccMotor.combobox.Items[cSeccMotor.Values.IndexOfKey(cSeccMotor.CurrentReference)];
                 #endregion
 
                 #region Calculate Controller
@@ -606,8 +679,7 @@ namespace EPLAN_API_2022.Forms
                 {
                     controller.setActualValue("GEC");
                 }
-                controller.combobox.Enabled = true;
-                controller.combobox.SelectedItem = controller.combobox.Items[controller.Values.IndexOfKey(controller.CurrentReference)];
+               
                 #endregion
 
                 #region Calculate tipo display
@@ -635,7 +707,7 @@ namespace EPLAN_API_2022.Forms
 
                 #region Default Values
                 armario.setActualValue("CHINO");
-                maniobra.setActualValue("BASIC");
+                maniobra.setActualValue("ESTANDAR");
                 #endregion
             }
         }
@@ -666,7 +738,7 @@ namespace EPLAN_API_2022.Forms
                 PropertyValue propertyValue = oProject.Properties[propertyId];
 
                 MultiLangString langString = new MultiLangString();
-                langString.AddString(ISOCode.Language.L_es_ES, c.CurrentReference);
+                langString.AddString(ISOCode.Language.L_en_US, c.CurrentReference);
                 propertyValue.Set(langString);
             }
         }
@@ -690,18 +762,19 @@ namespace EPLAN_API_2022.Forms
 
                 if (c.IsNumeric)
                 {
-                    value.AddString(ISOCode.Language.L_es_ES, String.Format(esES, "{0:0.00}", c.NumVal));
+                    value.AddString(ISOCode.Language.L_en_US, String.Format(esES, "{0:0.00}", c.NumVal));
                 }
                 else
                 {
-                    value.AddString(ISOCode.Language.L_es_ES, c.TextVal);
+                    value.AddString(ISOCode.Language.L_en_US, c.TextVal);
                 }
                 propertyValue.Set(value);
             }
         }
 
-        private void DrawDataToConfigurador()
+        private void DrawDataToConfigurador(Project project)
         {
+            oProject = project;
             LoadCaractToProject();
         }
 
@@ -733,7 +806,8 @@ namespace EPLAN_API_2022.Forms
         private void b_Draw_Click(object sender, EventArgs e)
         {
             Draw = new Draw(oElectricList[0]);
-            Draw.DrawDataToConfigurador += new Draw.DrawDelegateToConfigurador(DrawDataToConfigurador);
+            Draw.ProjectOpenedToConfigurador += new Draw.ProejctOpenedDelegate(DrawDataToConfigurador);
+            Draw.StartDrawing();
         }
 
         #endregion
