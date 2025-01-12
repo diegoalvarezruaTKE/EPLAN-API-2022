@@ -7,20 +7,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using EPLAN_API_2022.Forms;
+using EPLAN_API.User;
 
 namespace EPLAN_API_2022
 {
-    class ConfigAction_2022_Service : IActionService
+    class Assembly_CDI_BasicAction_Service : IActionService
     {
-        public ConfigAction_2022_Service()
+        public Assembly_CDI_BasicAction_Service()
         {
         }
         public void Execute()
         {
-            Application.EnableVisualStyles();
-            //Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new Form1());
-            Application.Run(new Configurador());
+            new DrawCDIBasicEN();
         }
     }
 }

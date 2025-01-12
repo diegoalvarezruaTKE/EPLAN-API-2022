@@ -3,7 +3,7 @@ using EPLAN_API_2022;
 
 namespace Eplan.EplAddin.Actions
 {
-    public class ConfigAction_2022 : IEplAction
+    public class Assembly_CDS_Basic : IEplAction
     {
         ///<summary>
         ///This function is called when executing the action.
@@ -11,7 +11,7 @@ namespace Eplan.EplAddin.Actions
         ///<returns>true, if the action performed successfully</returns>
         public bool Execute(ActionCallingContext ctx)
         {
-            IActionService service = new ConfigAction_2022_Service();
+            IActionService service = new Assembly_CDS_BasicAction_Service();
 
             service.Execute();
 
@@ -25,8 +25,8 @@ namespace Eplan.EplAddin.Actions
         ///<returns>true, if OnRegister succeeds</returns>
         public bool OnRegister(ref string Name, ref int Ordinal)
         {
-            Name = "ConfigAction_2022";
-            Ordinal = 21;
+            Name = "Assembly_CDS_Basic";
+            Ordinal = 22;
             return true;
         }
         ///<summary>

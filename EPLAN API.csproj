@@ -55,6 +55,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Program Files\EPLAN\Platform\2022.0.3\Bin\Eplan.EplApi.HEServicesu.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -67,6 +68,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\Assembly_CDI_Basic.cs" />
+    <Compile Include="Actions\Assembly_CDS_Basic.cs" />
+    <Compile Include="Actions\Assembly_Main_Cab_Basic.cs" />
     <Compile Include="Forms\NumeroEsquema.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -105,13 +109,21 @@
     <Compile Include="SAP\Caracteristic.cs" />
     <Compile Include="SAP\Electric.cs" />
     <Compile Include="SAP\SAPReader.cs" />
-    <Compile Include="Services\ConfigAction_2022_Service.cs" />
-    <Compile Include="Actions\ConfigAction_2022.cs" />
+    <Compile Include="Services\Assembly_CDI_BasicAction_Service.cs" />
+    <Compile Include="Services\Assembly_CDS_BasicAction_Service.cs" />
+    <Compile Include="Services\Assembly_Main_Cab_BasicAction_Service.cs" />
+    <Compile Include="Services\ConfigAction_2024_Service.cs" />
+    <Compile Include="Actions\ConfigAction_2024.cs" />
     <Compile Include="EplanAddIn.cs" />
     <Compile Include="Abstract\IActionService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="User\Draw.cs" />
+    <Compile Include="User\DrawBasicArmIntEN.cs" />
+    <Compile Include="User\DrawCDIBasicEN.cs" />
+    <Compile Include="User\DrawCDSBasicEN.cs" />
+    <Compile Include="User\DrawMainCabinetBasicEN.cs" />
     <Compile Include="User\DrawStandardArmIntEN.cs" />
+    <Compile Include="User\DrawTools.cs" />
     <Compile Include="User\HCValue.cs" />
     <Compile Include="User\MotorCurrentData.cs" />
   </ItemGroup>

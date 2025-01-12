@@ -840,6 +840,7 @@ namespace EPLAN_API.SAP
             FANTREHT.Add("SOG", new String[] { "3C" });
             FANTREHT.Add("EM", new String[] { "EMERSON 125AR" });
             FANTREHT.Add("FJ", new String[] { "FJ 125/160" });
+            FANTREHT.Add("FTJ+FJ", new String[] { "Emod FTJ + Fuma FJ" });
             FANTREHT.Add("5C", new String[] { "5C" });
             FANTREHT.Add("QC", new String[] { "QC180A" });
             FANTREHT.Add("ESP", new String[] { "ESPECIAL" });

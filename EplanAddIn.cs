@@ -26,9 +26,13 @@ namespace EplanAddIn
         {
             var ribbonBar = new RibbonBar();
             var ribbonTab = ribbonBar.AddTab("API 2022");
-            var ribbonCommandGroup = ribbonTab.AddCommandGroup("Config");
-            ribbonCommandGroup.AddCommand("Configurador 2022", "ConfigAction_2022");
+            var ribbonCommandGroupConfig = ribbonTab.AddCommandGroup("Config");
+            ribbonCommandGroupConfig.AddCommand("Configurador 2024", "ConfigAction_2024");
             //ribbonCommandGroup.AddCommand("Lista de Materiales", "MaterialesAction");
+            var ribbonCommandGroupBasic = ribbonTab.AddCommandGroup("Basic");
+            ribbonCommandGroupBasic.AddCommand("Ensambla Armario Basic", "Assembly_Main_Cab_Basic");
+            ribbonCommandGroupBasic.AddCommand("Ensambla CDS Basic", "Assembly_CDS_Basic");
+            ribbonCommandGroupBasic.AddCommand("Ensambla CDI Basic", "Assembly_CDI_Basic");
             return true;
         }
         public bool OnExit()

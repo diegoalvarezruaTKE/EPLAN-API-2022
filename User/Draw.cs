@@ -1,4 +1,5 @@
-﻿using Eplan.EplApi.DataModel;
+﻿using Eplan.EplApi.Base;
+using Eplan.EplApi.DataModel;
 using Eplan.EplApi.HEServices;
 using EPLAN_API.Forms;
 using EPLAN_API.SAP;
@@ -38,6 +39,7 @@ namespace EPLAN_API.User
                 {
                     RestoreProject();
                     OpenProject();
+                    SelectDrawing();
                 }
             }
             else
@@ -100,7 +102,10 @@ namespace EPLAN_API.User
                     TemplateFileName = "GEC_ASME_Arm_Int_Base";
             }
             //Armario Basic
-            //TBD
+            else
+            {
+                TemplateFileName = "GEC_EN115_Base_Basic";
+            }
 
             //Restore base project
             foreach (string file in fileTemplatePaths)
@@ -144,8 +149,7 @@ namespace EPLAN_API.User
                 {
                     //Armario interior EN115
                     if (ubicacionArmario.CurrentReference.Equals("INNENOBEN"))
-                        //new DrawStandardArmIntEN(oProject,electric);
-                        ;
+                        new DrawStandardArmIntEN(oProject, electric);
                     //Armario exterior EN115
                     else
                         ;
@@ -157,7 +161,7 @@ namespace EPLAN_API.User
             }
             //Armario Basic
             else
-                ;
+                new DrawBasicArmIntEN(oProject,electric);
         }
 
         private void CopyFilesRecursively(string sourcePath, string targetPath)
@@ -180,5 +184,6 @@ namespace EPLAN_API.User
             ProjectOpenedToConfigurador(project);
         }
 
+        
     }
 }
