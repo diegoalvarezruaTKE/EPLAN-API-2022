@@ -55,6 +55,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Program Files\EPLAN\Platform\2022.0.3\Bin\Eplan.EplApi.HEServicesu.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -124,10 +125,14 @@
     <Compile Include="User\DrawMainCabinetBasicEN.cs" />
     <Compile Include="User\DrawStandardArmIntEN.cs" />
     <Compile Include="User\DrawTools.cs" />
+    <Compile Include="User\GEC.cs" />
     <Compile Include="User\HCValue.cs" />
     <Compile Include="User\MotorCurrentData.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="CsvHelper">
+      <Version>33.0.1</Version>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.3</Version>
     </PackageReference>

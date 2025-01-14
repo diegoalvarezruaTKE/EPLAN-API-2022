@@ -740,6 +740,15 @@ namespace EPLAN_API.User
             }
         }
 
+        public void SetGECParameter(Project oProject, Electric oElectric, string address, uint value, bool changeText=false)
+        {
+            oElectric.GECParameterList[address].value = value;
+            if (changeText) 
+            {
+                changeFunctionTextPLCInput(oProject, address, oElectric.IDFunctions[oElectric.GECParameterList[address].value]);
+            }
+        }
+
         public void deleteAllDummyConnections(Project oProject) 
         {
             FunctionsFilter functionsFilter = new FunctionsFilter();

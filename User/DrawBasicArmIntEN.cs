@@ -146,7 +146,7 @@ namespace EPLAN_API.User
 
             //9.21	Drive chain safety devices
             //11200004442900  CADENA MOTRIZ ADV.
-            draw_Drive_Chain_Safety();
+            //draw_Drive_Chain_Safety();
 
             //9.3   Handrail breakage sensor
             //11200004444200  ROTURA PASAMANOS ADV.
@@ -171,7 +171,7 @@ namespace EPLAN_API.User
             draw_radar();
 
             //10.11	Automatic lubrication
-            draw_automatic_lubrication();
+            //draw_automatic_lubrication();
 
 
             //11200004445200  MULTICAB.INF.CENT.ADV PARTIDO
@@ -835,12 +835,16 @@ namespace EPLAN_API.User
             {
                 deleteArea(oProject, "VVF Power", 84, 216, 108, 216);
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004443200 - CABLEADO VARIADOR ADV.ema", 'A', "VVF Power", 36, 220);
+                deleteArea(oProject, "VVF Control", 132, 216, 132, 216);
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004443200 - CABLEADO VARIADOR ADV.ema", 'B', "VVF Control", 48, 212);
 
                 double cableLength = ((Caracteristic)oElectric.CaractComercial["TNCR_OT_DESARROLLO"]).NumVal + 5;
                 SetCableLength(oProject, "VVF Power", "WP20", cableLength);
                 SetCableLength(oProject, "VVF Power", "WP21", cableLength);
                 SetCableLength(oProject, "VVF Control", "W106", cableLength);
+
+                //Configure GEC parameters
+                SetGECParameter(oProject, oElectric, "I5", (uint)GEC.Param.VFD_EEC, true);
             }
         }
 
@@ -883,6 +887,9 @@ namespace EPLAN_API.User
                 {
                     insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004323300 - FRENO 2 MOTOR 1 - INDUCTIVO_ADV.ema", 'A', "Brake II", 64, 76);
                 }
+
+                SetGECParameter(oProject, oElectric, "SI15", (uint)GEC.Param.Brake_function_brake_3_mot_1, true);
+                SetGECParameter(oProject, oElectric, "SI16", (uint)GEC.Param.Brake_function_brake_4_mot_1, true);
             }
         }
 
@@ -900,11 +907,9 @@ namespace EPLAN_API.User
 
                 //Configure GEC parameters
                 //Upper box
-                //oElectric.GECParameterList["UI11"].value = (uint)GEC.Param.Top_emergency_stop_trolley_SS;
-                //changeFunctionTextPLCInput("UI11", oElectric.IDFunctions[oElectric.GECParameterList["UI11"].value]);
-                ////Lower box
-                //oElectric.GECParameterList["LI18"].value = (uint)GEC.Param.Bottom_emergency_stop_trolley_SS;
-                //changeFunctionTextPLCInput("LI18", oElectric.IDFunctions[oElectric.GECParameterList["LI18"].value]);
+                SetGECParameter(oProject, oElectric, "UI11", (uint)GEC.Param.Top_emergency_stop_trolley_SS, true);
+                //Lower box
+                SetGECParameter(oProject, oElectric, "LI18", (uint)GEC.Param.Bottom_emergency_stop_trolley_SS, true);
             }
         }
 
@@ -919,7 +924,6 @@ namespace EPLAN_API.User
                 //Insert graphical macro
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004307800 - Seguridad sincro. de pasamanos advance_ADV.ema", 'B', "Lower Sensors I", 256, 172);
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004307800 - Seguridad sincro. de pasamanos advance_ADV.ema", 'C', "Upper Sensors I", 256, 204);
-
             }
             else
             {
@@ -943,11 +947,8 @@ namespace EPLAN_API.User
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004444200 - ROTURA PASAMANOS ADV.ema", 'B', "Lower Diagnostic Inputs IV", 144, 164);
 
                 //Configure GEC parameters
-                //oElectric.GECParameterList["LI25"].value = (uint)GEC.Param.Broken_handrail_L;
-                //oElectric.GECParameterList["LI26"].value = (uint)GEC.Param.Broken_handrail_R;
-                //changeFunctionTextPLCInput("LI25", oElectric.IDFunctions[oElectric.GECParameterList["LI25"].value]);
-                //changeFunctionTextPLCInput("LI26", oElectric.IDFunctions[oElectric.GECParameterList["LI26"].value]);
-
+                SetGECParameter(oProject, oElectric, "LI25", (uint)GEC.Param.Broken_handrail_L, true);
+                SetGECParameter(oProject, oElectric, "LI26", (uint)GEC.Param.Broken_handrail_R, true);
             }
 
         }
@@ -964,52 +965,12 @@ namespace EPLAN_API.User
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004442000 - DESGASTE FRENOS ADV.ema", 'B', "Upper Diagnostic Inputs IV", 212, 172);
 
                 //Configure GEC parameters
-                //oElectric.GECParameterList["UI27"].value = (uint)GEC.Param.Brake_wear_brake_1_M1;
-                //oElectric.GECParameterList["UI28"].value = (uint)GEC.Param.Brake_wear_brake_2_M1;
-                //changeFunctionTextPLCInput("UI27", oElectric.IDFunctions[oElectric.GECParameterList["UI27"].value]);
-                //changeFunctionTextPLCInput("UI28", oElectric.IDFunctions[oElectric.GECParameterList["UI28"].value]);
+                SetGECParameter(oProject, oElectric, "UI27", (uint)GEC.Param.Brake_wear_brake_1_M1, true);
+                SetGECParameter(oProject, oElectric, "UI28", (uint)GEC.Param.Brake_wear_brake_2_M1, true);
             }
 
         }
-
-        public void draw_Double_brake()
-        {
-            setStatusText("Insertando Freno ");
-
-            if (((Caracteristic)oElectric.CaractComercial["FANTREHT"]).CurrentReference.Equals("FJ") ||
-                ((Caracteristic)oElectric.CaractComercial["FANTREHT"]).CurrentReference.Equals("QC"))
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004323000 - FRENO 1 MOTOR 1 - FINAL DE CARRERA_ADV.ema", 'A', "Brake I", 64, 92);
-            else
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004323200 - FRENO 1 MOTOR 1 - INDUCTIVO_ADV.ema", 'A', "Brake I", 64, 92);
-
-
-            if (((Caracteristic)oElectric.CaractComercial["FBREMSE2"]).CurrentReference.Equals("4/4"))
-            {
-                setStatusText("Insertando Doble Freno ");
-
-                if (((Caracteristic)oElectric.CaractComercial["FANTREHT"]).CurrentReference.Equals("FJ") ||
-                ((Caracteristic)oElectric.CaractComercial["FANTREHT"]).CurrentReference.Equals("QC"))
-                    insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004323100 - FRENO 2 MOTOR 1 - FINAL DE CARRERA_ADV.ema", 'A', "Brake II", 64, 92);
-                else
-                    insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004323300 - FRENO 2 MOTOR 1 - INDUCTIVO_ADV.ema", 'A', "Brake II", 64, 92);
-
-                //insertWindowMacro("$(MD_MACROS)\\_Esquema\\2_Ventana\\200004305200 - ALIMENTACIÓN DOBLE FRENO + SENSORES_ADV.ema", 'C', "Safety Inputs I", 228, 184);
-                //insertWindowMacro("$(MD_MACROS)\\_Esquema\\2_Ventana\\200004305200 - ALIMENTACIÓN DOBLE FRENO + SENSORES_ADV.ema", 'B', "Control I", 252, 52);
-
-                //Configure GEC parameters
-                //oElectric.GECParameterList["SI15"].value = (uint)GEC.Param.Brake_function_brake_3_mot_1;
-                //oElectric.GECParameterList["SI16"].value = (uint)GEC.Param.Brake_function_brake_4_mot_1;
-                //changeFunctionTextPLCInput("SI15", oElectric.IDFunctions[oElectric.GECParameterList["SI15"].value]);
-                //changeFunctionTextPLCInput("SI16", oElectric.IDFunctions[oElectric.GECParameterList["SI16"].value]);
-
-                //Configure cable length
-                updateCableLengthProperty("Cable.length.W5", 5, "CDS");
-                updateCableLengthProperty("Cable.length.W49", 5, "CDS");
-                updateCableLengthProperty("Cable.length.W51", 5, "CDS");
-
-            }
-        }
-
+        
         public void draw_Vertical_Combplate()
         {
             if (((Caracteristic)oElectric.CaractComercial["FKAMMPLHK"]).CurrentReference.Equals("INDEPENDIENTE"))
@@ -1035,16 +996,11 @@ namespace EPLAN_API.User
 
                 //Configure GEC parameters
                 //Upper box
-                //oElectric.GECParameterList["UI12"].value = (uint)GEC.Param.Top_vertical_comb_plate_right_SS;
-                //oElectric.GECParameterList["UI13"].value = (uint)GEC.Param.Top_vertical_comb_plate_right_SS;
-                //changeFunctionTextPLCInput("UI12", oElectric.IDFunctions[oElectric.GECParameterList["UI12"].value]);
-                //changeFunctionTextPLCInput("UI13", oElectric.IDFunctions[oElectric.GECParameterList["UI13"].value]);
+                SetGECParameter(oProject, oElectric, "UI12", (uint)GEC.Param.Top_vertical_comb_plate_right_SS, true);
+                SetGECParameter(oProject, oElectric, "UI13", (uint)GEC.Param.Top_vertical_comb_plate_left_SS, true);
                 ////Lower box
-                //oElectric.GECParameterList["LI13"].value = (uint)GEC.Param.Bottom_vertical_comb_plate_right_SS;
-                //oElectric.GECParameterList["LI14"].value = (uint)GEC.Param.Bottom_vertical_comb_plate_left_SS;
-                //changeFunctionTextPLCInput("LI13", oElectric.IDFunctions[oElectric.GECParameterList["LI13"].value]);
-                //changeFunctionTextPLCInput("LI14", oElectric.IDFunctions[oElectric.GECParameterList["LI14"].value]);
-                //Lower box
+                SetGECParameter(oProject, oElectric, "LI13", (uint)GEC.Param.Bottom_vertical_comb_plate_right_SS, true);
+                SetGECParameter(oProject, oElectric, "LI14", (uint)GEC.Param.Bottom_vertical_comb_plate_left_SS, true);
 
             }
         }
@@ -1085,15 +1041,11 @@ namespace EPLAN_API.User
                 }
                 //Configure GEC parameters
                 ////Upper box
-                //oElectric.GECParameterList["UI14"].value = (uint)GEC.Param.Top_buggy_right_SS;
-                //oElectric.GECParameterList["UI15"].value = (uint)GEC.Param.Top_buggy_left_SS;
-                //changeFunctionTextPLCInput("UI14", oElectric.IDFunctions[oElectric.GECParameterList["UI14"].value]);
-                //changeFunctionTextPLCInput("UI15", oElectric.IDFunctions[oElectric.GECParameterList["UI15"].value]);
+                SetGECParameter(oProject, oElectric, "UI14", (uint)GEC.Param.Top_buggy_right_SS, true);
+                SetGECParameter(oProject, oElectric, "UI15", (uint)GEC.Param.Top_buggy_left_SS, true);
                 ////Lower box
-                //oElectric.GECParameterList["LI15"].value = (uint)GEC.Param.Bottom_buggy_right_SS;
-                //oElectric.GECParameterList["LI16"].value = (uint)GEC.Param.Bottom_buggy_left_SS;
-                //changeFunctionTextPLCInput("LI15", oElectric.IDFunctions[oElectric.GECParameterList["LI15"].value]);
-                //changeFunctionTextPLCInput("LI16", oElectric.IDFunctions[oElectric.GECParameterList["LI16"].value]);
+                SetGECParameter(oProject, oElectric, "LI15", (uint)GEC.Param.Bottom_buggy_right_SS, true);
+                SetGECParameter(oProject, oElectric, "LI16", (uint)GEC.Param.Bottom_buggy_left_SS, true);
             }
         }
 
@@ -1155,8 +1107,7 @@ namespace EPLAN_API.User
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004444000 - NIVEL DE AGUA ADV.ema", 'B', "Lower Diagnostic Inputs IV", 392, 164);
 
                 //Configure GEC parameters
-                //oElectric.GECParameterList["LI32"].value = (uint)GEC.Param.Water_detection_bottom;
-                //changeFunctionTextPLCInput("LI32", oElectric.IDFunctions[oElectric.GECParameterList["LI32"].value]);
+                SetGECParameter(oProject, oElectric, "LI32", (uint)GEC.Param.Water_detection_bottom, true);
             }
         }
 
@@ -1169,8 +1120,7 @@ namespace EPLAN_API.User
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004441800 - CERROJO MANTENIMIENTO ADV.ema", 'A', "Upper Diagnostic Inputs III", 52, 112);
 
                 //Configure GEC parameters
-                //oElectric.GECParameterList["UI16"].value = (uint)GEC.Param.Chain_locking_device_SS;
-                //changeFunctionTextPLCInput("UI16", oElectric.IDFunctions[oElectric.GECParameterList["UI16"].value]);
+                SetGECParameter(oProject, oElectric, "UI16", (uint)GEC.Param.Chain_locking_device_SS, true);
             }
         }
 
@@ -1206,6 +1156,10 @@ namespace EPLAN_API.User
                     insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004444700 - FOTOCELULA CL. INF.ADV.ema", 'A', "Lower People Detection", 16, 256);
                     insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004444700 - FOTOCELULA CL. INF.ADV.ema", 'B', "Lower Diagnostic Inputs III", 396, 152);
                 }
+
+                //Configure GEC parameters
+                SetGECParameter(oProject, oElectric, "UI21", (uint)GEC.Param.Top_light_barrier_comb_plate_NC, true);
+                SetGECParameter(oProject, oElectric, "LI21", (uint)GEC.Param.Bottom_light_barrier_comb_plate_NC, true);
             }
         }
 
@@ -1237,6 +1191,13 @@ namespace EPLAN_API.User
                     insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004444900 - RADAR CL. INF. ADV.ema", 'A', "Lower People Detection", 240, 256);
                     insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004444900 - RADAR CL. INF. ADV.ema", 'B', "Lower Diagnostic Inputs III", 276, 152);
                 }
+
+                //Configure GEC parameters
+                SetGECParameter(oProject, oElectric, "UI19", (uint)GEC.Param.Top_radar_right_NC, true);
+                SetGECParameter(oProject, oElectric, "UI20", (uint)GEC.Param.Top_radar_left_NC, true);
+                SetGECParameter(oProject, oElectric, "LI19", (uint)GEC.Param.Bottom_radar_right_NC, true);
+                SetGECParameter(oProject, oElectric, "LI20", (uint)GEC.Param.Bottom_radar_left_NC, true);
+
             }
         }
 

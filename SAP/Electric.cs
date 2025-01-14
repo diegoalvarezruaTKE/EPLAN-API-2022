@@ -1,7 +1,9 @@
-﻿using EPLAN_API.User;
+﻿using Eplan.EplApi.DataModel;
+using EPLAN_API.User;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +18,9 @@ namespace EPLAN_API.SAP
 
         public SortedList OrderCaractComercial;
         public SortedList OrderCaractIng;
+
+        public Dictionary<string, GEC> GECParameterList;
+        public Dictionary<uint, string> IDFunctions;
 
         //Delegate to pass info to configurador
         public delegate void ComboboxDelegateToConfigurador(string data, string reference);
@@ -33,6 +38,8 @@ namespace EPLAN_API.SAP
         {
             CreateCaractComercial();
             CreateCaractIng();
+            createDefaultGECParam();
+            createGECParamList();
 
         }
 
@@ -998,6 +1005,75 @@ namespace EPLAN_API.SAP
             CaractIng.Add("POWER_OUTAGE_RESTART", Caract);
             OrderCaractIng.Add(110, Caract);
 
+        }
+
+        public void createDefaultGECParam()
+        {
+            Dictionary<string, GEC> oElectricList = new Dictionary<string, GEC>();
+            PathInfo EPLANPaths = new PathInfo();
+            String path = String.Concat(EPLANPaths.Documents, "\\GEC_Default_Parameters.csv");
+
+            using (Microsoft.VisualBasic.FileIO.TextFieldParser parser = new Microsoft.VisualBasic.FileIO.TextFieldParser(path))
+            {
+                parser.TextFieldType = Microsoft.VisualBasic.FileIO.FieldType.Delimited;
+                parser.SetDelimiters(";");
+                while (!parser.EndOfData)
+                {
+                    //Processing row
+                    string[] fields = parser.ReadFields();
+                    oElectricList.Add(fields[0], new GEC(fields[0], fields[1]));
+
+                }
+            }
+
+            GECParameterList=oElectricList;
+        }
+
+        public void createGECParamList()
+        {
+            PathInfo EPLANPaths = new PathInfo();
+            string path;
+            string[] filas;
+            uint val;
+
+            GECParameterList = new Dictionary<string, GEC>();
+            IDFunctions = new Dictionary<uint, string>();
+
+            //Control Param
+            path = String.Concat(EPLANPaths.Documents, "\\GEC_Control_Param.csv");
+            filas = File.ReadAllLines(path);
+            foreach (var fila in filas)
+            {
+                string[] sfila = fila.Split(';');
+                if (sfila[0] != "")
+                    GECParameterList.Add(sfila[0], new GEC(sfila[0], sfila[1]));
+            }
+
+            //Safety Param
+            path = String.Concat(EPLANPaths.Documents, "\\GEC_Safety_Param.csv");
+            filas = File.ReadAllLines(path);
+            foreach (var fila in filas)
+            {
+                string[] sfila = fila.Split(';');
+                if (sfila[0] != "")
+                    GECParameterList.Add(sfila[0], new GEC(sfila[0], sfila[1]));
+            }
+
+            //ID Functions
+            path = String.Concat(EPLANPaths.Documents, "\\ID_Functions.csv");
+            filas = File.ReadAllLines(path);
+            foreach (var fila in filas)
+            {
+                string[] sfila = fila.Split(';');
+                if (sfila[0] != "")
+                {
+                    uint.TryParse(sfila[0], out val);
+                    IDFunctions.Add(val, sfila[1]);
+                }
+
+
+
+            }
         }
 
         public bool checkValues()
