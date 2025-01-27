@@ -563,14 +563,14 @@ namespace EPLAN_API.User
 
         public void changeFunctionTextPLCInput(Project oProject, Page page, string address, string newText)
         {
-            page.Filter.Category = Function.Enums.Category.PLCTerminal;
+            page.Filter.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.PLCTerminal;
 
             //now we have all functions having category 'MOTOR' placed on page p
             Function[] functions = page.Functions;
 
             //other way to do the same:
             FunctionsFilter ff = new FunctionsFilter();
-            ff.Category = Function.Enums.Category.PLCTerminal;
+            ff.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.PLCTerminal;
             ff.Page = page;
             DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
 
@@ -601,14 +601,14 @@ namespace EPLAN_API.User
 
             Page page = oProject.Pages[key];
 
-            page.Filter.Category = Function.Enums.Category.PLCTerminal;
+            page.Filter.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.PLCTerminal;
 
             //now we have all functions having category 'MOTOR' placed on page p
             Function[] functions = page.Functions;
 
             //other way to do the same:
             FunctionsFilter ff = new FunctionsFilter();
-            ff.Category = Function.Enums.Category.PLCTerminal;
+            ff.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.PLCTerminal;
             ff.Page = page;
             DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
 
@@ -632,7 +632,7 @@ namespace EPLAN_API.User
         {
             //other way to do the same:
             FunctionsFilter ff = new FunctionsFilter();
-            ff.Category = Function.Enums.Category.PLCTerminal;
+            ff.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.PLCTerminal;
             DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
 
             //now we have all functions having category 'MOTOR' placed on page p
@@ -742,8 +742,8 @@ namespace EPLAN_API.User
 
         public void SetGECParameter(Project oProject, Electric oElectric, string address, uint value, bool changeText=false)
         {
-            oElectric.GECParameterList[address].value = value;
-            if (changeText) 
+            oElectric.GECParameterList[address].setValue(value);
+            if (changeText)
             {
                 changeFunctionTextPLCInput(oProject, address, oElectric.IDFunctions[oElectric.GECParameterList[address].value]);
             }

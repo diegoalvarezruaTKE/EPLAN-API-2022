@@ -12,6 +12,7 @@ using Eplan.EplApi.DataModel.EObjects;
 using System.Globalization;
 using Eplan.EplApi.DataModel.E3D;
 using EPLAN_API.SAP;
+using System.IO;
 //using System.Windows.Media.Media3D;
 //using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 //using System.Runtime.InteropServices.ComTypes;
@@ -84,16 +85,11 @@ namespace EPLAN_API.User
             /*********************/
             /******ADVANCED*******/
             /*********************/
-            //11200004299200  RELÉ TÉRMICO MOTOR_BAS
-            draw_termico();
+            
 
-            //11200004443200  CABLEADO VARIADOR ADV.
-            draw_VVF();
+            
 
-            //11200004443300  MAX INSTALADO ADV.
-            draw_MAX();
-
-            //11200004443400	PAQUETE MERCADONA ADV.
+            
 
 
             //1	GENERAL
@@ -103,11 +99,20 @@ namespace EPLAN_API.User
             draw_stop_carritos();
 
 
+            //8 CONTROL
+            //8.2  MAX
+            //11200004443300  MAX INSTALADO ADV.
+            draw_MAX();
+
             //9	SAFETY DEVICES
 
             //9.2  Sensor de sincronismo de pasamanos
             //11200004441700  SINCRONISMO PASAMANOS ADV.
             draw_Speed_Handrail_Monitoring();
+
+            //9.3   Handrail breakage sensor
+            //11200004444200  ROTURA PASAMANOS ADV.
+            draw_Handrail_breakage_sensor();
 
             //9.4	Seguridad funcionamiento de frenos
             //11200004323000  FRENO 1 MOTOR 1 - FINAL DE CARRERA_ADV
@@ -117,18 +122,13 @@ namespace EPLAN_API.User
             //11200004323300  FRENO 2 MOTOR 1 - INDUCTIVO_ADV
             draw_Freno_2_M1();
 
-            //9.26	Traffic lights
-            //11200004441600  SEMAFORO SUP. ADV.
-            //11200004443900  SEMAFORO INF. ADV.
-            draw_Traffic_Lights();
-
-            //9.31	Cerrojo mantenimiento en eje 
-            //11200004441800  CERROJO MANTENIMIENTO ADV
-            draw_Main_shaft_maintenance_lock();
-
             //9.5	Brake wear indicator
             //11200004442000  DESGASTE FRENOS ADV.
             draw_Brake_wear_assembly();
+
+            //9.7	Full motor protection
+            //11200004299200  RELÉ TÉRMICO MOTOR_BAS
+            draw_termico();
 
             //9.14  Comb plate safety devices
             //11200004442100  SEG.VERT.PEINES CL. SUP.ADV.
@@ -146,18 +146,44 @@ namespace EPLAN_API.User
 
             //9.21	Drive chain safety devices
             //11200004442900  CADENA MOTRIZ ADV.
-            //draw_Drive_Chain_Safety();
+            draw_Drive_Chain_Safety();
 
-            //9.3   Handrail breakage sensor
-            //11200004444200  ROTURA PASAMANOS ADV.
-            draw_Handrail_breakage_sensor();
+            //9.22	Skirting microswitches
+            //9.23	Fire/smoke detectors
+            //9.25	Additional user stop (both heads)  
+
+            //9.26	Traffic lights
+            //11200004441600  SEMAFORO SUP. ADV.
+            //11200004443900  SEMAFORO INF. ADV.
+            draw_Traffic_Lights();
+
+            //9.27	Failure display -- Always included
+            //9.28	Passenger detection system
+            //9.29	Eject device for the controller
 
             //9.30	Level of water on pit detector
             //11200004444000  NIVEL DE AGUA ADV.
             draw_Level_Water();
 
+            //9.31	Cerrojo mantenimiento en eje 
+            //11200004441800  CERROJO MANTENIMIENTO ADV
+            draw_Main_shaft_maintenance_lock();
+
+            //9.32	Temperature sensor
+            //9.33	LHD (linear heat detection)
+            //9.34  Oil lever switch in gear
+            //9.35  Fire contact in controller
+            //9.36	Sismic contact in controller
+            //9.37	People counter
+            //9.38	Run time meter
+            //9.43	Cables in conduits
+
 
             //10    DRIVE
+            //10.2.1  VVVF
+            //11200004443200  CABLEADO VARIADOR ADV.
+            draw_VVF();
+
             //10.2.2	Tipo detección - Fotocélula
             //11200004442500  FOTOCELULA CL. SUP.ADV.
             //11200004442600  FOTOCELULA SUP. ADV.
@@ -174,63 +200,18 @@ namespace EPLAN_API.User
             //draw_automatic_lubrication();
 
 
+            //10.13 Auxiliary brake on the main shaft
+            //draw_auxiliary_brake();
+
             //11200004445200  MULTICAB.INF.CENT.ADV PARTIDO
 
-
+            //Packages
+            //11200004443400	PAQUETE MERCADONA ADV.
+            draw_Paquete_Mercadona();
 
 
 
             deleteAllDummyConnections(oProject);
-            return;
-
-            /****ADVANCED*****/
-            
-            
-
-            //9	SAFETY DEVICES
-
-            
-
-            
-
-            
-
-            
-
-            //9.22	Skirting microswitches
-            //9.23	Fire/smoke detectors
-            //9.25	Additional user stop (both heads)     
-
-            //9.27	Failure display -- Always included
-            //9.28	Passenger detection system
-            //9.29	Eject device for the controller
-
-            
-
-            //9.32	Temperature sensor
-            //9.33	LHD (linear heat detection)
-            //9.34  Oil lever switch in gear
-            //9.35  Fire contact in controller
-            //9.36	Sismic contact in controller
-            //9.37	People counter
-            //9.38	Run time meter
-            //9.43	Cables in conduits
-
-            
-
-            //10.13 Auxiliary brake on the main shaft
-            draw_auxiliary_brake();
-
-            //Packages
-            draw_Paquete_Mercadona();
-
-
-            //Get BOMs
-            //getBOM("MAIN");
-            //getBOM("CDS");
-            //getBOM("CDI");
-            //calcParmGEC_Basic();
-            paramGEC();
 
 
             Reports report = new Reports();
@@ -240,9 +221,14 @@ namespace EPLAN_API.User
             Edit edit = new Edit();
             edit.RedrawGed();
 
-            setStatusText("Finalizado");
-            oProgressBar.Style = ProgressBarStyle.Continuous;
-            oProgressBar.MarqueeAnimationSpeed = 0;
+            //setStatusText("Finalizado");
+            //oProgressBar.Style = ProgressBarStyle.Continuous;
+            //oProgressBar.MarqueeAnimationSpeed = 0;
+
+            //calcParmGEC_Basic();
+            paramGEC();
+
+            return;
 
         }
 
@@ -647,94 +633,21 @@ namespace EPLAN_API.User
 
         }
 
-        public void draw_Central_Cables()
-        {
-
-            if (((Caracteristic)oElectric.CaractComercial["FEFL0"]).NumVal <= 0)
-            {
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'A', "Upper Power Supply", 172, 160);
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'B', "Upper Diagnostic Inputs III", 160, 104);
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'D', "Lower Power Supply", 60, 188);
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'E', "Lower Diagnostic Inputs I", 24, 192);
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'F', "Lower Sensors I", 56, 96);
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'G', "Lower Maintenance", 120, 248);
-
-                //Configure cable length
-                updateCableLengthProperty("Cable.length.W1", ((Caracteristic)oElectric.CaractComercial["TNCR_OT_DESARROLLO"]).NumVal, "CDS");
-                updateCableLengthProperty("Cable.length.W1", ((Caracteristic)oElectric.CaractComercial["TNCR_OT_DESARROLLO"]).NumVal, "CDI");
-                updateCableLengthProperty("Cable.length.W100", ((Caracteristic)oElectric.CaractComercial["TNCR_OT_DESARROLLO"]).NumVal, "CDS");
-                updateCableLengthProperty("Cable.length.WC1", ((Caracteristic)oElectric.CaractComercial["TNCR_OT_DESARROLLO"]).NumVal, "CDS");
-            }
-            else
-            {
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'I', "Upper Power Supply", 172, 160);
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'O', "Upper Diagnostic Inputs III", 160, 104);
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'L', "Lower Power Supply", 60, 188);
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'M', "Lower Diagnostic Inputs I", 24, 184);
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'K', "Lower Sensors I", 56, 124);
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'J', "Lower Maintenance", 120, 216);
-
-                //Change cable gland name in upper and lower boxes
-                FunctionsFilter ff = new FunctionsFilter();
-                ff.Category = Function.Enums.Category.CabMechConduit;
-                FunctionBasePropertyList functionBasePropertyList = new FunctionBasePropertyList();
-                /*No funciona el filtrado
-                //functionBasePropertyList.DESIGNATION_LOCATION.Set("CDI");
-                //ff.SetFilteredPropertyList(functionBasePropertyList);
-                */
-                DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
-
-                Function[] ofunctions = objFinder.GetFunctions(ff);
-
-                foreach (Function f in ofunctions)
-                {
-                    String location = f.NameParts.DESIGNATION_LOCATION.ToString();
-                    String name = f.VisibleName;
-
-                    if (name.Equals("W1"))
-                    {
-                        if (location.Equals("CDS"))
-                        {
-                            f.Name = "=ESC+CDS-W1.U";
-                            f.VisibleName = "W1.U";
-                        }
-                        if (location.Equals("CDI"))
-                        {
-                            f.Name = "=ESC+CDI-W1.L";
-                            f.VisibleName = "W1.L";
-                        }
-                    }
-                }
-
-                //Configure cable length
-                updateCableLengthProperty("Cable.length.W1.U", ((Caracteristic)oElectric.CaractComercial["TNCR_OT_DESARROLLO"]).NumVal, "CDS");
-                updateCableLengthProperty("Cable.length.W1.L", 2.1, "CDI");
-                updateCableLengthProperty("Cable.length.W100.U", ((Caracteristic)oElectric.CaractComercial["TNCR_OT_DESARROLLO"]).NumVal, "CDS");
-                updateCableLengthProperty("Cable.length.W100.L", 2.1, "CDI");
-                updateCableLengthProperty("Cable.length.WC1.U", ((Caracteristic)oElectric.CaractComercial["TNCR_OT_DESARROLLO"]).NumVal, "CDS");
-                updateCableLengthProperty("Cable.length.WC1.L", 2.1, "CDI");
-
-            }
-
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004028900_00_GEC_CENTRAL_CABLES.ema", 'C', "Upper Maintenance", 80, 232);
-
-        }
-
         public void draw_Main_Basic_Cables()
         {
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'A', "External Feed Wiring", 76, 256);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'B', "Safety Inputs I", 164, 172);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'B', "Safety Inputs I", 84, 156);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'C', "Motor", 20, 100);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'D', "Control I", 148, 56);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'E', "Motor Sensors", 28, 264);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'F', "Control Inputs I", 356, 124);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'G', "Communication", 148, 172);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'H', "Display", 124, 148);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'I', "Safety Inputs I", 228, 172);
+            //insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'I', "Safety Inputs I", 228, 172);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'J', "Control I", 252, 56);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'K', "Safety Inputs II", 128, 168);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'L', "Safety Pulse Inputs", 96, 168);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'M', "Safety Inputs I", 356, 172);
+            //insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'M', "Safety Inputs I", 356, 172);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'N', "Control II", 176, 220);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'O', "Control I", 44, 52);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'P', "Communication", 280, 172);
@@ -750,7 +663,7 @@ namespace EPLAN_API.User
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'D', "Upper Diagnostic Inputs III", 168, 220);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'E', "Upper Diagnostic Inputs IV", 68, 172);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'F', "Upper Sensors I", 24, 244);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'G', "Motor Sensor I", 188, 212);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'G', "Motor Sensor I", 60, 212);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'H', "Brake I", 64, 176);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'I', "Brake II", 64, 176);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'J', "Upper Keys", 32, 144);
@@ -1054,7 +967,10 @@ namespace EPLAN_API.User
             if (((Caracteristic)oElectric.CaractComercial["TNCR_S_DRIVE_CHAIN"]).CurrentReference.Equals("SI"))
             {
                 setStatusText("Insertando Seguridad Cadena Principal");
-                ;
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004442900 - CADENA MOTRIZ ADV.ema", 'A', "Motor Sensor I", 156, 248);
+
+                //GEC Parameter
+                SetGECParameter(oProject, oElectric, "SI17", (uint)GEC.Param.Drive_chain_DuTriplex, true);
             }
         }
 
@@ -1063,8 +979,8 @@ namespace EPLAN_API.User
             if (((Caracteristic)oElectric.CaractComercial["FAMPELSYM"]).CurrentReference.Equals("BICOLOR"))
             {
                 setStatusText("Insertando Semáforo Bicolor");
-                insertNewPage(oProject, "Upper Traffic Lights & Oil Pump", "Upper People Detection");
-                insertNewPage(oProject, "Lower Traffic Lights", "Lower People Detection");
+                insertNewPage(oProject, "Upper Traffic Lights & Oil Pump", "Upper Diagnostic Outputs I");
+                insertNewPage(oProject, "Lower Traffic Lights", "Lower Diagnostic Outputs I");
 
                 //Upper box
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004441600 - SEMAFORO SUP. ADV.ema", 'C', "Upper Diagnostic Outputs I", 24, 136);
@@ -1239,6 +1155,7 @@ namespace EPLAN_API.User
 
 
         }
+
         public void draw_Paquete_Mercadona()
         {
             if (((Caracteristic)oElectric.CaractIng["PAQUETE_ESP"]).CurrentReference.Equals("MERCADONA"))
@@ -1246,262 +1163,27 @@ namespace EPLAN_API.User
                 setStatusText("Insertando Paquete Mercadona");
 
                 //Rolling door
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004308000 - Paquete Mercadona_ADV.ema", 'A', "Upper Diagnostic Inputs III", 108, 112);
-                //oElectric.GECParameterList["UI17"].value = (uint)GEC.Param.Shutter_rolling_door_SS;
-                //changeFunctionTextPLCInput("UI17", oElectric.IDFunctions[oElectric.GECParameterList["UI17"].value]);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004443400 - PAQUETE MERCADONA ADV.ema", 'A', "Upper Diagnostic Inputs III", 108, 112);
+                SetGECParameter(oProject, oElectric, "UI17", (uint)GEC.Param.Shutter_rolling_door_SS, true);
 
                 //Rele temporizado
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004308000 - Paquete Mercadona_ADV.ema", 'B', "Control I", 304, 204);
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004308000 - Paquete Mercadona_ADV.ema", 'C', "Control I", 44, 164);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004443400 - PAQUETE MERCADONA ADV.ema", 'B', "Control I", 304, 204);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004443400 - PAQUETE MERCADONA ADV.ema", 'C', "Control I", 44, 164);
                 moveSymbol(oProject, "Control I", 8, 0, 8, 174, 88, 288);
             }
         }
 
         #region Metodos auxiliares
-       
-        public void updateCableLengthProperty(string cableName, double length, string location)
-        {
-            try
-            {
-                string auxstr;
-                if (cableName.Split('.').Length > 3)
-                    auxstr = String.Concat(cableName.Split('.')[0], ".", cableName.Split('.')[1], ".", cableName.Split('.')[2], "_", cableName.Split('.')[3]);
-
-                else
-                    auxstr = cableName;
-
-                //Update property
-                AnyPropertyId propertyId = new AnyPropertyId(oProject, auxstr);
-                PropertyValue propertyValue = oProject.Properties[propertyId];
-
-                CultureInfo esES = CultureInfo.CreateSpecificCulture("es-ES");
-                propertyValue.Set(String.Format(esES, "{0:0.00}", length));
-
-                //Update Cable Length
-                FunctionsFilter ff = new FunctionsFilter();
-                ff.Category = Function.Enums.Category.Cable;
-                FunctionBasePropertyList functionBasePropertyList = new FunctionBasePropertyList();
-                functionBasePropertyList.DESIGNATION_LOCATION.Set(location);
-                ff.SetFilteredPropertyList(functionBasePropertyList);
-                DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
-
-                Function[] ofunctions = objFinder.GetFunctions(ff);
-
-                foreach (Function f in ofunctions)
-                {
-                    if (f.VisibleName.Trim('-').Equals(auxstr.Split('.')[2].Replace("_", ".")))
-                        f.Properties[Eplan.EplApi.DataModel.Properties.Function.FUNC_CABLELENGTH_VALUE] = length;
-                }
-            }
-            catch (Exception ex)
-            {
-                ;
-            }
-        }
-
-        public void placeCableGland(string cableName, string boxName)
-        {
-            //Find cable glands placed in diagram
-            FunctionsFilter ffCableGlands = new FunctionsFilter();
-            ffCableGlands.Category = Function.Enums.Category.CabMechConduit;
-            FunctionBasePropertyList fBPCableGland = new FunctionBasePropertyList();
-            fBPCableGland.DESIGNATION_LOCATION.Set(boxName);
-            DMObjectsFinder cableGlandsFinder = new DMObjectsFinder(oProject);
-            //ffCableGlands.SetFilteredPropertyList(fBPCableGland);
-
-            //Find cables placed in diagram
-            FunctionsFilter ffCable = new FunctionsFilter();
-            ffCable.Category = Function.Enums.Category.Cable;
-            FunctionBasePropertyList fBPCable = new FunctionBasePropertyList();
-            fBPCable.DESIGNATION_LOCATION.Set(boxName);
-            fBPCable.FUNC_VISIBLENAME.Set(cableName);
-            DMObjectsFinder cableFinder = new DMObjectsFinder(oProject);
-            ffCable.SetFilteredPropertyList(fBPCable);
-
-            Function[] fCableGlands = cableGlandsFinder.GetFunctions(ffCableGlands);
-            Function[] fCables = cableFinder.GetFunctions(ffCable);
-
-            AnyPropertyId propertyId = new AnyPropertyId(oProject, "Cable.Hand");
-            PropertyValue propertyValue = fCables[0].Properties[propertyId];
-
-            double Row, Col, Row1x, Row1y, Row2x, Row2y, Rowx, Rowy;
-            Row = 0;
-            Col = 0;
-            Row1x = 0;
-            Row1y = 0;
-            Row2x = 0;
-            Row2y = 0;
-            Rowx = 0;
-            Row1y = 0;
-
-            if (propertyValue.ToMultiLangString().GetString(ISOCode.Language.L___).Equals("Derecha"))
-            {
-                foreach (Function fCableGland in fCableGlands)
-                {
-                    if (fCableGland.Location.X < 500 &&
-                        fCableGland.NameParts.DESIGNATION_LOCATION.ToString().Equals(boxName))
-                    {
-                        AnyPropertyId propertyCableGlandId = new AnyPropertyId(oProject, "Cable.CableGlandPos");
-                        PropertyValue propertyValueCableGlandId = fCableGland.Properties[propertyCableGlandId];
-
-                        double auxRow, auxCol;
-
-                        double.TryParse(propertyValueCableGlandId.ToMultiLangString().GetString(ISOCode.Language.L_en_US).Split('.')[0], out auxRow);
-                        double.TryParse(propertyValueCableGlandId.ToMultiLangString().GetString(ISOCode.Language.L_en_US).Split('.')[1], out auxCol);
-
-                        if (auxRow > Row && auxRow < 50)
-                            Row = auxRow;
-
-                        if (auxCol == 1 && auxRow == 1)
-                        {
-                            Row1x = fCableGland.Location.X;
-                            Row1y = fCableGland.Location.Y;
-                        }
-
-                        if (auxCol == 2 && auxRow == 2)
-                        {
-                            Row2x = fCableGland.Location.X;
-                            Row2y = fCableGland.Location.Y;
-                        }
-                    }
-
-                }
-
-                foreach (Function fCableGland in fCableGlands)
-                {
-                    AnyPropertyId propertyCableGlandId = new AnyPropertyId(oProject, "Cable.CableGlandPos");
-                    PropertyValue propertyValueCableGlandId = fCableGland.Properties[propertyCableGlandId];
-
-                    double auxRow, auxCol;
-
-                    double.TryParse(propertyValueCableGlandId.ToMultiLangString().GetString(ISOCode.Language.L_en_US).Split('.')[0], out auxRow);
-                    double.TryParse(propertyValueCableGlandId.ToMultiLangString().GetString(ISOCode.Language.L_en_US).Split('.')[1], out auxCol);
-
-                    if (fCableGland.Location.X > 500 &&
-                        fCableGland.NameParts.DESIGNATION_LOCATION.ToString().Equals(boxName))
-                    {
-                        if (auxRow == Row)
-                        {
-                            if (auxCol > Col)
-                                Col = auxCol;
-                        }
-                    }
-                }
-
-                if (Col == 1)
-                {
-                    Rowx = Row2x;
-                    Rowy = Row1y - (Row - 1) * (Row1y - Row2y);
-                    long oident = insertSymbol(oProject, @"GR_PG13", "IEC_ED_ESS", 'A', String.Concat("Cable Entry ", boxName), Rowx, Rowy);
-
-                }
-                else
-                {
-                    Rowx = Row1x;
-                    Rowy = Row1y - (Row) * (Row1y - Row2y);
-                    long oident = insertSymbol(oProject, @"GR_PG13", "IEC_ED_ESS", 'A', String.Concat("Cable Entry ", boxName), Rowx, Rowy);
-                }
-            }
-
-            if (propertyValue.ToMultiLangString().GetString(ISOCode.Language.L___).Equals("Izquierda"))
-            {
-                foreach (Function fCableGland in fCableGlands)
-                {
-                    if (fCableGland.Location.X > 500 &&
-                        fCableGland.NameParts.DESIGNATION_LOCATION.ToString().Equals(boxName))
-                    {
-                        AnyPropertyId propertyCableGlandId = new AnyPropertyId(oProject, "Cable.CableGlandPos");
-                        PropertyValue propertyValueCableGlandId = fCableGland.Properties[propertyCableGlandId];
-
-                        double auxRow, auxCol;
-
-                        double.TryParse(propertyValueCableGlandId.ToMultiLangString().GetString(ISOCode.Language.L_en_US).Split('.')[0], out auxRow);
-                        double.TryParse(propertyValueCableGlandId.ToMultiLangString().GetString(ISOCode.Language.L_en_US).Split('.')[1], out auxCol);
-
-                        if (auxRow > Row && auxRow < 50)
-                            Row = auxRow;
-
-                        if (auxCol == 1 && auxRow == 1)
-                        {
-                            Row1x = fCableGland.Location.X;
-                            Row1y = fCableGland.Location.Y;
-                        }
-
-                        if (auxCol == 2 && auxRow == 2)
-                        {
-                            Row2x = fCableGland.Location.X;
-                            Row2y = fCableGland.Location.Y;
-                        }
-                    }
-
-                }
-
-                foreach (Function fCableGland in fCableGlands)
-                {
-                    AnyPropertyId propertyCableGlandId = new AnyPropertyId(oProject, "Cable.CableGlandPos");
-                    PropertyValue propertyValueCableGlandId = fCableGland.Properties[propertyCableGlandId];
-
-                    double auxRow, auxCol;
-
-                    double.TryParse(propertyValueCableGlandId.ToMultiLangString().GetString(ISOCode.Language.L_en_US).Split('.')[0], out auxRow);
-                    double.TryParse(propertyValueCableGlandId.ToMultiLangString().GetString(ISOCode.Language.L_en_US).Split('.')[1], out auxCol);
-
-                    if (fCableGland.Location.X > 500 &&
-                        fCableGland.NameParts.DESIGNATION_LOCATION.ToString().Equals(boxName))
-                    {
-                        if (auxRow == Row)
-                        {
-                            if (auxCol > Col)
-                                Col = auxCol;
-                        }
-                    }
-                }
-
-                if (Col == 1)
-                {
-                    Rowx = Row2x;
-                    Rowy = Row1y - (Row - 1) * (Row1y - Row2y);
-                    long oident = insertSymbol(oProject, @"GR_PG13", "IEC_ED_ESS", 'A', String.Concat("Cable Entry ", boxName), Rowx, Rowy);
-
-                }
-                else
-                {
-                    Rowx = Row1x;
-                    Rowy = Row1y - (Row) * (Row1y - Row2y);
-                    long oident = insertSymbol(oProject, @"GR_PG13", "IEC_ED_ESS", 'A', String.Concat("Cable Entry ", boxName), Rowx, Rowy);
-                }
-            }
-
-            Function oInsertedCableGland = cableGlandsFinder.GetFunctions(ffCableGlands)[cableGlandsFinder.GetFunctions(ffCableGlands).Length - 1];
-            //Set Name
-            oInsertedCableGland.NameParts = fCables[0].Page.Functions[0].NameParts;
-            oInsertedCableGland.Name = String.Concat(oProject, "=ESC+", boxName, cableName);
-            oInsertedCableGland.VisibleName = cableName.Trim('-');
-            //Set properties
-            AnyPropertyId propertyoInsertedCableGlandId = new AnyPropertyId(oProject, "Cable.CableGlandPos");
-            PropertyValue propertyValueoInsertedCableGlandId = oInsertedCableGland.Properties[propertyoInsertedCableGlandId];
-            MultiLangString multiLangString = new MultiLangString();
-            if (Col == 1)
-                multiLangString.AddString(ISOCode.Language.L_en_US, String.Concat(Row.ToString(), ".", 2));
-            else
-                multiLangString.AddString(ISOCode.Language.L_en_US, String.Concat((Row + 1).ToString(), ".", 1));
-            propertyValueoInsertedCableGlandId.Set(multiLangString);
-
-            //Set view schema
-            oInsertedCableGland.PropertyPlacementsSchemas.Selected = oInsertedCableGland.PropertyPlacementsSchemas.All[2];
-
-        }
-
         public void paramGEC()
         {
-            //String path = String.Concat(oProject.DocumentDirectory.Substring(0, oProject.DocumentDirectory.Length - 3), "GEC\\GEC.csv");
-            //String data = "";
-            //foreach (GEC gEC in oElectric.GECParameterList.Values)
-            //{
-            //    if (gEC.active)
-            //        data = String.Concat(data, "GEC_", gEC.ID, ";", gEC.getValue(), "\r\n");
-            //}
-            //File.WriteAllText(path, data);
+            String path = String.Concat(oProject.DocumentDirectory.Substring(0, oProject.DocumentDirectory.Length - 3), "GEC\\GEC.csv");
+            String data = "";
+            foreach (GEC gEC in oElectric.GECParameterList.Values)
+            {
+                if (gEC.active)
+                    data = String.Concat(data, "GEC_", gEC.ID, ";", gEC.getValue(), "\r\n");
+            }
+            File.WriteAllText(path, data);
         }
 
         public void setStatusText(string text)

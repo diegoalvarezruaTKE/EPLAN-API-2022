@@ -2297,14 +2297,14 @@ namespace EPLAN_API.User
 
         public void changeFunctionTextPLCInput(Page page, string address, string newText)
         {
-            page.Filter.Category = Function.Enums.Category.PLCTerminal;
+            page.Filter.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.PLCTerminal;
 
             //now we have all functions having category 'MOTOR' placed on page p
             Function[] functions = page.Functions;
 
             //other way to do the same:
             FunctionsFilter ff = new FunctionsFilter();
-            ff.Category = Function.Enums.Category.PLCTerminal;
+            ff.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.PLCTerminal;
             ff.Page = page;
             DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
 
@@ -2334,14 +2334,14 @@ namespace EPLAN_API.User
 
             Page page = oProject.Pages[key];
 
-            page.Filter.Category = Function.Enums.Category.PLCTerminal;
+            page.Filter.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.PLCTerminal;
 
             //now we have all functions having category 'MOTOR' placed on page p
             Function[] functions = page.Functions;
 
             //other way to do the same:
             FunctionsFilter ff = new FunctionsFilter();
-            ff.Category = Function.Enums.Category.PLCTerminal;
+            ff.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.PLCTerminal;
             ff.Page = page;
             DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
 
