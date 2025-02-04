@@ -891,15 +891,16 @@ namespace EPLAN_API.SAP
         {
             CaractIng = new SortedList();
             OrderCaractIng = new SortedList();
+            Caracteristic Caract;
 
             //Tipo de esquema                      
-            SortedList ARMARIO = new SortedList();
-            ARMARIO.Add("LOCAL", new String[] { "Esquema de armario local" });
-            ARMARIO.Add("CHINO", new String[] { "Esquema de armario chino" });
-            Caracteristic Caract = new Caracteristic("ARMARIO", "Tipo de armario", false, ARMARIO);
-            Caract.Comboboxdata += new Caracteristic.ComboboxDelegate(ComboboxChanged);
-            CaractIng.Add("ARMARIO", Caract);
-            OrderCaractIng.Add(10, Caract);
+            //SortedList ARMARIO = new SortedList();
+            //ARMARIO.Add("LOCAL", new String[] { "Esquema de armario local" });
+            //ARMARIO.Add("CHINO", new String[] { "Esquema de armario chino" });
+            //Caracteristic Caract = new Caracteristic("ARMARIO", "Tipo de armario", false, ARMARIO);
+            //Caract.Comboboxdata += new Caracteristic.ComboboxDelegate(ComboboxChanged);
+            //CaractIng.Add("ARMARIO", Caract);
+            //OrderCaractIng.Add(10, Caract);
 
             //Tipo de Maniobra             
             SortedList MANIOBRA = new SortedList();

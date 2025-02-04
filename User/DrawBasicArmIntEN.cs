@@ -25,10 +25,10 @@ namespace EPLAN_API.User
         private Project oProject;
         private Page[] oPages;
         private Function[] oCablesFunctions;
+        private Cable[] sCables;
         private Cable[] oCables;
         private Hashtable oHPages;
         Dictionary<int, string> dictPages;
-        private Cable[] sCables;
         private Electric oElectric;
         private DrawingService oDs;
         private string log;
@@ -85,13 +85,7 @@ namespace EPLAN_API.User
             /*********************/
             /******ADVANCED*******/
             /*********************/
-            
-
-            
-
-            
-
-
+     
             //1	GENERAL
             //1.6.1 Stop para Carritos
             //11200004441900  STOP CARRITOS SUP.ADV.
@@ -105,7 +99,6 @@ namespace EPLAN_API.User
             draw_MAX();
 
             //9	SAFETY DEVICES
-
             //9.2  Sensor de sincronismo de pasamanos
             //11200004441700  SINCRONISMO PASAMANOS ADV.
             draw_Speed_Handrail_Monitoring();

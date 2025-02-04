@@ -215,7 +215,7 @@ namespace EPLAN_API_2022.Forms
 
         public void LoadSAPtoEPLAN(Dictionary<string, string> SAPCararct)
         {
-
+            this.Text=SAPCararct["TNCR_COM_NOMBREOBRA_VBACK"].ToString();
             foreach (string key in SAPCararct.Keys.Where(n => n != null))
             {
                 Caracteristic c = oElectricList[0].CaractComercial[key] as Caracteristic;
@@ -364,6 +364,9 @@ namespace EPLAN_API_2022.Forms
             {
                 distArmario.setActualNumVal(0);
             }
+
+
+
         }
 
         public void CalculateCaractIng()
@@ -388,6 +391,7 @@ namespace EPLAN_API_2022.Forms
             Caracteristic tipoDisplay = (Caracteristic)oElectricList[0].CaractIng["TNCR_DO_DISPLAY_TYPE"];
             Caracteristic envolvente = (Caracteristic)oElectricList[0].CaractIng["ENVOLV_ARM_EXT"];
             Caracteristic paqueteEsp = (Caracteristic)oElectricList[0].CaractIng["PAQUETE_ESP"];
+            Caracteristic rearranqueTrasCorteTension = (Caracteristic)oElectricList[0].CaractIng["POWER_OUTAGE_RESTART"];
 
 
             if (tension.CurrentReference != null &&
@@ -695,7 +699,7 @@ namespace EPLAN_API_2022.Forms
                 }
                 else if ((pais.CurrentReference.Equals("10") ||
                         (pais.CurrentReference.Equals("11")) &&
-                    DenominacionObra.CurrentReference.Contains("MERCADONA")))
+                    DenominacionObra.TextVal.Contains("MERCADONA")))
                 {
                     paqueteEsp.setActualValue("MERCADONA");
                 }
@@ -705,8 +709,21 @@ namespace EPLAN_API_2022.Forms
                 }
                 #endregion
 
+                #region Envolvente Armario Exterior
+                if (ubicacionControlador.CurrentReference.Equals("INNENOBEN"))
+                {
+                    envolvente.setActualValue("CUSTOM");
+                }
+                #endregion
+
+                #region Rearranque tras corte de tension
+                if (sAnden.CurrentReference.Equals("KEINE"))
+                {
+                    rearranqueTrasCorteTension.setActualValue("NO");
+                }
+                #endregion
+
                 #region Default Values
-                armario.setActualValue("CHINO");
                 maniobra.setActualValue("ESTANDAR");
                 #endregion
             }
@@ -786,6 +803,11 @@ namespace EPLAN_API_2022.Forms
             LoadCaractToProject();
         }
 
+        private void UpdateProgressBar(int progress)
+        {
+            progressBar_Draw.Value=progress;
+        }
+
         #endregion
 
         #region GUI Buttons
@@ -806,15 +828,17 @@ namespace EPLAN_API_2022.Forms
 
         private void BRead_Click(object sender, EventArgs e)
         {
-            LoadSAPtoEPLAN(new SAPReader("1150015829").readCaracConfigElec());
+            //LoadSAPtoEPLAN(new SAPReader("1150015829").readCaracConfigElec());
+            LoadSAPtoEPLAN(new SAPReader(tB_OE.Text).readCaracConfigElec());
             UpdateSpecialCaract();
             CalculateCaractIng();
         }
-        
+
         private void b_Draw_Click(object sender, EventArgs e)
         {
             Draw = new Draw(oElectricList[0]);
             Draw.ProjectOpenedToConfigurador += new Draw.ProejctOpenedDelegate(DrawDataToConfigurador);
+            Draw.ProgressChangedToConfigurador += UpdateProgressBar;
             Draw.StartDrawing();
         }
 

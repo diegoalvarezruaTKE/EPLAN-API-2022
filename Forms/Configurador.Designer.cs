@@ -117,9 +117,10 @@
             // progressBar_Draw
             // 
             this.progressBar_Draw.Location = new System.Drawing.Point(182, 35);
-            this.progressBar_Draw.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.progressBar_Draw.Margin = new System.Windows.Forms.Padding(2);
             this.progressBar_Draw.Name = "progressBar_Draw";
             this.progressBar_Draw.Size = new System.Drawing.Size(149, 20);
+            this.progressBar_Draw.Step = 1;
             this.progressBar_Draw.TabIndex = 8;
             // 
             // b_Draw
@@ -364,7 +365,7 @@
             this.Controls.Add(this.PanelTitulo);
             this.Controls.Add(this.panelApp);
             this.Controls.Add(this.MenuVertical);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.MinimumSize = new System.Drawing.Size(1050, 664);
             this.Name = "Configurador";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

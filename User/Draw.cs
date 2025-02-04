@@ -23,9 +23,10 @@ namespace EPLAN_API.User
         private string drawingNumber;
         public delegate void ProejctOpenedDelegate(Project project);
         public event ProejctOpenedDelegate ProjectOpenedToConfigurador;
+        public event Action<int> ProgressChangedToConfigurador;
 
-        public Draw(Electric oElectric) 
-        { 
+        public Draw(Electric oElectric)
+        {
             electric = oElectric;
             EPLANPaths = new PathInfo();
         }
@@ -142,6 +143,8 @@ namespace EPLAN_API.User
             Caracteristic norma = electric.CaractComercial["FNORM"] as Caracteristic;
             Caracteristic maniobra = electric.CaractIng["MANIOBRA"] as Caracteristic;
 
+            DrawStandardArmIntEN d;
+
             //Armario Standard
             if (!maniobra.CurrentReference.Equals("BASIC"))
             {
@@ -149,7 +152,11 @@ namespace EPLAN_API.User
                 {
                     //Armario interior EN115
                     if (ubicacionArmario.CurrentReference.Equals("INNENOBEN"))
-                        new DrawStandardArmIntEN(oProject, electric);
+                    {
+                        d = new DrawStandardArmIntEN(oProject, electric);
+                        d.ProgressChanged += UpdateProgressBar;
+                    }
+
                     //Armario exterior EN115
                     else
                         ;
@@ -161,7 +168,7 @@ namespace EPLAN_API.User
             }
             //Armario Basic
             else
-                new DrawBasicArmIntEN(oProject,electric);
+                new DrawBasicArmIntEN(oProject, electric);
         }
 
         private void CopyFilesRecursively(string sourcePath, string targetPath)
@@ -184,6 +191,9 @@ namespace EPLAN_API.User
             ProjectOpenedToConfigurador(project);
         }
 
-        
+        private void UpdateProgressBar(int progress)
+        {
+            ProgressChangedToConfigurador?.Invoke(progress);
+        }
     }
 }

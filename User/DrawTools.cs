@@ -244,7 +244,7 @@ namespace EPLAN_API.User
             PagePropertyList pagePropList;
             Dictionary<int, string> dictPages = GetPageTable(oProject);
 
-            //Compruebo si ya esta insertada la página "VVF Power"
+            //Compruebo si ya esta insertada la página
             key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == pageName);
 
             if (key == 0)
