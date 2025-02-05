@@ -11,11 +11,20 @@ using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
 using Eplan.EplApi.DataModel.E3D;
 using Eplan.EplApi.DataModel.Graphics;
+using System.IO;
 
 namespace EPLAN_API.User
 {
     public class DrawTools
     {
+
+        #region Interfaces
+        // Primera interfaz
+        public interface IAdvancedDraw
+        {
+            void SetGECParameter(Project oProject, Electric oElectric, string address, uint value, bool changeText = false);
+        }
+        #endregion
 
         #region Metodos auxiliares
         public void insertNewPage(Project oProject, string pageName, string pageBefore)
@@ -155,7 +164,6 @@ namespace EPLAN_API.User
 
             oInsert.WindowMacro(pathMacro, nVariante, oProject.Pages[key], new PointD(x, y), Insert.MoveKind.Absolute);
         }
-
 
         public StorableObject[] insertWindowMacro_ObjCont(Project oProject, string pathMacro, char variante, string page, double x, double y)
         {
@@ -748,6 +756,2948 @@ namespace EPLAN_API.User
                 changeFunctionTextPLCInput(oProject, address, oElectric.IDFunctions[oElectric.GECParameterList[address].value]);
             }
         }
+
+        public void SetGECParameter(Project oProject, Electric oElectric, string address, string value, bool changeText = false)
+        {
+            oElectric.GECParameterList[address].setValue(value);
+            if (changeText)
+            {
+                changeFunctionTextPLCInput(oProject, address, oElectric.IDFunctions[oElectric.GECParameterList[address].value]);
+            }
+        }
+
+        #region GEC Parameters
+        public void calcParmGEC_Basic(Project oProject, Electric electric)
+        {
+            //electric.GECParameterList = createDefaultGECParam();    // Instancia lista parametros
+
+            // Funcion para generar parametros GEC
+            Caracteristic Velocidad = (Caracteristic)electric.CaractComercial["FGESCHW"];          // Velocidad  (m/s)
+            Caracteristic MotorRPM = (Caracteristic)electric.CaractComercial["FACH"];              // RPM Motor
+            Caracteristic FrenoAux = (Caracteristic)electric.CaractComercial["FZUSBREMSE"];        // Freno auxiliar en eje princip.
+            Caracteristic Producto = (Caracteristic)electric.CaractComercial["FMODELL"];           // Modelo de producto
+            Caracteristic PasoCadena = (Caracteristic)electric.CaractComercial["FSTFKT"];          // Paso de cadena (mm)
+            Caracteristic Inclinacion = (Caracteristic)electric.CaractComercial["FNEIGUNG"];       // Angulo de inclinacion (º)
+            Caracteristic motorConnection = (Caracteristic)electric.CaractIng["CONEXMOTOR"];
+            Caracteristic bypass = (Caracteristic)electric.CaractComercial["TNCR_OT_BYPASS_VARIADOR"];
+            Caracteristic deteccionPersonas = (Caracteristic)electric.CaractComercial["FLICHTINT"];
+            Caracteristic modofuncionamiento = (Caracteristic)electric.CaractComercial["FBETRART"];
+            Caracteristic sCadena = (Caracteristic)electric.CaractComercial["TNCR_S_DRIVE_CHAIN"];
+            Caracteristic sRoturaPasamanos = (Caracteristic)electric.CaractComercial["F09ZUB1"];
+            Caracteristic sDesgasteFrenos = (Caracteristic)electric.CaractComercial["F01ZUB"];
+            Caracteristic sDobleFreno = (Caracteristic)electric.CaractComercial["FBREMSE2"];
+            Caracteristic bombaEngrase = (Caracteristic)electric.CaractComercial["TNCR_ENGRASE_AUTOMATICO"];
+            Caracteristic detectorAgua = (Caracteristic)electric.CaractComercial["TNCR_OT_NIVEL_AGUA"];
+            Caracteristic aceiteReductor = (Caracteristic)electric.CaractComercial["TNCR_SENSOR_ACEITE_REDUC"];
+            Caracteristic sistAhorro = (Caracteristic)electric.CaractComercial["TNCR_SD_SIST_AHORRO"];
+            Caracteristic llavinAutoCont = (Caracteristic)electric.CaractComercial["LLAVES_AUT_CONT"];
+            Caracteristic llavinLocalRemoto = (Caracteristic)electric.CaractComercial["LLAVES_LOCAL_REM"];
+            Caracteristic llavinParo = (Caracteristic)electric.CaractComercial["LLAVES_PARO"];
+            Caracteristic sistemaAnden = (Caracteristic)electric.CaractComercial["FWIEDERB"];
+            Caracteristic desarrollo = (Caracteristic)electric.CaractComercial["TNCR_OT_DESARROLLO"];
+            Caracteristic normativa = (Caracteristic)electric.CaractComercial["FNORM"];
+            Caracteristic ubicacionControlador = (Caracteristic)electric.CaractComercial["F53ZUB7"];
+            Caracteristic stopCarritos = (Caracteristic)electric.CaractComercial["TNCR_POSTE_STOP_CARRITOS"];
+            Caracteristic sMicrosZocalo = (Caracteristic)electric.CaractComercial["TNCR_OT_NUM_MICROCONT"];
+            Caracteristic sBuggy = (Caracteristic)electric.CaractComercial["F04ZUB"];
+            Caracteristic sPeines = (Caracteristic)electric.CaractComercial["FKAMMPLHK"];
+            Caracteristic desnivel = (Caracteristic)electric.CaractComercial["FHOEHEV"];
+            Caracteristic lCabezaSup = (Caracteristic)electric.CaractComercial["FOT"];
+            Caracteristic lCabezaInf = (Caracteristic)electric.CaractComercial["FUT"];
+            Caracteristic contactoFuego = (Caracteristic)electric.CaractComercial["TNCR_CONTACTO_FUEGO"];
+            Caracteristic paqueteEspecial = (Caracteristic)electric.CaractIng["PAQUETE_ESP"];
+            Caracteristic cerrojo = (Caracteristic)electric.CaractComercial["TNCR_OT_CERROJO_MANTENIMIENTO"];
+            Caracteristic stopAdicional = (Caracteristic)electric.CaractComercial["TNCR_OT_E_STOP_ADICIONAL"];
+            Caracteristic powerOutage = (Caracteristic)electric.CaractIng["POWER_OUTAGE_RESTART"];
+
+            //uint PulsosNAB;                              // Pulsos/rev eje ppal NAB
+            //uint PulsosTrinqMagn;                        // Pulsos/rev eje ppal trinquete magnetico
+
+
+            #region Safety 
+            //******************************************************************************
+            //------------- SAFETY PARAMETERS ----------------------------------------------
+            //******************************************************************************
+
+            #region Safety Parameters
+            //S1	MANUFACTURING_ORDER
+            SetGECParameter(oProject, electric, "S1", "11500xxxxx");
+
+            //S2 CODE
+            if (normativa.CurrentReference.Equals("EN"))
+                //EN115
+                SetGECParameter(oProject, electric, "S2", (uint)GEC.Code.EN115);
+            else
+                //ASME/B44
+                SetGECParameter(oProject, electric, "S2", (uint)GEC.Code.ASME_B44);
+
+            //S3	NOMINAL_SPEED
+            SetGECParameter(oProject, electric, "S3", (uint)(Velocidad.NumVal * 100));
+
+            //S4	MOTOR_RPM
+            SetGECParameter(oProject, electric, "S4", (uint)MotorRPM.NumVal);
+
+            //S5	MOTOR_PULSE_PER_REV
+            if (Producto.CurrentReference.Equals("IWALK"))
+                SetGECParameter(oProject, electric, "S5", 4);
+            else
+                SetGECParameter(oProject, electric, "S5", 10);
+
+            //S6	MAIN_SHAFT_RPH
+            uint rph = (uint)calcRPH(Producto.CurrentReference, PasoCadena.CurrentReference, Velocidad.NumVal);
+            if (rph != 0)
+            {
+                SetGECParameter(oProject, electric, "S6", rph);
+            }
+
+            //S7	MAIN_SHAFT_PULSE_PER_REV
+            if (FrenoAux.CurrentReference != null)
+            {
+                if (FrenoAux.CurrentReference.Equals("NAB"))
+                    SetGECParameter(oProject, electric, "S7", calcPPR(870, 5));
+                else if (FrenoAux.CurrentReference.Equals("HWSPERRKMAGN"))
+                    SetGECParameter(oProject, electric, "S7", calcPPR(580, 5));
+            }
+
+
+            //S8	ROLLER_HR_RADIUS
+            if (Producto.CurrentReference == "ORINOCO" && Inclinacion.NumVal == 12)
+                SetGECParameter(oProject, electric, "S8", 35);
+            else
+                SetGECParameter(oProject, electric, "S8", 50);
+
+            //S9	HR_PULSES_PER_REV
+            if (Producto.CurrentReference.Equals("VELINO_CLASSIC") ||
+               Producto.CurrentReference.Equals("TUGELA_CLASSIC"))
+                SetGECParameter(oProject, electric, "S9", 2);
+            else
+                SetGECParameter(oProject, electric, "S9", 4);
+
+            //S11 STEP_WIDTH
+            if (Producto.CurrentReference.Equals("IWALK"))
+                SetGECParameter(oProject, electric, "S11", 127);
+            else
+                SetGECParameter(oProject, electric, "S11", 405);
+
+            //S13 SPEED_SENSOR_INSTALLATION
+            if (FrenoAux.CurrentReference.Equals("HWSPERRKMAGN") ||
+                FrenoAux.CurrentReference.Equals("NAB"))
+                SetGECParameter(oProject, electric, "S13", (uint)GEC.MotorSensor.Two_Sensors_in_motor_Two_Main_Shaft);
+            else
+                SetGECParameter(oProject, electric, "S13", (uint)GEC.MotorSensor.Two_Sensors_in_motor);
+
+
+            //S19	CONTACTOR_FB2_MASK
+            //K2.1 / K2.1.1 star order motor 1
+            //K2.2 / K2.2.1 delta order motor 1
+            if (motorConnection.CurrentReference.Equals("YD") ||
+            motorConnection.CurrentReference.Equals("VVF_YD"))
+                SetGECParameter(oProject, electric, "S19", (uint)GEC.ContactorFB.K2_1_K2_2);
+
+
+            //S20	CONTACTOR_FB3_MASK
+            //K10.1 / K10.2 VVVF operation
+            if (motorConnection.CurrentReference.Equals("VVF_D") ||
+                motorConnection.CurrentReference.Equals("VVF_YD") ||
+                motorConnection.CurrentReference.Equals("VVF"))
+                SetGECParameter(oProject, electric, "S20", (uint)GEC.ContactorFB.K10_2_K10_1);
+
+            //S21	CONTACTOR_FB4_MASK
+            //K10 delta operation / bypass of VVVF
+            if (motorConnection.CurrentReference.Equals("VVF_D") ||
+                motorConnection.CurrentReference.Equals("VVF_YD"))
+                SetGECParameter(oProject, electric, "S21", (uint)GEC.ContactorFB.K10);
+
+            //S28	AUTCONT_OPTIONS
+            if (modofuncionamiento.CurrentReference.Equals("INTERM") ||
+               modofuncionamiento.CurrentReference.Equals("SG") ||
+               modofuncionamiento.CurrentReference.Equals("SGBV"))
+            {
+                if (sistAhorro.CurrentReference.Contains("VA"))
+                    SetGECParameter(oProject, electric, "S28", (uint)GEC.Mode.Intermittent_Standby);
+                else
+                    SetGECParameter(oProject, electric, "S28", (uint)GEC.Mode.Intermittent);
+
+            }
+            else if (modofuncionamiento.CurrentReference.Equals("BV"))
+                SetGECParameter(oProject, electric, "S28", (uint)GEC.Mode.Standby);
+
+            //S29   DIAGNOSTIC_BOARD_L2_QUANTITY
+            /*  No available    */
+
+            //S30   TANDEM
+            SetGECParameter(oProject, electric, "S30", (uint)GEC.Tandem.No_Tandem);
+
+            //S31    INSPECTION_CATCH_THE_MOTOR
+            SetGECParameter(oProject, electric, "S31", (uint)GEC.Active.Enable);
+
+            //S32   RESET_FROM_INSPECTION_CONTROL
+            SetGECParameter(oProject, electric, "S32", (uint)GEC.Active.Enable);
+
+            //S33	AUX_BRAKE_SUPERVISION_TIME
+            SetGECParameter(oProject, electric, "S33", 10);
+
+            //S34	AUX_BRAKE_ENABLE
+            if (FrenoAux.CurrentReference.Equals("HWSPERRKMAGN") ||
+                FrenoAux.CurrentReference.Equals("NAB"))
+                SetGECParameter(oProject, electric, "S34", (uint)GEC.Active.Enable);
+            else
+                SetGECParameter(oProject, electric, "S34", (uint)GEC.Active.Disable);
+
+            //S35   CAPACITOR_TIME_MEASUREMENT
+            /*  No available    */
+
+            //S36   RADAR_TYPE
+            SetGECParameter(oProject, electric, "S36", (uint)GEC.PeopleDetectionSensor.One_Input);
+
+            //S37   LIGHT_BARRIER _COMBS_AREA_TYPE
+            SetGECParameter(oProject, electric, "S37", (uint)GEC.PeopleDetectionSensor.One_Input);
+
+            //S38   LIGHT_BARRIER_ENTRY_TYPE
+            SetGECParameter(oProject, electric, "S38", (uint)GEC.PeopleDetectionSensor.One_Input);
+
+            //S39	TIME_TRANSPORTATION (TIME_LONG)
+            double fDesarrollo;
+            //Calculate length
+            if (desarrollo.NumVal == 0)
+            {
+                fDesarrollo = desnivel.NumVal / Math.Sin(Math.PI * Inclinacion.NumVal / 180.0);
+                if (lCabezaInf.NumVal != 0 && lCabezaSup.NumVal != 0)
+                {
+                    fDesarrollo = fDesarrollo + (lCabezaInf.NumVal + lCabezaSup.NumVal) / 1000;
+                }
+                //estimate length
+                else
+                    fDesarrollo = fDesarrollo + 6.0;
+            }
+            else
+                fDesarrollo = desarrollo.NumVal;
+
+            if (normativa.CurrentReference.Equals("EN"))
+                SetGECParameter(oProject, electric, "S39", (uint)(fDesarrollo / Velocidad.NumVal));
+            else
+                SetGECParameter(oProject, electric, "S39", (uint)(fDesarrollo / Velocidad.NumVal * 3));
+
+            //S40	TIME_DIRECTION_INDICATION (TIME_SHORT)
+            if (normativa.CurrentReference.Equals("EN"))
+                SetGECParameter(oProject, electric, "S40", 10);
+            else
+                SetGECParameter(oProject, electric, "S40", (uint)(fDesarrollo / Velocidad.NumVal * 3));
+
+            //S41   TIME_REVERSING
+            /*  No available    */
+
+            //S42   SAFETY_CURTAIN_LONG_TIME
+            SetGECParameter(oProject, electric, "S42", 60);
+
+            //S43   PULSE_SIGNALS_MINIMUM_LAG
+            SetGECParameter(oProject, electric, "S43", 300);
+
+            //S44   DRIVE_CHAIN_DELAY
+            SetGECParameter(oProject, electric, "S44", 2000);
+
+            //S45	DRIVE_CHAIN_AUX_BRAKE
+            if (FrenoAux.CurrentReference.Equals("HWSPERRKMAGN") ||
+                   FrenoAux.CurrentReference.Equals("NAB"))
+                SetGECParameter(oProject, electric, "S45", (uint)GEC.Active.Enable);
+            else
+                SetGECParameter(oProject, electric, "S45", (uint)GEC.Active.Disable);
+
+            //S46   AUX_BRAKE_ACTIVATION_DELAY_AFTER_STOP
+            SetGECParameter(oProject, electric, "S46", 3);
+
+            //S47   MOTOR_TRUNDLE
+            SetGECParameter(oProject, electric, "S47", (uint)GEC.Active.Disable);
+
+            //S48   AUX_BRAKE_UNBLOCK
+            if (FrenoAux.CurrentReference.Equals("HWSPERRKMAGN") ||
+                   FrenoAux.CurrentReference.Equals("NAB"))
+                SetGECParameter(oProject, electric, "S47", (uint)GEC.Active.Enable);
+            else
+                SetGECParameter(oProject, electric, "S47", (uint)GEC.Active.Disable);
+
+            //S49 TO S64 Not available
+
+            //S65   AUTO_RESTART_WITH_SAFETY_CURTAIN
+            if (sistemaAnden.CurrentReference.Equals("WBEREITSCH"))
+                SetGECParameter(oProject, electric, "S65", (uint)GEC.Active.Enable);
+            else
+                SetGECParameter(oProject, electric, "S65", (uint)GEC.Active.Disable);
+
+            //S66   ELECTRICAL BRAKING
+            if (FrenoAux.CurrentReference.Equals("FRENO_VA"))
+                SetGECParameter(oProject, electric, "S66", (uint)GEC.Active.Enable);
+            else
+                SetGECParameter(oProject, electric, "S66", (uint)GEC.Active.Disable);
+
+            //S67   VFD TYPE
+            SetGECParameter(oProject, electric, "S67", 0);
+
+            //S68   ELEC BRAKING TIMEOUT
+            SetGECParameter(oProject, electric, "S68", 1000);
+
+            //S69   VFD STOPPING TIME
+            SetGECParameter(oProject, electric, "S69", 1900);
+
+            //S70   DECELERATION DISTANCE ERROR
+            SetGECParameter(oProject, electric, "S70", 500);
+
+            //S71   MAX DECELERATION
+            SetGECParameter(oProject, electric, "S71", 80);
+
+            //S72   AUTOMATIC_RESTART_AFTER_POWER_OUTAGE
+            if (powerOutage.CurrentReference.Equals("SI"))
+                SetGECParameter(oProject, electric, "S72", (uint)GEC.Active.Enable);
+            else
+                SetGECParameter(oProject, electric, "S72", (uint)GEC.Active.Disable);
+
+            #endregion
+
+            #region Safety Inputs
+            ////SI12	SF Safety Input 4
+            ////Contactor Fb 2
+            //if (motorConnection.CurrentReference.Equals("YD") ||
+            //    motorConnection.CurrentReference.Equals("VVF_YD"))
+            //{
+            //    GEC SF_Safety_Input_4 = new GEC("SI12", 335, buscarNombreParametroGEC("SI12"));
+            //    GEC_Parameter.Add(SF_Safety_Input_4);
+            //}
+
+            ////SI15	SF Safety Input 7
+            //if (sDobleFreno.CurrentReference.Equals("4/4"))
+            //{
+            //    //Brake function brake3 Mot.-1
+            //    GEC SF_Safety_Input_7 = new GEC("SI15", 28, buscarNombreParametroGEC("SI15"));
+            //    GEC_Parameter.Add(SF_Safety_Input_7);
+            //}
+
+            ////SI16	SF Safety Input 8
+            //if (sDobleFreno.CurrentReference.Equals("4/4"))
+            //{
+            //    //Brake function brake4 Mot.-1
+            //    GEC SF_Safety_Input_8 = new GEC("SI16", 29, buscarNombreParametroGEC("SI16"));
+            //    GEC_Parameter.Add(SF_Safety_Input_8);
+            //}
+
+            ////SI17	SF Safety Input 9
+            //GEC SF_Safety_Input_9 = new GEC("SI17", buscarNombreParametroGEC("SI17"));
+            //GEC_Parameter.Add(SF_Safety_Input_9);
+            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
+            //    (FrenoAux.CurrentReference.Equals("HWSPERRKMAGN") ||
+            //    FrenoAux.CurrentReference.Equals("NAB")))
+            //    //Aux brake status 1
+            //    SF_Safety_Input_9.value = 34;
+
+            //if ((ubicacionControlador.CurrentReference.Equals("INNENOBEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("INNENUNTEN")) &&
+            //    sCadena.CurrentReference.Equals("SI"))
+            //    //Drive chain (Du-, Triplex)
+            //    SF_Safety_Input_9.value = 36;
+
+
+            ////SI18	SF Safety Input 10
+            //GEC SF_Safety_Input_10 = new GEC("SI18", buscarNombreParametroGEC("SI18"));
+            //GEC_Parameter.Add(SF_Safety_Input_10);
+            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
+            //    sCadena.CurrentReference.Equals("SI"))
+            //    //Drive chain (Du-, Triplex)
+            //    SF_Safety_Input_10.value = 36;
+            //if (Producto.CurrentReference.Contains("CLASSIC") &&
+            //    (normativa.CurrentReference.Equals("ASME") || normativa.CurrentReference.Equals("CSA")))
+            //    SF_Safety_Input_10.value = 34;
+
+            ////SI21	SF Safety Input 13
+            ////Contactor FB 3
+            //if (motorConnection.CurrentReference.Equals("VVF_D") ||
+            //    motorConnection.CurrentReference.Equals("VVF_YD") ||
+            //    motorConnection.CurrentReference.Equals("VVF"))
+            //{
+            //    GEC SF_Safety_Input_13 = new GEC("SI21", 14, buscarNombreParametroGEC("SI21"));
+            //    GEC_Parameter.Add(SF_Safety_Input_13);
+            //}
+
+            ////SI22	SF Safety Input 14 X22
+            ////Contactor FB 4
+            //if (motorConnection.CurrentReference.Equals("VVF_D") ||
+            //    motorConnection.CurrentReference.Equals("VVF_YD"))
+            //{
+            //    GEC SF_Safety_Input_13 = new GEC("SI22", 15, buscarNombreParametroGEC("SI22"));
+            //    GEC_Parameter.Add(SF_Safety_Input_13);
+            //}
+
+            ////SI27	SF Safety Input 19
+            //if (!sistemaAnden.CurrentReference.Equals("KEINE"))
+            //{
+            //    //Up Key Order
+            //    GEC SF_Safety_Input_19 = new GEC("SI27", 26, buscarNombreParametroGEC("SI27"));
+            //    GEC_Parameter.Add(SF_Safety_Input_19);
+            //}
+            //else if (!ubicacionControlador.CurrentReference.Equals("AUSSEN") &&
+            //    !ubicacionControlador.CurrentReference.Equals("ARM_ESP") &&
+            //    normativa.CurrentReference.Equals("EN") &&
+            //    (FrenoAux.CurrentReference.Equals("HWSPERRKMAGN") ||
+            //    FrenoAux.CurrentReference.Equals("NAB")))
+            //{
+            //    //Aux Brake Status 1
+            //    GEC SF_Safety_Input_19 = new GEC("SI27", 34, buscarNombreParametroGEC("SI27"));
+            //    GEC_Parameter.Add(SF_Safety_Input_19);
+            //}
+
+            ////SI28	SF Safety Input 20
+            //if (!sistemaAnden.CurrentReference.Equals("KEINE"))
+            //{
+            //    //Top Down Key Order
+            //    GEC SF_Safety_Input_20 = new GEC("SI28", 27, buscarNombreParametroGEC("SI28"));
+            //    GEC_Parameter.Add(SF_Safety_Input_20);
+            //}
+            #endregion
+
+            #endregion
+
+            #region Control
+            //******************************************************************************
+            //------------- CONTROL PARAMETERS ---------------------------------------------
+            //******************************************************************************
+
+            #region Control Parameter
+            //C1	MOTOR_CONNECTION 
+            switch (motorConnection.CurrentReference)
+            {
+                case "VVF_YD":
+                    //GEC Parameter
+                    SetGECParameter(oProject, electric, "C1", (uint)GEC.MotorConnection.Nominal_load_inverter_Y_D);
+                    break;
+                case "VVF_D":
+                    //GEC Parameter
+                    SetGECParameter(oProject, electric, "C1", (uint)GEC.MotorConnection.Nominal_load_inverter_Delta);
+                    break;
+                case "YD":
+                    //GEC Parameter
+                    SetGECParameter(oProject, electric, "C1", (uint)GEC.MotorConnection.Y_D);
+                    break;
+                case "D":
+                    //GEC Parameter
+                    SetGECParameter(oProject, electric, "C1", (uint)GEC.MotorConnection.Delta);
+                    break;
+                case "VVF":
+                    //GEC Parameter
+                    SetGECParameter(oProject, electric, "C1", (uint)GEC.MotorConnection.Nominal_load_inverter_no_wired_bypass);
+                    break;
+            }
+
+            //C2	TIME_LOW_SPEED
+            SetGECParameter(oProject, electric, "C2", 20);
+
+            //C3	ADDITIONAL_DIRECTION_INDICATION_TIME
+            SetGECParameter(oProject, electric, "C3", 0);
+
+            //C4	ADDITIONAL_TRANSPORTATION_TIME
+            SetGECParameter(oProject, electric, "C4", 0);
+
+            //C5	ADDITIONAL_REVERSING_TIME
+            SetGECParameter(oProject, electric, "C5", 0);
+
+            //C6	OIL_PUMP_CONTROL
+            SetGECParameter(oProject, electric, "C6", (uint)GEC.Active.Enable);
+
+            //C7	OIL_PUMP1_TIMER_ON
+            SetGECParameter(oProject, electric, "C7", Calc_OIL_PUMP1_TIMER_ON(electric));
+
+            //C8	OIL_PUMP1_CYCLE_TIME
+            SetGECParameter(oProject, electric, "C8", Calc_OIL_PUMP1_CYCLE_TIME(electric));
+
+            //C9	STAR_DELTA_DELAY
+            SetGECParameter(oProject, electric, "C9", 5);
+
+            //C10	TIMETABLE_MODE
+            SetGECParameter(oProject, electric, "C10", (uint)GEC.Active.Disable);
+
+            //C11	TIME_CHANGE_TO_MODE1_HOUR
+            SetGECParameter(oProject, electric, "C11", 0);
+
+            //C12	TIME_CHANGE_TO_MODE1_MIN
+            SetGECParameter(oProject, electric, "C12", 0);
+
+            //C13	TIME_CHANGE_TO_MODE2_HOUR
+            SetGECParameter(oProject, electric, "C13", 0);
+
+            //C14	TIME_CHANGE_TO_MODE2_MIN
+            SetGECParameter(oProject, electric, "C14", 0);
+
+            //C15	LANGUAGE
+            SetGECParameter(oProject, electric, "C15", (uint)GEC.Language.English);
+
+            //C16	CHANGE SUMERWINTER TIME
+            SetGECParameter(oProject, electric, "C16", (uint)GEC.Active.Enable);
+
+            //C17	SPEED_MEASUREMENT_UNIT
+            SetGECParameter(oProject, electric, "C17", 0);
+
+            //C18	TIMETABLE_MODE1
+            SetGECParameter(oProject, electric, "C18", (uint)GEC.Mode.No_People_Detection);
+
+            //C19	TIMETABLE_MODE2
+            SetGECParameter(oProject, electric, "C19", (uint)GEC.Mode.No_People_Detection);
+
+            //C20	HEATER_LOW_LEVEL
+            SetGECParameter(oProject, electric, "C20", 0);
+
+            //C21	HEATER_HIGH_LEVEL
+            SetGECParameter(oProject, electric, "C21", 0);
+
+            //C22	IP_ADDRESS_BYTE1
+            SetGECParameter(oProject, electric, "C22", 192);
+
+            //C23	IP_ADDRESS_BYTE2
+            SetGECParameter(oProject, electric, "C23", 168);
+
+            //C24	IP_ADDRESS_BYTE3
+            SetGECParameter(oProject, electric, "C24", 0);
+
+            //C25	IP_ADDRESS_BYTE4
+            //string str_IP = tB_OE.Text.Substring(tB_OE.Text.Length - 2, 2);
+            string str_IP = "1150015910";
+            uint IP = (uint)Int32.Parse(str_IP);
+            if (IP == 00)
+            {
+                IP = 100;
+            }
+            else if (IP == 01)
+            {
+                IP = 101;
+            }
+            SetGECParameter(oProject, electric, "C25", IP);
+
+            //C26	SUBNET_MASK_BYTE1
+            SetGECParameter(oProject, electric, "C26", 255);
+
+            //C27	SUBNET_MASK_BYTE2
+            SetGECParameter(oProject, electric, "C27", 255);
+
+            //C28	SUBNET_MASK_BYTE3
+            SetGECParameter(oProject, electric, "C28", 255);
+
+            //C29	SUBNET_MASK_BYTE4
+            SetGECParameter(oProject, electric, "C29", 0);
+
+            //C30	GATEWAY_BYTE1
+            SetGECParameter(oProject, electric, "C30", 192);
+
+            //C31	GATEWAY_BYTE2
+            SetGECParameter(oProject, electric, "C31", 168);
+
+            //C32	GATEWAY_BYTE3
+            SetGECParameter(oProject, electric, "C32", 0);
+
+            //C33	GATEWAY_BYTE4
+            SetGECParameter(oProject, electric, "C33", 1);
+
+            //C34	NODE_NUMBER
+            SetGECParameter(oProject, electric, "C34", 0);
+
+            //C35	RGB
+            SetGECParameter(oProject, electric, "C35", (uint)GEC.Active.Disable);
+
+            //C36	RGB_MOVING_LIGTH
+            SetGECParameter(oProject, electric, "C36", (uint)GEC.Active.Disable);
+
+            //C37	DIAGNOSTIC_BOARD_L1_QUANTITY
+            SetGECParameter(oProject, electric, "C37", 2);
+
+            //C38	UPPER_DIAG_SS_LENGTH
+            SetGECParameter(oProject, electric, "C38", 17);
+
+            //C39	LOWER_DIAG_SS_LENGTH
+            SetGECParameter(oProject, electric, "C39", 18);
+
+            //C40   INTERM1_DIAG_SS_LENGTH
+            SetGECParameter(oProject, electric, "C40", 0);
+
+            //C41   INTERM2_DIAG_SS_LENGTH
+            SetGECParameter(oProject, electric, "C41", 0);
+
+            //C42   DIAG3_ENABLE
+            SetGECParameter(oProject, electric, "C42", (uint)GEC.Active.Disable);
+
+            //C43   LABEL_FAULT1
+            SetGECParameter(oProject, electric, "C43", 0);
+
+            //C44   LABEL_FAULT2
+            SetGECParameter(oProject, electric, "C44", 0);
+
+            //C45   LABEL_FAULT3
+            SetGECParameter(oProject, electric, "C45", 0);
+
+            //C46   LABEL_FAULT4
+            SetGECParameter(oProject, electric, "C46", 0);
+
+            //C47   LABEL_FAULT5
+            SetGECParameter(oProject, electric, "C47", 0);
+
+            //C48   LABEL_FAULT6
+            SetGECParameter(oProject, electric, "C48", 0);
+
+            //C49   LABEL_FAULT7
+            SetGECParameter(oProject, electric, "C49", 0);
+
+            //C50   LABEL_FAULT8
+            SetGECParameter(oProject, electric, "C50", 0);
+
+            //C51   LABEL_FAULT9
+            SetGECParameter(oProject, electric, "C51", 0);
+
+            //C52   LABEL_FAULT10
+            SetGECParameter(oProject, electric, "C52", 0);
+
+            //C53   RGB_COLOR
+            SetGECParameter(oProject, electric, "C53", 0);
+
+            //C54   LIGHTING_1_MODE
+            SetGECParameter(oProject, electric, "C54", (uint)GEC.Lighting.auto);
+
+            //C55	LIGHTING_2_MODE
+            SetGECParameter(oProject, electric, "C55", (uint)GEC.Lighting.auto);
+
+            //C56	LIGHTING_3_MODE
+            SetGECParameter(oProject, electric, "C56", (uint)GEC.Lighting.auto);
+
+            //C57	COVER SIGNAL
+            SetGECParameter(oProject, electric, "C57", 0);
+
+            //C58	BELL TIME
+            SetGECParameter(oProject, electric, "C58", 5);
+
+            //C59   MAX ORDER
+            SetGECParameter(oProject, electric, "C59", (uint)GEC.Active.Enable);
+
+            //C60	MAX CAN ID
+            SetGECParameter(oProject, electric, "C60", 0);
+
+            //C61	SPARE_PARAMETER_19
+            /*  No available    */
+
+            //C62   SPARE_PARAMETER_20
+            /*  No available    */
+
+            //C63   CONTINUOS_KEY_FUNCTION
+            SetGECParameter(oProject, electric, "C63", (uint)GEC.Mode.No_People_Detection);
+            if (modofuncionamiento.CurrentReference.Equals("SGBV"))
+                SetGECParameter(oProject, electric, "C63", (uint)GEC.Mode.Standby);
+
+            //C64   AUTOMATIC_KEY_FUNCTION
+            if (modofuncionamiento.CurrentReference.Equals("INTERM") ||
+              modofuncionamiento.CurrentReference.Equals("SG") ||
+              modofuncionamiento.CurrentReference.Equals("SGBV"))
+            {
+                if (sistAhorro.CurrentReference.Contains("VA"))
+                    SetGECParameter(oProject, electric, "C64", (uint)GEC.Mode.Intermittent_Standby);
+                else
+                    SetGECParameter(oProject, electric, "C64", (uint)GEC.Mode.Intermittent);
+
+            }
+
+            //C65   BRAKE_WEAR_RUN
+            SetGECParameter(oProject, electric, "C65", (uint)GEC.Active.Enable);
+
+            //C66   OIL_PUMP_RUN
+            SetGECParameter(oProject, electric, "C66", (uint)GEC.Active.Disable);
+            
+            //C67   OIL_GEARBOX_RUN
+            SetGECParameter(oProject, electric, "C67", (uint)GEC.Active.Enable);
+
+            //C68   OIL_PUMP2_TIMER_ON
+            SetGECParameter(oProject, electric, "C68", Calc_OIL_PUMP1_TIMER_ON(electric));
+
+            //C69   OIL_PUMP2_CYCLE_TIME
+            SetGECParameter(oProject, electric, "C69", Calc_OIL_PUMP1_CYCLE_TIME(electric));
+
+            //C70	PREDEFINE_MODE
+            if (modofuncionamiento.CurrentReference.Equals("INTERM") ||
+               modofuncionamiento.CurrentReference.Equals("SG") ||
+               modofuncionamiento.CurrentReference.Equals("SGBV"))
+            {
+                if (sistAhorro.CurrentReference.Contains("VA"))
+                    SetGECParameter(oProject, electric, "C70", (uint)GEC.Mode.Intermittent_Standby);
+                else
+                    SetGECParameter(oProject, electric, "C70", (uint)GEC.Mode.Intermittent);
+
+            }
+            else if (modofuncionamiento.CurrentReference.Equals("BV"))
+                SetGECParameter(oProject, electric, "C70", (uint)GEC.Mode.Standby);
+
+
+            #endregion
+
+            #region Modbus
+            #endregion
+
+            #region Control Outputs
+            ////O2	C Relay 2 NO 2L
+            ////Speed Selection Fast
+            //if (sistAhorro.CurrentReference.Contains("VA"))
+            //{
+            //    GEC C_Relay_2_NO = new GEC("O2", 201, buscarNombreParametroGEC("O2"));
+            //    GEC_Parameter.Add(C_Relay_2_NO);
+            //}
+
+            ////O3	C Relay 3 NO 3L
+            ////Main 2
+            //if (motorConnection.CurrentReference.Equals("VVF_D") ||
+            //    motorConnection.CurrentReference.Equals("VVF_YD") ||
+            //    motorConnection.CurrentReference.Equals("VVF"))
+            //{
+            //    //Coil
+            //    GEC C_Relay_3_NO = new GEC("O3", 202, buscarNombreParametroGEC("O3"));
+            //    GEC_Parameter.Add(C_Relay_3_NO);
+            //}
+
+            ////O4	C Relay 4 NO 4L/Q4
+            ////Main 1
+            //if (motorConnection.CurrentReference.Equals("VVF_D") ||
+            //    motorConnection.CurrentReference.Equals("VVF_YD"))
+            //{
+            //    //Coil
+            //    GEC C_Relay_4_NO = new GEC("O4", 263, buscarNombreParametroGEC("O4"));
+            //    GEC_Parameter.Add(C_Relay_4_NO);
+            //}
+
+            ////O9	C Relay 9 NO 9L/Q9
+            //if (normativa.CurrentReference.Equals("EN") &&
+            //    (bombaEngrase.CurrentReference.Equals("S") ||
+            //    bombaEngrase.CurrentReference.Equals("C")))
+            //{
+            //    //Oil Pump 1 Activation
+            //    GEC C_Relay_9_NO = new GEC("O9", 222, buscarNombreParametroGEC("O9"));
+            //    GEC_Parameter.Add(C_Relay_9_NO);
+            //    //Oil Pump Control 1
+            //    if (Producto.CurrentReference == "VELINO_CLASSIC" ||
+            //        Producto.CurrentReference == "TUGELA_CLASSIC")
+            //        C_Relay_9_NO.value = 223;
+
+            //}
+
+            ////O12	C NO2 K2.1
+            ////K2.1
+            //if (motorConnection.CurrentReference.Equals("YD") ||
+            //motorConnection.CurrentReference.Equals("VVF_YD"))
+            //{
+            //    //Coil
+            //    GEC C_NO4_K2_1 = new GEC("O12", 262, buscarNombreParametroGEC("O12"));
+            //    GEC_Parameter.Add(C_NO4_K2_1);
+            //}
+
+            ////O13	C NO1 K2.2
+            ////K2.2
+            //if (motorConnection.CurrentReference.Equals("YD") ||
+            //    motorConnection.CurrentReference.Equals("VVF_YD"))
+            //{
+            //    GEC C_NO4_K2_2 = new GEC("O13", 260, buscarNombreParametroGEC("O13"));
+            //    GEC_Parameter.Add(C_NO4_K2_2);
+            //}
+
+            #endregion
+
+            #region Control Inputs
+
+            #region Control Board
+            ////I4 C Standard input 4
+            //GEC C_Standard_Input_4 = new GEC("I4", buscarNombreParametroGEC("I4"));
+            //GEC_Parameter.Add(C_Standard_Input_4);
+            //if ((ubicacionControlador.CurrentReference.Equals("INNENOBEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("INNENUNTEN")) &&
+            //    !sistemaAnden.CurrentReference.Equals("KEINE"))
+            //    //Extra Fault
+            //    C_Standard_Input_4.value = 82;
+            //if (!normativa.CurrentReference.Equals("EN") &&
+            //    sistAhorro.CurrentReference.Contains("VA"))
+            //    //VFD/EEC
+            //    C_Standard_Input_4.value = 69;
+
+
+            ////I5 C Standard input 5
+            //GEC C_Standard_input_5 = new GEC("I5", buscarNombreParametroGEC("I5"));
+            //GEC_Parameter.Add(C_Standard_input_5);
+            //if (normativa.CurrentReference.Equals("EN") &&
+            //    sistAhorro.CurrentReference.Contains("VA"))
+            //    //VFD/EEC
+            //    C_Standard_input_5.value = 69;
+            //if (!normativa.CurrentReference.Equals("EN") &&
+            //    (bombaEngrase.CurrentReference.Equals("S") ||
+            //    bombaEngrase.CurrentReference.Equals("C")))
+            //    //Oil Level In Pump 1
+            //    C_Standard_input_5.value = 64;
+
+            ////I6 C Standard input 6
+            //GEC C_Standard_Input_6 = new GEC("I6", buscarNombreParametroGEC("I6"));
+            //GEC_Parameter.Add(C_Standard_Input_6);
+            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
+            //    !sistemaAnden.CurrentReference.Equals("KEINE"))
+            //    //Top light barrier NC
+            //    C_Standard_Input_6.value = 96;
+            //else if (!ubicacionControlador.CurrentReference.Equals("AUSSEN") &&
+            //    !ubicacionControlador.CurrentReference.Equals("ARM_ESP") &&
+            //    normativa.CurrentReference.Equals("EN") &&
+            //    contactoFuego.CurrentReference.Equals("S"))
+            //    //Fire alarm/ Smoke detector 1
+            //    C_Standard_Input_6.value = 62;
+
+
+            ////I7 C Standard input 7
+            //GEC C_Standard_input_7 = new GEC("I7", buscarNombreParametroGEC("I7"));
+            //GEC_Parameter.Add(C_Standard_input_7);
+            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
+            //    llavinLocalRemoto.CurrentReference.Equals("A"))
+            //    //Local Key Top
+            //    C_Standard_input_7.value = 91;
+            //if ((ubicacionControlador.CurrentReference.Equals("INNENOBEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("INNENUNTEN")) &&
+            //    !sistemaAnden.CurrentReference.Equals("KEINE"))
+            //    //Top Up Key Order
+            //    C_Standard_input_7.value = 130;
+
+
+            ////I8 C Standard input 8
+            //GEC C_Standard_input_8 = new GEC("I8", buscarNombreParametroGEC("I8"));
+            //GEC_Parameter.Add(C_Standard_input_8);
+            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
+            //    llavinLocalRemoto.CurrentReference.Equals("A"))
+            //    //Remote Key Top
+            //    C_Standard_input_8.value = 90;
+            //if ((ubicacionControlador.CurrentReference.Equals("INNENOBEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("INNENUNTEN")) &&
+            //    !sistemaAnden.CurrentReference.Equals("KEINE"))
+            //    //Top Down Key Order
+            //    C_Standard_input_8.value = 131;
+
+
+            ////I9	C Standard input 9
+            //GEC C_Standard_input_9 = new GEC("I9", buscarNombreParametroGEC("I9"));
+            //GEC_Parameter.Add(C_Standard_input_9);
+            //if (normativa.CurrentReference.Equals("EN") &&
+            //    (!bypass.CurrentReference.Equals("N") ||
+            //    ubicacionControlador.CurrentReference.Equals("INNENOBEN")))
+            //    //Bypass VFD
+            //    C_Standard_input_9.value = 65;
+            //if (!normativa.CurrentReference.Equals("EN"))
+            //    //Fire alarm/ Smoke detector 1
+            //    C_Standard_input_9.value = 62;
+
+            ////I10	C Standard input 10
+            //GEC C_Standard_input_10 = new GEC("I10", buscarNombreParametroGEC("I10"));
+            //GEC_Parameter.Add(C_Standard_input_10);
+            //if (!normativa.CurrentReference.Equals("EN") &&
+            //    (!bypass.CurrentReference.Equals("N") ||
+            //    ubicacionControlador.CurrentReference.Equals("INNENOBEN")))
+            //    //Bypass VFD
+            //    C_Standard_input_10.value = 65;
+
+            ////I11 C Standard input 11
+            //if (normativa.CurrentReference.Equals("EN") &&
+            //   (bombaEngrase.CurrentReference.Equals("S") ||
+            //   bombaEngrase.CurrentReference.Equals("C")) &&
+            //   (ubicacionControlador.CurrentReference.Equals("INNENOBEN") ||
+            //   ubicacionControlador.CurrentReference.Equals("INNENUNTEN")))
+            //{
+            //    //Oil Level In Pump 1
+            //    GEC C_Standard_input_11 = new GEC("I11", 64, buscarNombreParametroGEC("I11"));
+            //    GEC_Parameter.Add(C_Standard_input_11);
+            //}
+
+            ////I12 C Standard input 12
+            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
+            //    llavinAutoCont.CurrentReference.Equals("A"))
+            //{
+            //    //Automatic key Top
+            //    GEC C_Standard_input_12 = new GEC("I12", 88, buscarNombreParametroGEC("I12"));
+            //    GEC_Parameter.Add(C_Standard_input_12);
+            //}
+
+            ////I13 C Standard input 13
+            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
+            //    llavinAutoCont.CurrentReference.Equals("A"))
+            //{
+            //    //Continuous key Top
+            //    GEC C_Standard_input_13 = new GEC("I13", 89, buscarNombreParametroGEC("I13"));
+            //    GEC_Parameter.Add(C_Standard_input_13);
+            //}
+
+            ////I14 C Standard input 14
+            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
+            //    llavinParo.CurrentReference.Equals("A"))
+            //{
+            //    //Top Operational stop lokal B16
+            //    GEC C_Standard_input_14 = new GEC("I14", 144, buscarNombreParametroGEC("I14"));
+            //    GEC_Parameter.Add(C_Standard_input_14);
+            //}
+            #endregion
+
+            #region Upper Diagnostic
+            ////UI11	UDL1 Standard input 11
+            ////Stop externo / carritos
+            //GEC UDL1_Standard_input_11 = new GEC("UI11", buscarNombreParametroGEC("UI11"));
+            //GEC_Parameter.Add(UDL1_Standard_input_11);
+
+            //if (stopCarritos.CurrentReference.Equals("KEINE") &&
+            //    normativa.CurrentReference.Equals("EN"))
+            //    //Top Emergency Stop External (SS)
+            //    UDL1_Standard_input_11.value = 152;
+            //else
+            //    //Top Emergency Stop Trolley (SS)
+            //    UDL1_Standard_input_11.value = 153;
+
+            ////UI12	UDL1 Standard input 12
+            //GEC UDL1_Standard_input_12 = new GEC("UI12", buscarNombreParametroGEC("UI12"));
+            //GEC_Parameter.Add(UDL1_Standard_input_12);
+            //if (!cerrojo.CurrentReference.Equals("N") &&
+            //    !(stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")) &&
+            //    sMicrosZocalo.NumVal > 6 &&
+            //    !(sBuggy.CurrentReference.Equals("KEINE") || sBuggy.CurrentReference.Equals("BUGGYUT")) &&
+            //    !sPeines.CurrentReference.Equals("INDEPENDIENTE"))
+            //    //Step chain locking device (SS)
+            //    UDL1_Standard_input_12.value = 45;
+
+            ////UI13	UDL1 Standard input 13
+            ////Stop externo
+            //GEC UDL1_Standard_input_13 = new GEC("UI13", buscarNombreParametroGEC("UI13"));
+            //GEC_Parameter.Add(UDL1_Standard_input_13);
+            //if (!stopCarritos.CurrentReference.Equals("KEINE") &&
+            //    sMicrosZocalo.NumVal > 6 &&
+            //    !(sBuggy.CurrentReference.Equals("KEINE") ||
+            //     sBuggy.CurrentReference.Equals("BUGGYUT")) &&
+            //     !sPeines.CurrentReference.Equals("INDEPENDIENTE"))
+            //    //Top Emergency Stop External (SS)
+            //    UDL1_Standard_input_13.value = 152;
+            //else if (normativa.CurrentReference.Equals("EN"))
+            //    //Top Vertical Combplate Left (SS)
+            //    UDL1_Standard_input_13.value = 158;
+            //else if (!normativa.CurrentReference.Equals("EN"))
+            //    //Top Vertical Combplate Right (SS)
+            //    UDL1_Standard_input_13.value = 157;
+            //else if (FrenoAux.CurrentReference.Equals("HWSPERRKMECH") &&
+            //    !(stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")) &&
+            //    sMicrosZocalo.NumVal > 6 &&
+            //    !(sBuggy.CurrentReference.Equals("KEINE") || sBuggy.CurrentReference.Equals("BUGGYUT")) &&
+            //    !sPeines.CurrentReference.Equals("INDEPENDIENTE"))
+            //    //Mechanical Pawl Brake (SS)
+            //    UDL1_Standard_input_13.value = 166;
+
+            ////UI14	UDL1 Standard input 14
+            ////Stop externo
+            //GEC UDL1_Standard_input_14 = new GEC("UI14", buscarNombreParametroGEC("UI14"));
+            //GEC_Parameter.Add(UDL1_Standard_input_14);
+            //if (!normativa.CurrentReference.Equals("EN"))
+            //    //Top Vertical Combplate Left (SS)
+            //    UDL1_Standard_input_14.value = 158;
+            //else if (!cerrojo.CurrentReference.Equals("N") &&
+            //    !(stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")) &&
+            //    sMicrosZocalo.NumVal > 6 &&
+            //    (sBuggy.CurrentReference.Equals("KEINE") || sBuggy.CurrentReference.Equals("BUGGYUT")))
+            //    //Step chain locking device (SS)
+            //    UDL1_Standard_input_14.value = 45;
+
+            ////UI15	UDL1 Standard input 15
+            ////Stop externo
+            //GEC UDL1_Standard_input_15 = new GEC("UI15", buscarNombreParametroGEC("UI15"));
+            //GEC_Parameter.Add(UDL1_Standard_input_15);
+            //if (!stopCarritos.CurrentReference.Equals("KEINE") &&
+            //    sMicrosZocalo.NumVal > 6 &&
+            //    (sBuggy.CurrentReference.Equals("KEINE") ||
+            //     sBuggy.CurrentReference.Equals("BUGGYUT")))
+            //    //Top Emergency Stop External (SS)
+            //    UDL1_Standard_input_15.value = 152;
+            //else if (FrenoAux.CurrentReference.Equals("HWSPERRKMECH") &&
+            //    !(stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")) &&
+            //    sMicrosZocalo.NumVal > 6 &&
+            //    (sBuggy.CurrentReference.Equals("KEINE") || sBuggy.CurrentReference.Equals("BUGGYUT")))
+            //    //Mechanical Pawl Brake (SS)
+            //    UDL1_Standard_input_15.value = 166;
+            //else
+            //    //Top Buggy Right (SS)
+            //    UDL1_Standard_input_15.value = 155;
+
+            ////UI16	UDL1 Standard input 16
+            //GEC UDL1_Standard_input_16 = new GEC("UI16", buscarNombreParametroGEC("UI16"));
+            //GEC_Parameter.Add(UDL1_Standard_input_16);
+            //if (!cerrojo.CurrentReference.Equals("N") &&
+            //    !(stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")) &&
+            //    sMicrosZocalo.NumVal <= 6)
+            //    //Step chain locking device (SS)
+            //    UDL1_Standard_input_16.value = 45;
+            //else if (FrenoAux.CurrentReference.Equals("HWSPERRKMECH") &&
+            //    cerrojo.CurrentReference.Equals("N") &&
+            //    !(stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")) &&
+            //    sMicrosZocalo.NumVal <= 6)
+            //    //Mechanical Pawl Brake (SS)
+            //    UDL1_Standard_input_16.value = 166;
+
+            ////UI17	UDL1 Standard input 17
+            ////Stop externo
+            //GEC UDL1_Standard_input_17 = new GEC("UI17", buscarNombreParametroGEC("UI17"));
+            //GEC_Parameter.Add(UDL1_Standard_input_17);
+            //if (paqueteEspecial.CurrentReference.Equals("MERCADONA"))
+            //    UDL1_Standard_input_17.value = 154;
+            //else if (!stopCarritos.CurrentReference.Equals("KEINE") &&
+            //    sMicrosZocalo.NumVal <= 6)
+            //    //Top Emergency Stop External (SS)
+            //    UDL1_Standard_input_17.value = 152;
+            //else if (!cerrojo.CurrentReference.Equals("N") &&
+            //    (stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")))
+            //    //Step chain locking device (SS)
+            //    UDL1_Standard_input_17.value = 45;
+            //else if (FrenoAux.CurrentReference.Equals("HWSPERRKMECH") &&
+            //    cerrojo.CurrentReference.Equals("N") &&
+            //    (stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")))
+            //    //Mechanical Pawl Brake (SS)
+            //    UDL1_Standard_input_17.value = 166;
+            //else if (normativa.CurrentReference.Equals("EN"))
+            //    //Top Skirt Inclined Left (SS)
+            //    UDL1_Standard_input_17.value = 162;
+            //else if (!normativa.CurrentReference.Equals("EN"))
+            //    //Mechanical Pawl Brake (SS)
+            //    UDL1_Standard_input_17.value = 166;
+
+
+
+            ////UI18	UDL1 Standard input 18
+            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
+            //ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
+            //(aceiteReductor.CurrentReference.Equals("S")))
+            //{
+            //    //Oil level in gearbox
+            //    GEC UDL1_Standard_input_18 = new GEC("UI18", 112, buscarNombreParametroGEC("UI18"));
+            //    GEC_Parameter.Add(UDL1_Standard_input_18);
+            //}
+
+            ////UI19	UDL1 Standard input 19
+            //GEC UDL1_Standard_input_19 = new GEC("UI19", buscarNombreParametroGEC("UI19"));
+            //GEC_Parameter.Add(UDL1_Standard_input_19);
+            //if (deteccionPersonas.CurrentReference.Equals("RADAR") &&
+            //    normativa.CurrentReference.Equals("EN"))
+            //    //Top radar right NC
+            //    UDL1_Standard_input_19.value = 92;
+
+            ////UI20	UDL1 Standard input 20
+            //GEC UDL1_Standard_input_20 = new GEC("UI20", buscarNombreParametroGEC("UI20"));
+            //GEC_Parameter.Add(UDL1_Standard_input_20);
+            //if (deteccionPersonas.CurrentReference.Equals("RADAR") &&
+            //    normativa.CurrentReference.Equals("EN"))
+            //    //Top radar left NC
+            //    UDL1_Standard_input_20.value = 94;
+
+
+            ////UI21	UDL1 Standard input 21
+            //GEC UDL1_Standard_input_21 = new GEC("UI21", buscarNombreParametroGEC("UI21"));
+            //GEC_Parameter.Add(UDL1_Standard_input_21);
+            //if ((deteccionPersonas.CurrentReference.Equals("LICHTINT") ||
+            //    (deteccionPersonas.CurrentReference.Equals("RADAR") &&
+            //    (modofuncionamiento.CurrentReference.Equals("INTERM") ||
+            //    modofuncionamiento.CurrentReference.Equals("SG") ||
+            //    modofuncionamiento.CurrentReference.Equals("SGBV")))) &&
+            //    normativa.CurrentReference.Equals("EN"))
+            //    //Top Light Barrier NC
+            //    UDL1_Standard_input_21.value = 96;
+
+            ////UI22	UDL1 Standard input 22
+            //if (normativa.CurrentReference.Equals("EN") &&
+            //    (ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
+            //    (bombaEngrase.CurrentReference.Equals("S") ||
+            //    bombaEngrase.CurrentReference.Equals("C")))
+            //{
+            //    //Oil Level In Pump 1
+            //    GEC UDL1_Standard_input_22 = new GEC("UI22", 64, buscarNombreParametroGEC("UI22"));
+            //    GEC_Parameter.Add(UDL1_Standard_input_22);
+            //}
+
+            ////UI25	UDL1 Standard input 25
+            //GEC UDL1_Standard_input_25 = new GEC("UI25", buscarNombreParametroGEC("UI25"));
+            //GEC_Parameter.Add(UDL1_Standard_input_25);
+            //if (normativa.CurrentReference.Equals("EN") &&
+            //    (llavinAutoCont.CurrentReference.Equals("E") ||
+            //    llavinAutoCont.CurrentReference.Equals("P") ||
+            //    llavinAutoCont.CurrentReference.Equals("B")))
+            //    //Continuous key Top
+            //    UDL1_Standard_input_25.value = 89;
+            //if (!normativa.CurrentReference.Equals("EN") &&
+            //    deteccionPersonas.CurrentReference.Equals("RADAR"))
+            //    //Top radar right NC
+            //    UDL1_Standard_input_25.value = 92;
+            //if (!normativa.CurrentReference.Equals("EN") &&
+            //    deteccionPersonas.CurrentReference.Equals("LICHTINT"))
+            //    //Top Light Barrier Combplate NC
+            //    UDL1_Standard_input_25.value = 98;
+
+            ////UI26	UDL1 Standard input 26
+            //GEC UDL1_Standard_input_26 = new GEC("UI26", buscarNombreParametroGEC("UI26"));
+            //GEC_Parameter.Add(UDL1_Standard_input_26);
+            //if (normativa.CurrentReference.Equals("EN") &&
+            //    (llavinAutoCont.CurrentReference.Equals("E") ||
+            //    llavinAutoCont.CurrentReference.Equals("P") ||
+            //    llavinAutoCont.CurrentReference.Equals("B")))
+            //    //Automatic key Top
+            //    UDL1_Standard_input_26.value = 88;
+            //if (!normativa.CurrentReference.Equals("EN") &&
+            //    deteccionPersonas.CurrentReference.Equals("RADAR"))
+            //    //Top radar left NC
+            //    UDL1_Standard_input_26.value = 94;
+
+            ////UI27	UDL1 Standard input 27
+            //GEC UDL1_Standard_input_27 = new GEC("UI27", buscarNombreParametroGEC("UI27"));
+            //GEC_Parameter.Add(UDL1_Standard_input_27);
+            //if (sDesgasteFrenos.CurrentReference.Equals("INDUCTIVO"))
+            //    //Brake wear brake1 M1
+            //    UDL1_Standard_input_27.value = 73;
+
+            ////UI28	UDL1 Standard input 28
+            //GEC UDL1_Standard_input_28 = new GEC("UI28", buscarNombreParametroGEC("UI28"));
+            //GEC_Parameter.Add(UDL1_Standard_input_28);
+            //if (sDesgasteFrenos.CurrentReference.Equals("INDUCTIVO"))
+            //    //Brake wear brake2 M1
+            //    UDL1_Standard_input_28.value = 74;
+
+
+            ////UI30	UDL1 Standard input 30
+            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
+            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
+            //    (llavinParo.CurrentReference.Equals("C") ||
+            //    llavinParo.CurrentReference.Equals("P") ||
+            //    llavinParo.CurrentReference.Equals("B")))
+            //{
+            //    //Top Operational stop lokal B16
+            //    GEC UDL1_Standard_input_30 = new GEC("UI30", 144, buscarNombreParametroGEC("UI30"));
+            //    GEC_Parameter.Add(UDL1_Standard_input_30);
+            //}
+
+            ////UI31	UDL1 Standard input 31
+            //GEC UDL1_Standard_input_31 = new GEC("UI31", buscarNombreParametroGEC("UI31"));
+            //GEC_Parameter.Add(UDL1_Standard_input_31);
+            //if (normativa.CurrentReference.Equals("EN") &&
+            //    (llavinLocalRemoto.CurrentReference.Equals("E") ||
+            //    llavinLocalRemoto.CurrentReference.Equals("P") ||
+            //    llavinLocalRemoto.CurrentReference.Equals("B") ||
+            //    llavinLocalRemoto.CurrentReference.Equals("S")))
+            //{
+            //    //Local Key Top
+            //    UDL1_Standard_input_31.value = 91;
+            //}
+
+            ////UI32	UDL1 Standard input 32
+            ////Remote Key Top
+            //GEC UDL1_Standard_input_32 = new GEC("UI32", buscarNombreParametroGEC("UI32"));
+            //GEC_Parameter.Add(UDL1_Standard_input_32);
+            //if (normativa.CurrentReference.Equals("EN") &&
+            //    (llavinLocalRemoto.CurrentReference.Equals("E") ||
+            //    llavinLocalRemoto.CurrentReference.Equals("P") ||
+            //    llavinLocalRemoto.CurrentReference.Equals("B") ||
+            //    llavinLocalRemoto.CurrentReference.Equals("S")))
+            //{
+            //    //Remote Key Top
+            //    UDL1_Standard_input_32.value = 90;
+            //}
+
+            #endregion
+
+            #region Lower Diagnostic
+
+
+            ////LI17	LDL1 Standard input 17
+            //GEC LDL1_Standard_input_17 = new GEC("LI17", buscarNombreParametroGEC("LI17"));
+            //GEC_Parameter.Add(LDL1_Standard_input_17);
+            //if (!normativa.CurrentReference.Equals("EN") &&
+            //    sRoturaPasamanos.CurrentReference.Equals("BRUCHSCHALT"))
+            //    //Broken Handrail L
+            //    LDL1_Standard_input_17.value = 72;
+            //if (normativa.CurrentReference.Equals("EN"))
+            //    //Bottom Emergency Stop External (SS)
+            //    LDL1_Standard_input_17.value = 164;
+
+            ////LI18	LDL1 Standard input 18
+            //GEC LDL1_Standard_input_18 = new GEC("LI18", buscarNombreParametroGEC("LI18"));
+            //GEC_Parameter.Add(LDL1_Standard_input_18);
+            //if (!normativa.CurrentReference.Equals("EN") &&
+            //    sRoturaPasamanos.CurrentReference.Equals("BRUCHSCHALT"))
+            //    //Broken Handrail R
+            //    LDL1_Standard_input_18.value = 71;
+            //if (normativa.CurrentReference.Equals("EN") &&
+            //    !stopCarritos.CurrentReference.Equals("KEINE"))
+            //    //Bottom Emergency Stop Trolley (SS)
+            //    LDL1_Standard_input_18.value = 165;
+
+            ////LI19	LDL1 Standard input 19
+            //GEC LDL1_Standard_input_19 = new GEC("LI19", buscarNombreParametroGEC("LI19"));
+            //GEC_Parameter.Add(LDL1_Standard_input_19);
+            //if (deteccionPersonas.CurrentReference.Equals("RADAR") &&
+            //   normativa.CurrentReference.Equals("EN"))
+            //{
+            //    //Bottom radar right NC
+            //    LDL1_Standard_input_19.value = 100;
+            //}
+
+            ////LI20	LDL1 Standard input 20
+            //GEC LDL1_Standard_input_20 = new GEC("LI20", buscarNombreParametroGEC("LI20"));
+            //GEC_Parameter.Add(LDL1_Standard_input_20);
+            //if (deteccionPersonas.CurrentReference.Equals("RADAR") &&
+            //   normativa.CurrentReference.Equals("EN"))
+            //{
+            //    //Bottom radar left NC
+            //    LDL1_Standard_input_20.value = 102;
+            //}
+
+            ////LI21	LDL1 Standard input 21
+            //GEC LDL1_Standard_input_21 = new GEC("LI21", buscarNombreParametroGEC("LI21"));
+            //GEC_Parameter.Add(LDL1_Standard_input_21);
+            //if ((deteccionPersonas.CurrentReference.Equals("LICHTINT") ||
+            //   (deteccionPersonas.CurrentReference.Equals("RADAR") &&
+            //   (modofuncionamiento.CurrentReference.Equals("INTERM") ||
+            //   modofuncionamiento.CurrentReference.Equals("SG") ||
+            //   modofuncionamiento.CurrentReference.Equals("SGBV")))) &&
+            //   normativa.CurrentReference.Equals("EN"))
+            //    //Bottom Light Barrier Combplate NC
+            //    LDL1_Standard_input_21.value = 104;
+
+            ////LI25	LDL1 Standard input 25
+            //GEC LDL1_Standard_input_25 = new GEC("LI25", buscarNombreParametroGEC("LI25"));
+            //GEC_Parameter.Add(LDL1_Standard_input_25);
+            //if (normativa.CurrentReference.Equals("EN") &&
+            //    sRoturaPasamanos.CurrentReference.Equals("BRUCHSCHALT"))
+            //    //Broken Handrail L
+            //    LDL1_Standard_input_25.value = 72;
+            //if (!normativa.CurrentReference.Equals("EN") &&
+            //    deteccionPersonas.CurrentReference.Equals("RADAR"))
+            //    //Bottom radar right NC
+            //    LDL1_Standard_input_25.value = 100;
+            //if (!normativa.CurrentReference.Equals("EN") &&
+            //    deteccionPersonas.CurrentReference.Equals("LICHTINT"))
+            //    //Bottom Light Barrier Combplate NC
+            //    LDL1_Standard_input_25.value = 106;
+
+            ////LI26	LDL1 Standard input 26
+            //GEC LDL1_Standard_input_26 = new GEC("LI26", buscarNombreParametroGEC("LI26"));
+            //GEC_Parameter.Add(LDL1_Standard_input_26);
+            //if (normativa.CurrentReference.Equals("EN") &&
+            //    sRoturaPasamanos.CurrentReference.Equals("BRUCHSCHALT"))
+            //    //Broken Handrail R
+            //    LDL1_Standard_input_26.value = 71;
+            //if (!normativa.CurrentReference.Equals("EN") &&
+            //    deteccionPersonas.CurrentReference.Equals("RADAR"))
+            //    //Bottom radar left NC
+            //    LDL1_Standard_input_26.value = 102;
+
+            ////LI27	LDL1 Standard input 27
+            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
+            //   ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
+            //   (detectorAgua.CurrentReference.Equals("S")))
+            //{
+            //    //Water detection bottom
+            //    GEC LDL1_Standard_input_27 = new GEC("LI27", 63, buscarNombreParametroGEC("LI27"));
+            //    GEC_Parameter.Add(LDL1_Standard_input_27);
+            //}
+
+            #endregion
+
+            #endregion
+
+            #endregion
+
+
+        }
+
+        public uint calcPPR(uint lcinta, uint dpolos)
+        {
+            // Funcion para calcular pulsos por revolucion (PPR)
+            //      Entradas:
+            //          tapelenght: longitud cinta magnetica
+            //          dpolos:  distancia entre polos
+
+            uint npolos_std = 174;   // Numero de polos para longitud de cinta standard
+            uint ppr_std = 522;      // Periodos de onda cuadrada por revolucion con cinta de 174 polos
+
+            uint npolos = lcinta / dpolos;               // Numero de polos
+            uint ppr = npolos * ppr_std / npolos_std;    // Periodos de onda cuadrada por vuelta
+
+            return ppr;
+        }
+        
+        public double calcRPH(string m, string p, double v)
+        {
+            int z = 0;
+
+            switch (m)
+            {
+                case ("TUGELA"):
+                    if (p == "135")
+                        z = 16;
+                    else if (p == "101,25")
+                        z = 22;
+                    else
+                    {
+                        p = "0";
+                    }
+                    break;
+                case ("VELINO"):
+                    if (p == "135")
+                        z = 16;
+                    else if (p == "101,25")
+                        z = 22;
+                    else
+                    {
+                        p = "0";
+                    }
+                    break;
+                case ("ORINOCO"):
+                    if (p == "135" && (v.ToString() == "0,5" || v.ToString() == "0,65"))
+                        z = 16;
+                    else
+                    {
+                        p = "0";
+                    }
+                    break;
+                case ("VICTORIA"):
+                    if (p == "101,15")
+                        z = 23;
+                    else
+                    {
+                        p = "0";
+                    }
+                    break;
+                case ("VELINO_CLASSIC"):
+                case ("TUGELA_CLASSIC"):
+                    if (p == "135")
+                        z = 16;
+                    else if (p == "101,25")
+                        z = 22;
+                    else
+                    {
+                        p = "0";
+                    }
+                    break;
+            }
+
+            //float primdiam = Convert.ToSingle(Convert.ToSingle(p) / (Math.Sin(Math.PI / z))); // Primitive diameter
+            //float rph = (float)1.2 * Convert.ToSingle(v / (primdiam / (2 * 1000)) / (2 * Math.PI) * 60 * 60); // Main shaft rph
+            float rph = (float)1.2 * Convert.ToSingle(v) / Convert.ToSingle(z) / Convert.ToSingle(p) * 3600000;
+
+            return rph;
+        }
+
+        public uint Calc_OIL_PUMP1_TIMER_ON(Electric electric)
+        {
+            Caracteristic Velocidad = (Caracteristic)electric.CaractComercial["FGESCHW"];
+            Caracteristic Producto = (Caracteristic)electric.CaractComercial["FMODELL"];
+            Caracteristic Inclinacion = (Caracteristic)electric.CaractComercial["FNEIGUNG"];
+            Caracteristic desnivel = (Caracteristic)electric.CaractComercial["FHOEHEV"];
+
+            uint res = 5;
+
+            if (Producto.CurrentReference.Equals("VELINO") ||
+                Producto.CurrentReference.Equals("TUGELA") ||
+                Producto.CurrentReference.Contains("CLASSIC"))
+
+            {
+                switch (desnivel.NumVal)
+                {
+                    #region Item 1
+                    case double n when (n <= 2000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 42;
+                                        break;
+
+                                    case 0.65:
+                                        res = 35;
+                                        break;
+
+                                    case 0.75:
+                                        res = 31;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 40;
+                                        break;
+
+                                    case 0.65:
+                                        res = 33;
+                                        break;
+
+                                    case 0.75:
+                                        res = 30;
+                                        break;
+                                }
+                                break;
+
+                            case 35:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 38;
+                                        break;
+
+                                    case 0.65:
+                                        break;
+
+                                    case 0.75:
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 2
+                    case double n when (n <= 2500):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 45;
+                                        break;
+
+                                    case 0.65:
+                                        res = 38;
+                                        break;
+
+                                    case 0.75:
+                                        res = 34;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 44;
+                                        break;
+
+                                    case 0.65:
+                                        res = 36;
+                                        break;
+
+                                    case 0.75:
+                                        res = 32;
+                                        break;
+                                }
+                                break;
+
+                            case 35:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 41;
+                                        break;
+
+                                    case 0.65:
+                                        break;
+
+                                    case 0.75:
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 3
+                    case double n when (n <= 3000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 50;
+                                        break;
+
+                                    case 0.65:
+                                        res = 41;
+                                        break;
+
+                                    case 0.75:
+                                        res = 37;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 48;
+                                        break;
+
+                                    case 0.65:
+                                        res = 39;
+                                        break;
+
+                                    case 0.75:
+                                        res = 35;
+                                        break;
+                                }
+                                break;
+
+                            case 35:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 44;
+                                        break;
+
+                                    case 0.65:
+                                        break;
+
+                                    case 0.75:
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 4
+                    case double n when (n <= 3500):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 54;
+                                        break;
+
+                                    case 0.65:
+                                        res = 44;
+                                        break;
+
+                                    case 0.75:
+                                        res = 39;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 52;
+                                        break;
+
+                                    case 0.65:
+                                        res = 42;
+                                        break;
+
+                                    case 0.75:
+                                        res = 38;
+                                        break;
+                                }
+                                break;
+
+                            case 35:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 48;
+                                        break;
+
+                                    case 0.65:
+                                        break;
+
+                                    case 0.75:
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 5
+                    case double n when (n <= 4000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 58;
+                                        break;
+
+                                    case 0.65:
+                                        res = 47;
+                                        break;
+
+                                    case 0.75:
+                                        res = 42;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 56;
+                                        break;
+
+                                    case 0.65:
+                                        res = 45;
+                                        break;
+
+                                    case 0.75:
+                                        res = 40;
+                                        break;
+                                }
+                                break;
+
+                            case 35:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 52;
+                                        break;
+
+                                    case 0.65:
+                                        break;
+
+                                    case 0.75:
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 6
+                    case double n when (n <= 4500):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 61;
+                                        break;
+
+                                    case 0.65:
+                                        res = 51;
+                                        break;
+
+                                    case 0.75:
+                                        res = 45;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 60;
+                                        break;
+
+                                    case 0.65:
+                                        res = 48;
+                                        break;
+
+                                    case 0.75:
+                                        res = 43;
+                                        break;
+                                }
+                                break;
+
+                            case 35:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 55;
+                                        break;
+
+                                    case 0.65:
+                                        break;
+
+                                    case 0.75:
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 7
+                    case double n when (n <= 5000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 66;
+                                        break;
+
+                                    case 0.65:
+                                        res = 54;
+                                        break;
+
+                                    case 0.75:
+                                        res = 48;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 64;
+                                        break;
+
+                                    case 0.65:
+                                        res = 51;
+                                        break;
+
+                                    case 0.75:
+                                        res = 46;
+                                        break;
+                                }
+                                break;
+
+                            case 35:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 59;
+                                        break;
+
+                                    case 0.65:
+                                        break;
+
+                                    case 0.75:
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 8
+                    case double n when (n <= 5500):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 70;
+                                        break;
+
+                                    case 0.65:
+                                        res = 57;
+                                        break;
+
+                                    case 0.75:
+                                        res = 51;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 68;
+                                        break;
+
+                                    case 0.65:
+                                        res = 54;
+                                        break;
+
+                                    case 0.75:
+                                        res = 48;
+                                        break;
+                                }
+                                break;
+
+                            case 35:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 62;
+                                        break;
+
+                                    case 0.65:
+                                        break;
+
+                                    case 0.75:
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 9
+                    case double n when (n <= 5800):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 72;
+                                        break;
+
+                                    case 0.65:
+                                        res = 59;
+                                        break;
+
+                                    case 0.75:
+                                        res = 53;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 70;
+                                        break;
+
+                                    case 0.65:
+                                        res = 56;
+                                        break;
+
+                                    case 0.75:
+                                        res = 50;
+                                        break;
+                                }
+                                break;
+
+                            case 35:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 65;
+                                        break;
+
+                                    case 0.65:
+                                        break;
+
+                                    case 0.75:
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 10
+                    case double n when (n <= 6000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 77;
+                                        break;
+
+                                    case 0.65:
+                                        res = 63;
+                                        break;
+
+                                    case 0.75:
+                                        res = 56;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 76;
+                                        break;
+
+                                    case 0.65:
+                                        res = 60;
+                                        break;
+
+                                    case 0.75:
+                                        res = 53;
+                                        break;
+                                }
+                                break;
+
+                            case 35:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 67;
+                                        break;
+
+                                    case 0.65:
+                                        break;
+
+                                    case 0.75:
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 11
+                    case double n when (n <= 6500):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 84;
+                                        break;
+
+                                    case 0.65:
+                                        res = 67;
+                                        break;
+
+                                    case 0.75:
+                                        res = 59;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 80;
+                                        break;
+
+                                    case 0.65:
+                                        res = 63;
+                                        break;
+
+                                    case 0.75:
+                                        res = 56;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 12
+                    case double n when (n <= 7000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 88;
+                                        break;
+
+                                    case 0.65:
+                                        res = 70;
+                                        break;
+
+                                    case 0.75:
+                                        res = 62;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 84;
+                                        break;
+
+                                    case 0.65:
+                                        res = 66;
+                                        break;
+
+                                    case 0.75:
+                                        res = 59;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 13
+                    case double n when (n <= 7500):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 92;
+                                        break;
+
+                                    case 0.65:
+                                        res = 73;
+                                        break;
+
+                                    case 0.75:
+                                        res = 65;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 88;
+                                        break;
+
+                                    case 0.65:
+                                        res = 69;
+                                        break;
+
+                                    case 0.75:
+                                        res = 61;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 14
+                    case double n when (n <= 8000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 97;
+                                        break;
+
+                                    case 0.65:
+                                        res = 77;
+                                        break;
+
+                                    case 0.75:
+                                        res = 68;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 92;
+                                        break;
+
+                                    case 0.65:
+                                        res = 72;
+                                        break;
+
+                                    case 0.75:
+                                        res = 64;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 15
+                    case double n when (n <= 8500):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 101;
+                                        break;
+
+                                    case 0.65:
+                                        res = 80;
+                                        break;
+
+                                    case 0.75:
+                                        res = 71;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 96;
+                                        break;
+
+                                    case 0.65:
+                                        res = 75;
+                                        break;
+
+                                    case 0.75:
+                                        res = 67;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 16
+                    case double n when (n <= 9000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 105;
+                                        break;
+
+                                    case 0.65:
+                                        res = 83;
+                                        break;
+
+                                    case 0.75:
+                                        res = 74;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 100;
+                                        break;
+
+                                    case 0.65:
+                                        res = 78;
+                                        break;
+
+                                    case 0.75:
+                                        res = 69;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 17
+                    case double n when (n <= 9500):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 110;
+                                        break;
+
+                                    case 0.65:
+                                        res = 87;
+                                        break;
+
+                                    case 0.75:
+                                        res = 77;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 103;
+                                        break;
+
+                                    case 0.65:
+                                        res = 81;
+                                        break;
+
+                                    case 0.75:
+                                        res = 72;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 18
+                    case double n when (n <= 10000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 114;
+                                        break;
+
+                                    case 0.65:
+                                        res = 90;
+                                        break;
+
+                                    case 0.75:
+                                        res = 79;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 108;
+                                        break;
+
+                                    case 0.65:
+                                        res = 85;
+                                        break;
+
+                                    case 0.75:
+                                        res = 75;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 19
+                    case double n when (n <= 11000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 123;
+                                        break;
+
+                                    case 0.65:
+                                        res = 97;
+                                        break;
+
+                                    case 0.75:
+                                        res = 85;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 115;
+                                        break;
+
+                                    case 0.65:
+                                        res = 91;
+                                        break;
+
+                                    case 0.75:
+                                        res = 80;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 20
+                    case double n when (n <= 12000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 132;
+                                        break;
+
+                                    case 0.65:
+                                        res = 104;
+                                        break;
+
+                                    case 0.75:
+                                        res = 91;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 123;
+                                        break;
+
+                                    case 0.65:
+                                        res = 97;
+                                        break;
+
+                                    case 0.75:
+                                        res = 85;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 21
+                    case double n when (n <= 13000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 140;
+                                        break;
+
+                                    case 0.65:
+                                        res = 110;
+                                        break;
+
+                                    case 0.75:
+                                        res = 97;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 132;
+                                        break;
+
+                                    case 0.65:
+                                        res = 103;
+                                        break;
+
+                                    case 0.75:
+                                        res = 91;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 22
+                    case double n when (n <= 14000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 149;
+                                        break;
+
+                                    case 0.65:
+                                        res = 117;
+                                        break;
+
+                                    case 0.75:
+                                        res = 103;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 140;
+                                        break;
+
+                                    case 0.65:
+                                        res = 109;
+                                        break;
+
+                                    case 0.75:
+                                        res = 96;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 23
+                    case double n when (n <= 15000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 158;
+                                        break;
+
+                                    case 0.65:
+                                        res = 124;
+                                        break;
+
+                                    case 0.75:
+                                        res = 108;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 148;
+                                        break;
+
+                                    case 0.65:
+                                        res = 115;
+                                        break;
+
+                                    case 0.75:
+                                        res = 101;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 24
+                    case double n when (n <= 16000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 166;
+                                        break;
+
+                                    case 0.65:
+                                        res = 130;
+                                        break;
+
+                                    case 0.75:
+                                        res = 114;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 155;
+                                        break;
+
+                                    case 0.65:
+                                        res = 121;
+                                        break;
+
+                                    case 0.75:
+                                        res = 107;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 25
+                    case double n when (n <= 17000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 175;
+                                        break;
+
+                                    case 0.65:
+                                        res = 137;
+                                        break;
+
+                                    case 0.75:
+                                        res = 120;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 163;
+                                        break;
+
+                                    case 0.65:
+                                        res = 128;
+                                        break;
+
+                                    case 0.75:
+                                        res = 112;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 26
+                    case double n when (n <= 18000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 184;
+                                        break;
+
+                                    case 0.65:
+                                        res = 144;
+                                        break;
+
+                                    case 0.75:
+                                        res = 126;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 171;
+                                        break;
+
+                                    case 0.65:
+                                        res = 134;
+                                        break;
+
+                                    case 0.75:
+                                        res = 117;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 27
+                    case double n when (n <= 19000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 193;
+                                        break;
+
+                                    case 0.65:
+                                        res = 150;
+                                        break;
+
+                                    case 0.75:
+                                        res = 132;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 180;
+                                        break;
+
+                                    case 0.65:
+                                        res = 140;
+                                        break;
+
+                                    case 0.75:
+                                        res = 123;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 28
+                    case double n when (n <= 20000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 201;
+                                        break;
+
+                                    case 0.65:
+                                        res = 157;
+                                        break;
+
+                                    case 0.75:
+                                        res = 138;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 187;
+                                        break;
+
+                                    case 0.65:
+                                        res = 146;
+                                        break;
+
+                                    case 0.75:
+                                        res = 128;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 29
+                    case double n when (n <= 21000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 210;
+                                        break;
+
+                                    case 0.65:
+                                        res = 164;
+                                        break;
+
+                                    case 0.75:
+                                        res = 143;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 195;
+                                        break;
+
+                                    case 0.65:
+                                        res = 152;
+                                        break;
+
+                                    case 0.75:
+                                        res = 133;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 30
+                    case double n when (n <= 22000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 219;
+                                        break;
+
+                                    case 0.65:
+                                        res = 171;
+                                        break;
+
+                                    case 0.75:
+                                        res = 149;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 204;
+                                        break;
+
+                                    case 0.65:
+                                        res = 158;
+                                        break;
+
+                                    case 0.75:
+                                        res = 139;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 31
+                    case double n when (n <= 23000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 227;
+                                        break;
+
+                                    case 0.65:
+                                        res = 177;
+                                        break;
+
+                                    case 0.75:
+                                        res = 155;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 212;
+                                        break;
+
+                                    case 0.65:
+                                        res = 165;
+                                        break;
+
+                                    case 0.75:
+                                        res = 144;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 32
+                    case double n when (n <= 24000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 236;
+                                        break;
+
+                                    case 0.65:
+                                        res = 184;
+                                        break;
+
+                                    case 0.75:
+                                        res = 161;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 220;
+                                        break;
+
+                                    case 0.65:
+                                        res = 171;
+                                        break;
+
+                                    case 0.75:
+                                        res = 149;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 33
+                    case double n when (n <= 25000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 245;
+                                        break;
+
+                                    case 0.65:
+                                        res = 191;
+                                        break;
+
+                                    case 0.75:
+                                        res = 167;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 228;
+                                        break;
+
+                                    case 0.65:
+                                        res = 177;
+                                        break;
+
+                                    case 0.75:
+                                        res = 155;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
+
+                    #region Item 34
+                    case double n when (n <= 26000):
+                        switch (Inclinacion.NumVal)
+                        {
+                            case 27.3:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 254;
+                                        break;
+
+                                    case 0.65:
+                                        res = 197;
+                                        break;
+
+                                    case 0.75:
+                                        res = 172;
+                                        break;
+                                }
+                                break;
+
+                            case 30:
+                                switch (Velocidad.NumVal)
+                                {
+                                    case 0.5:
+                                        res = 236;
+                                        break;
+
+                                    case 0.65:
+                                        res = 183;
+                                        break;
+
+                                    case 0.75:
+                                        res = 160;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                        #endregion
+                }
+            }
+            return res;
+        }
+
+        public uint Calc_OIL_PUMP1_CYCLE_TIME(Electric electric)
+        {
+            Caracteristic Velocidad = (Caracteristic)electric.CaractComercial["FGESCHW"];
+            Caracteristic condClimatica = (Caracteristic)electric.CaractComercial["FKLIMAKLS"];
+
+            uint res = 2;
+
+            if (condClimatica.CurrentReference.Equals("1") ||
+                condClimatica.CurrentReference.Equals("2"))
+            {
+                switch (Velocidad.NumVal)
+                {
+                    case 0.5:
+                        res = 36;
+                        break;
+
+                    case 0.65:
+                        res = 26;
+                        break;
+
+                    case 0.75:
+                        res = 18;
+                        break;
+                }
+            }
+            else
+            {
+                res = 12;
+            }
+
+            return res;
+        }
+
+        public void paramGEC(Project oProject, Electric oElectric)
+        {
+            String path = String.Concat(oProject.DocumentDirectory.Substring(0, oProject.DocumentDirectory.Length - 3), "GEC\\GEC.csv");
+            String data = "";
+            foreach (GEC gEC in oElectric.GECParameterList.Values)
+            {
+                if (gEC.active)
+                    data = String.Concat(data, "GEC_", gEC.ID, ";", gEC.getValue(), "\r\n");
+            }
+            File.WriteAllText(path, data);
+        }
+
+        #endregion
 
         public void deleteAllDummyConnections(Project oProject) 
         {

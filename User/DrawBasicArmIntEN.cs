@@ -219,7 +219,7 @@ namespace EPLAN_API.User
             //oProgressBar.MarqueeAnimationSpeed = 0;
 
             //calcParmGEC_Basic();
-            paramGEC();
+            paramGEC(oProject, oElectric);
 
             return;
 
@@ -1167,18 +1167,6 @@ namespace EPLAN_API.User
         }
 
         #region Metodos auxiliares
-        public void paramGEC()
-        {
-            String path = String.Concat(oProject.DocumentDirectory.Substring(0, oProject.DocumentDirectory.Length - 3), "GEC\\GEC.csv");
-            String data = "";
-            foreach (GEC gEC in oElectric.GECParameterList.Values)
-            {
-                if (gEC.active)
-                    data = String.Concat(data, "GEC_", gEC.ID, ";", gEC.getValue(), "\r\n");
-            }
-            File.WriteAllText(path, data);
-        }
-
         public void setStatusText(string text)
         {
             //stateTexbox.ResetText();

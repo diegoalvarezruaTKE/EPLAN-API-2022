@@ -39,7 +39,7 @@ namespace EPLAN_API.SAP
             CreateCaractComercial();
             CreateCaractIng();
             createDefaultGECParam();
-            createGECParamList();
+            //createGECParamList();
 
         }
 
@@ -1028,6 +1028,26 @@ namespace EPLAN_API.SAP
             }
 
             GECParameterList=oElectricList;
+
+            IDFunctions = new Dictionary<uint, string>();
+
+            //ID Functions
+            path = String.Concat(EPLANPaths.Documents, "\\ID_Functions.csv");
+
+            using (Microsoft.VisualBasic.FileIO.TextFieldParser parser = new Microsoft.VisualBasic.FileIO.TextFieldParser(path))
+            {
+                parser.TextFieldType = Microsoft.VisualBasic.FileIO.FieldType.Delimited;
+                parser.SetDelimiters(";");
+                while (!parser.EndOfData)
+                {
+                    uint val;
+                    //Processing row
+                    string[] fields = parser.ReadFields();
+                    uint.TryParse(fields[0], out val);
+                    IDFunctions.Add(val, fields[1]);
+
+                };
+            }
         }
 
         public void createGECParamList()
@@ -1037,28 +1057,8 @@ namespace EPLAN_API.SAP
             string[] filas;
             uint val;
 
-            GECParameterList = new Dictionary<string, GEC>();
+            //GECParameterList = new Dictionary<string, GEC>();
             IDFunctions = new Dictionary<uint, string>();
-
-            //Control Param
-            path = String.Concat(EPLANPaths.Documents, "\\GEC_Control_Param.csv");
-            filas = File.ReadAllLines(path);
-            foreach (var fila in filas)
-            {
-                string[] sfila = fila.Split(';');
-                if (sfila[0] != "")
-                    GECParameterList.Add(sfila[0], new GEC(sfila[0], sfila[1]));
-            }
-
-            //Safety Param
-            path = String.Concat(EPLANPaths.Documents, "\\GEC_Safety_Param.csv");
-            filas = File.ReadAllLines(path);
-            foreach (var fila in filas)
-            {
-                string[] sfila = fila.Split(';');
-                if (sfila[0] != "")
-                    GECParameterList.Add(sfila[0], new GEC(sfila[0], sfila[1]));
-            }
 
             //ID Functions
             path = String.Concat(EPLANPaths.Documents, "\\ID_Functions.csv");
@@ -1071,9 +1071,6 @@ namespace EPLAN_API.SAP
                     uint.TryParse(sfila[0], out val);
                     IDFunctions.Add(val, sfila[1]);
                 }
-
-
-
             }
         }
 

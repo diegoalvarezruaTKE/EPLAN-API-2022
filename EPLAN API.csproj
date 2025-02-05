@@ -127,6 +127,7 @@
     <Compile Include="User\DrawTools.cs" />
     <Compile Include="User\GEC.cs" />
     <Compile Include="User\HCValue.cs" />
+    <Compile Include="User\IDrawable.cs" />
     <Compile Include="User\MotorCurrentData.cs" />
   </ItemGroup>
   <ItemGroup>

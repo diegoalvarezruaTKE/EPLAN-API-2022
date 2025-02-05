@@ -21,9 +21,12 @@ namespace EPLAN_API_2022.Forms
         public List<Electric> oElectricList;
         public Project oProject;
         public Draw Draw;
+        public DrawTools DrawTools;
 
         public Configurador()
         {
+            DrawTools = new DrawTools();
+
             oElectricList = new List<Electric>();
             oElectricList.Add(new Electric());
             oElectricList[0].ComboboxDataToConfigurador += new Electric.ComboboxDelegateToConfigurador(ComboboxChanged);
@@ -824,6 +827,7 @@ namespace EPLAN_API_2022.Forms
         private void BGEC_Click(object sender, EventArgs e)
         {
             AbrirFormEnPanel(new PanelGEC(oElectricList));
+            DrawTools.calcParmGEC_Basic(oProject, oElectricList[0]);
         }
 
         private void BRead_Click(object sender, EventArgs e)
@@ -832,6 +836,7 @@ namespace EPLAN_API_2022.Forms
             LoadSAPtoEPLAN(new SAPReader(tB_OE.Text).readCaracConfigElec());
             UpdateSpecialCaract();
             CalculateCaractIng();
+            DrawTools.calcParmGEC_Basic(oProject, oElectricList[0]);
         }
 
         private void b_Draw_Click(object sender, EventArgs e)
@@ -843,5 +848,7 @@ namespace EPLAN_API_2022.Forms
         }
 
         #endregion
+
+        
     }
 }
