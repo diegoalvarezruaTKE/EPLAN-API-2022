@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="urn:sap-com:document:sap:soap:functions:mc-style" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:n1="urn:sap-com:document:sap:rfc:functions" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="urn:sap-com:document:sap:soap:functions:mc-style" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:documentation>
+    <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl" />
+  </wsdl:documentation>
+  <wsp:UsingPolicy wsdl:required="true" />
+  <wsp:Policy wsu:Id="BN_BN_z_cv_read_salcv_binding">
+    <saptrnbnd:OptimizedXMLTransfer uri="http://xml.sap.com/2006/11/esi/esp/binxml" xmlns:saptrnbnd="http://www.sap.com/webas/710/soap/features/transportbinding/" wsp:Optional="true" />
+    <saptrnbnd:OptimizedXMLTransfer uri="http://www.w3.org/2004/08/soap/features/http-optimization" xmlns:saptrnbnd="http://www.sap.com/webas/710/soap/features/transportbinding/" wsp:Optional="true" />
+    <wsp:ExactlyOne xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+      <wsp:All>
+        <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:sapsp="http://www.sap.com/webas/630/soap/features/security/policy" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/07/utility" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <sp:HttpsToken>
+                  <wsp:Policy>
+                    <sp:HttpBasicAuthentication />
+                  </wsp:Policy>
+                </sp:HttpsToken>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:TripleDesRsa15 />
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict />
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+      </wsp:All>
+    </wsp:ExactlyOne>
+    <sapattahnd:Enabled xmlns:sapattahnd="http://www.sap.com/710/features/attachment/">false</sapattahnd:Enabled>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="IF_IF_Z_CV_READ_SALES_CONF">
+    <sapsession:Session xmlns:sapsession="http://www.sap.com/webas/630/soap/features/session/">
+      <sapsession:enableSession>false</sapsession:enableSession>
+    </sapsession:Session>
+    <sapcentraladmin:CentralAdministration xmlns:sapcentraladmin="http://www.sap.com/webas/700/soap/features/CentralAdministration/" wsp:Optional="true" />
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="OP_IF_OP_ZCvReadSalesConf">
+    <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">false</sapcomhnd:enableCommit>
+    <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">true</sapblock:enableBlocking>
+    <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">no</saptrhnw05:required>
+    <saprmnw05:enableWSRM xmlns:saprmnw05="http://www.sap.com/NW05/soap/features/wsrm/">false</saprmnw05:enableWSRM>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema attributeFormDefault="qualified" targetNamespace="urn:sap-com:document:sap:rfc:functions">
+      <xsd:simpleType name="char10">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="10" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="char30">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="30" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="numeric10">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="10" />
+          <xsd:pattern value="\d*" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="numeric6">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="6" />
+          <xsd:pattern value="\d*" />
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:schema>
+    <xsd:schema xmlns:n0="urn:sap-com:document:sap:rfc:functions" attributeFormDefault="qualified" targetNamespace="urn:sap-com:document:sap:soap:functions:mc-style">
+      <xsd:import namespace="urn:sap-com:document:sap:rfc:functions" />
+      <xsd:simpleType name="RfcException.Message.Number">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="3" />
+          <xsd:pattern value="\d*" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="lang">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="1" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="ConfOut">
+        <xsd:sequence>
+          <xsd:element name="Atinn" type="n0:numeric10" />
+          <xsd:element name="Atnam" type="n0:char30" />
+          <xsd:element name="Atbez" type="n0:char30" />
+          <xsd:element name="Atwrt" type="n0:char30" />
+          <xsd:element name="Atwtb" type="n0:char30" />
+          <xsd:element name="Ewahr" type="xsd:float" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="RfcException.Message">
+        <xsd:sequence>
+          <xsd:element name="ID" type="xsd:string" />
+          <xsd:element name="Number" type="tns:RfcException.Message.Number" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ZCvReadSalesConf.RfcException">
+        <xsd:sequence>
+          <xsd:element name="Name" type="tns:ZCvReadSalesConf.RfcExceptions" />
+          <xsd:element minOccurs="0" name="Text" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Message" type="tns:RfcException.Message" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ConfOutTt">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="item" type="tns:ConfOut" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="ZCvReadSalesConf.RfcExceptions">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="ItemNotConfigurable" />
+          <xsd:enumeration value="ItemNotFound" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:element name="ZCvReadSalesConf.Exception" type="tns:ZCvReadSalesConf.RfcException" />
+      <xsd:element name="ZCvReadSalesConf">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="IDocumentNumber" type="n0:char10" />
+            <xsd:element name="IItemNumber" type="n0:numeric6" />
+            <xsd:element name="ILang" type="tns:lang" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="ZCvReadSalesConfResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="Configuration" type="tns:ConfOutTt" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="ZCvReadSalesConf">
+    <wsdl:part name="parameters" element="tns:ZCvReadSalesConf" />
+  </wsdl:message>
+  <wsdl:message name="ZCvReadSalesConfResponse">
+    <wsdl:part name="parameter" element="tns:ZCvReadSalesConfResponse" />
+  </wsdl:message>
+  <wsdl:message name="ZCvReadSalesConf.Exception">
+    <wsdl:part name="ZCvReadSalesConf.Exception" element="tns:ZCvReadSalesConf.Exception" />
+  </wsdl:message>
+  <wsdl:portType name="Z_CV_READ_SALES_CONF">
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#IF_IF_Z_CV_READ_SALES_CONF" />
+    </wsp:Policy>
+    <wsdl:operation name="ZCvReadSalesConf">
+      <wsp:Policy>
+        <wsp:PolicyReference URI="#OP_IF_OP_ZCvReadSalesConf" />
+      </wsp:Policy>
+      <wsdl:input message="tns:ZCvReadSalesConf" />
+      <wsdl:output message="tns:ZCvReadSalesConfResponse" />
+      <wsdl:fault name="ZCvReadSalesConf.Exception" message="tns:ZCvReadSalesConf.Exception" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="z_cv_read_salcv_binding" type="tns:Z_CV_READ_SALES_CONF">
+    <wsp:Policy>
+      <wsp:PolicyReference URI="#BN_BN_z_cv_read_salcv_binding" />
+    </wsp:Policy>
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ZCvReadSalesConf">
+      <soap:operation soapAction="" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="ZCvReadSalesConf.Exception">
+        <soap:fault use="literal" name="ZCvReadSalesConf.Exception" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Z_CV_READ_SALES_CONF">
+    <wsdl:port name="z_cv_read_salcv_binding" binding="tns:z_cv_read_salcv_binding">
+      <soap:address location="https://av000t2p.sap.tkelevator.com:44348/sap/bc/srt/rfc/sap/z_cv_read_sales_conf/010/z_cv_read_sales_conf/z_cv_read_salcv_binding" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

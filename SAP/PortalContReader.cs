@@ -13,15 +13,13 @@ using Newtonsoft.Json;
 
 namespace EPLAN_API.SAP
 {
-    public class SAPReader
+    public class PortalContReader
     {
         public const String _URL_Config_Elec = "http://95.111.0.21:8080/pentaho/api/repos/%3Apublic%3ATKN_BI%3ATKN_CARACTERISTICAS_CONF_ELECTRICO.wcdf/generatedContent";
 
-        //private Electric oElectric;
-        //private Dictionary<string, string> SAPCararct;
         private string OE;
 
-        public SAPReader(string OE)
+        public PortalContReader(string OE)
         {
             this.OE = OE;
         }

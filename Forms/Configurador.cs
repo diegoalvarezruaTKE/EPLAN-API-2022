@@ -235,6 +235,8 @@ namespace EPLAN_API_2022.Forms
                         CultureInfo enUS = new CultureInfo("en-US");
 
                         string Svalue = SAPCararct[key];
+                        if (Svalue.Split(' ').Length > 0)
+                            Svalue = Svalue.Split(' ')[0];
 
                         c.setActualNumVal(Convert.ToDouble(Svalue, esES));
                     }
@@ -833,10 +835,16 @@ namespace EPLAN_API_2022.Forms
         private void BRead_Click(object sender, EventArgs e)
         {
             //LoadSAPtoEPLAN(new SAPReader("1150015829").readCaracConfigElec());
-            LoadSAPtoEPLAN(new SAPReader(tB_OE.Text).readCaracConfigElec());
-            UpdateSpecialCaract();
-            CalculateCaractIng();
-            DrawTools.calcParmGEC_Basic(oProject, oElectricList[0]);
+            //LoadSAPtoEPLAN(new SAPReader(tB_OE.Text).readCaracConfigElec());
+            if (tB_OE.Text.Length == 10)
+            {
+                SAPService sAPService = new SAPService();
+                Dictionary<string, string> values = sAPService.ReadSAPCaract(tB_OE.Text);
+                LoadSAPtoEPLAN(values);
+                UpdateSpecialCaract();
+                CalculateCaractIng();
+                DrawTools.calcParmGEC_Basic(oProject, oElectricList[0]);
+            }
         }
 
         private void b_Draw_Click(object sender, EventArgs e)
