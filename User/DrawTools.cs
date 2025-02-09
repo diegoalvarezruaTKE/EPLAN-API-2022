@@ -12,6 +12,7 @@ using System.Windows.Media.Media3D;
 using Eplan.EplApi.DataModel.E3D;
 using Eplan.EplApi.DataModel.Graphics;
 using System.IO;
+using Eplan.EplApi.Base.Enums;
 
 namespace EPLAN_API.User
 {
@@ -91,75 +92,18 @@ namespace EPLAN_API.User
 
             Dictionary<int, string> dictPages = GetPageTable(oProject);
 
-            //en página de "External Feed Wiring"
             key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == page);
 
             int nVariante = -1;
-            switch (variante)
+            
+
+            if (variante >= 'A' && variante <= 'Z')
             {
-                case 'A':
-                    nVariante = 0;
-                    break;
-
-                case 'B':
-                    nVariante = 1;
-                    break;
-
-                case 'C':
-                    nVariante = 2;
-                    break;
-
-                case 'D':
-                    nVariante = 3;
-                    break;
-
-                case 'E':
-                    nVariante = 4;
-                    break;
-
-                case 'F':
-                    nVariante = 5;
-                    break;
-
-                case 'G':
-                    nVariante = 6;
-                    break;
-
-                case 'H':
-                    nVariante = 7;
-                    break;
-
-                case 'I':
-                    nVariante = 8;
-                    break;
-
-                case 'J':
-                    nVariante = 9;
-                    break;
-
-                case 'K':
-                    nVariante = 10;
-                    break;
-
-                case 'L':
-                    nVariante = 11;
-                    break;
-
-                case 'M':
-                    nVariante = 12;
-                    break;
-
-                case 'N':
-                    nVariante = 13;
-                    break;
-
-                case 'O':
-                    nVariante = 14;
-                    break;
-
-                case 'P':
-                    nVariante = 15;
-                    break;
+                nVariante = variante - 'A';
+            }
+            else
+            {
+                nVariante = -1; // Manejo de error
             }
 
             oInsert.WindowMacro(pathMacro, nVariante, oProject.Pages[key], new PointD(x, y), Insert.MoveKind.Absolute);
@@ -748,6 +692,320 @@ namespace EPLAN_API.User
             }
         }
 
+        public void insertArticle(Project oProject, string ipage, string ifunction, string articleref, uint cantidad)
+        {
+            int key;
+            Insert oInsert = new Insert();
+
+            Dictionary<int, string> dictPages = GetPageTable(oProject);
+
+
+            key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == ipage);
+
+            Page opage = oProject.Pages[key];
+
+            opage.Filter.FunctionCategory = FunctionCategory.ArticleDefinitionPoint;
+            Function[] f = opage.Functions;
+            Function ofunction = null;
+
+            foreach (Function function in f)
+            {
+                if (function.VisibleName.Equals(ifunction))
+                {
+                    ofunction = function;
+                    break;
+                }
+            }
+
+            if (ofunction == null)
+                return;
+
+            ofunction.AddArticleReference(articleref, "1", cantidad);
+
+        }
+
+        public Function insertDeviceLayout(Project oProject, string functionName, string functionPage, string mountingPlate, int posArticle, char macroVariant, string variant, string layouyPage, int posX, int posY)
+        {
+            int key;
+            Insert oInsert = new Insert();
+
+            Dictionary<int, string> dictPages = GetPageTable(oProject);
+
+            Function deviceFuncion = new Function();
+            Function articlePlacememt = new Function();
+
+            int nVariante = -1;
+            switch (macroVariant)
+            {
+                case 'A':
+                    nVariante = 0;
+                    break;
+
+                case 'B':
+                    nVariante = 1;
+                    break;
+
+                case 'C':
+                    nVariante = 2;
+                    break;
+
+                case 'D':
+                    nVariante = 3;
+                    break;
+
+                case 'E':
+                    nVariante = 4;
+                    break;
+
+                case 'F':
+                    nVariante = 5;
+                    break;
+
+                case 'G':
+                    nVariante = 6;
+                    break;
+
+                case 'H':
+                    nVariante = 7;
+                    break;
+
+                case 'I':
+                    nVariante = 8;
+                    break;
+
+                case 'J':
+                    nVariante = 9;
+                    break;
+
+                case 'K':
+                    nVariante = 10;
+                    break;
+
+                case 'L':
+                    nVariante = 11;
+                    break;
+
+                case 'M':
+                    nVariante = 12;
+                    break;
+
+                case 'N':
+                    nVariante = 13;
+                    break;
+
+                case 'O':
+                    nVariante = 14;
+                    break;
+
+                case 'P':
+                    nVariante = 15;
+                    break;
+
+            }
+
+            key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == layouyPage);
+            Page oLayoutPage = oProject.Pages[key];
+
+            key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == functionPage);
+
+            Page ofunctionPage = oProject.Pages[key];
+
+            foreach (Function function in ofunctionPage.Functions)
+            {
+                if (function.VisibleName.Contains(functionName) &&
+                    function.IsMainFunction)
+                {
+                    deviceFuncion = function;
+                    break;
+                }
+            }
+
+            if (deviceFuncion.VisibleName == null)
+                return null;
+
+            FunctionsFilter ff = new FunctionsFilter();
+            ff.FunctionCategory=FunctionCategory.MountingPlate;
+            ff.Page = oLayoutPage;
+            DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
+            Function[] functions = objFinder.GetFunctions(ff);
+
+
+            foreach (Function function in functions)
+            {
+                if (function.VisibleName.Contains(mountingPlate))
+                {
+                    try
+                    {
+                        new Settings().SetStringSetting("USER.PanelLayoutGui.Settings.Gripper", "UpperLeft");
+                        MountingPanelService mountingPanelService = new MountingPanelService();
+                        //mountingPanelService.CreateArticlePlacement(function, deviceFuncion.Articles[posArticle].PartNr, new PointD(posX, posY + deviceFuncion.Articles[posArticle].Properties.ARTICLE_HEIGHT.ToDouble()), ref articlePlacememt);
+                        mountingPanelService.CreateArticlePlacement(function, deviceFuncion.Articles[posArticle].PartNr, nVariante, new PointD(posX, posY), ref articlePlacememt);
+                        articlePlacememt.Name = deviceFuncion.Name;
+                        articlePlacememt.VisibleName = deviceFuncion.VisibleName;
+                        //articlePlacememt.IdentifyingNameParts.FUNC_VISIBLEDEVICETAG = deviceFuncion.IdentifyingNameParts.FUNC_VISIBLEDEVICETAG;
+                        articlePlacememt.PropertyPlacementsSchemas.Selected = articlePlacememt.PropertyPlacementsSchemas.DefaultScheme;
+
+                    }
+
+                    catch (Exception ex)
+                    {
+                        return null;
+                    }
+                    break;
+                }
+            }
+
+            return articlePlacememt;
+
+        }
+
+        public Function insertDeviceLayout(Project oProject, string functionName, string functionPage, string mountingPlate, int posArticle, char macroVariant, string variant, string layouyPage, string functionNextComponent)
+        {
+            int key;
+            Insert oInsert = new Insert();
+
+            Dictionary<int, string> dictPages = GetPageTable(oProject);
+
+            int posX = 0;
+            int posY = 0;
+            Function deviceFuncion = new Function();
+            Function articlePlacememt = new Function();
+
+            int nVariante = -1;
+            switch (macroVariant)
+            {
+                case 'A':
+                    nVariante = 0;
+                    break;
+
+                case 'B':
+                    nVariante = 1;
+                    break;
+
+                case 'C':
+                    nVariante = 2;
+                    break;
+
+                case 'D':
+                    nVariante = 3;
+                    break;
+
+                case 'E':
+                    nVariante = 4;
+                    break;
+
+                case 'F':
+                    nVariante = 5;
+                    break;
+
+                case 'G':
+                    nVariante = 6;
+                    break;
+
+                case 'H':
+                    nVariante = 7;
+                    break;
+
+                case 'I':
+                    nVariante = 8;
+                    break;
+
+                case 'J':
+                    nVariante = 9;
+                    break;
+
+                case 'K':
+                    nVariante = 10;
+                    break;
+
+                case 'L':
+                    nVariante = 11;
+                    break;
+
+                case 'M':
+                    nVariante = 12;
+                    break;
+
+                case 'N':
+                    nVariante = 13;
+                    break;
+
+                case 'O':
+                    nVariante = 14;
+                    break;
+
+                case 'P':
+                    nVariante = 15;
+                    break;
+
+            }
+
+            key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == layouyPage);
+            Page oLayoutPage = oProject.Pages[key];
+
+            key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == functionPage);
+
+            Page ofunctionPage = oProject.Pages[key];
+
+            foreach (Function function in ofunctionPage.Functions)
+            {
+                if (function.VisibleName.Contains(functionName) &&
+                    function.IsMainFunction)
+                {
+                    deviceFuncion = function;
+                    break;
+                }
+            }
+
+            if (deviceFuncion.VisibleName == null)
+                return null;
+
+
+
+            foreach (Function function in oLayoutPage.Functions)
+            {
+                if (function.VisibleName.Contains(functionNextComponent))
+                {
+                    posX = function.Properties.INSTANCE_XCOORD.ToInt() +
+                        function.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
+                    posY = function.Properties.INSTANCE_YCOORD.ToInt();
+                }
+            }
+
+            FunctionsFilter ff = new FunctionsFilter();
+            ff.FunctionCategory=FunctionCategory.MountingPlate;
+            ff.Page = oLayoutPage;
+            DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
+            Function[] functions = objFinder.GetFunctions(ff);
+
+            foreach (Function function in functions)
+            {
+                if (function.VisibleName.Contains(mountingPlate))
+                {
+                    try
+                    {
+                        new Settings().SetStringSetting("USER.PanelLayoutGui.Settings.Gripper", "UpperLeft");
+                        MountingPanelService mountingPanelService = new MountingPanelService();
+                        mountingPanelService.CreateArticlePlacement(function, deviceFuncion.Articles[posArticle].PartNr, nVariante, new PointD(posX, posY), ref articlePlacememt);
+                        articlePlacememt.Name = deviceFuncion.Name;
+                        articlePlacememt.VisibleName = deviceFuncion.VisibleName;
+                        articlePlacememt.PropertyPlacementsSchemas.Selected = articlePlacememt.PropertyPlacementsSchemas.DefaultScheme;
+                    }
+                    catch (Exception ex)
+                    {
+                        return null;
+                    }
+                    break;
+                }
+            }
+
+            return articlePlacememt;
+
+        }
+
+
+        #region GEC Parameters
+
         public void SetGECParameter(Project oProject, Electric oElectric, string address, uint value, bool changeText=false)
         {
             oElectric.GECParameterList[address].setValue(value);
@@ -766,7 +1024,6 @@ namespace EPLAN_API.User
             }
         }
 
-        #region GEC Parameters
         public void calcParmGEC_Basic(Project oProject, Electric electric)
         {
             //electric.GECParameterList = createDefaultGECParam();    // Instancia lista parametros
@@ -873,11 +1130,17 @@ namespace EPLAN_API.User
             else
                 SetGECParameter(oProject, electric, "S9", 4);
 
+            //S10	HR_FAULT_TIME
+            SetGECParameter(oProject, electric, "S10", 5);
+
             //S11 STEP_WIDTH
             if (Producto.CurrentReference.Equals("IWALK"))
                 SetGECParameter(oProject, electric, "S11", 127);
             else
                 SetGECParameter(oProject, electric, "S11", 405);
+
+            //S12 DELAY_NO_PULSE_CHECKING
+            SetGECParameter(oProject, electric, "S12", 5000);
 
             //S13 SPEED_SENSOR_INSTALLATION
             if (FrenoAux.CurrentReference.Equals("HWSPERRKMAGN") ||
@@ -886,6 +1149,21 @@ namespace EPLAN_API.User
             else
                 SetGECParameter(oProject, electric, "S13", (uint)GEC.MotorSensor.Two_Sensors_in_motor);
 
+            //S14 UNDERSPEED_TIME
+            SetGECParameter(oProject, electric, "S14", 5000);
+
+            //S15 END_SAFETY_STRING_FAULT_TYPE
+            SetGECParameter(oProject, electric, "S15", 2);
+
+            //S16 CONTACTOR_FEEDBACK_FILTER
+            SetGECParameter(oProject, electric, "S16", 2000);
+
+            //S17 CONTACTORS_TIMEOUT
+            SetGECParameter(oProject, electric, "S17", 3);
+
+            //S18	CONTACTOR_FB1_MASK
+            //K1.1 / K1.2 star order motor 1
+            SetGECParameter(oProject, electric, "S18", (uint)GEC.ContactorFB.K1_1_K1_2);
 
             //S19	CONTACTOR_FB2_MASK
             //K2.1 / K2.1.1 star order motor 1
@@ -907,6 +1185,24 @@ namespace EPLAN_API.User
             if (motorConnection.CurrentReference.Equals("VVF_D") ||
                 motorConnection.CurrentReference.Equals("VVF_YD"))
                 SetGECParameter(oProject, electric, "S21", (uint)GEC.ContactorFB.K10);
+
+            //S22 CONTACTOR_FB5_MASK
+            SetGECParameter(oProject, electric, "S22", (uint)GEC.ContactorFB.empty);
+
+            //S23 CONTACTOR_FB6_MASK
+            SetGECParameter(oProject, electric, "S23", (uint)GEC.ContactorFB.empty);
+
+            //S24 CONTACTOR_FB7_MASK
+            SetGECParameter(oProject, electric, "S24", (uint)GEC.ContactorFB.empty);
+
+            //S25 CONTACTOR_FB8_MASK
+            SetGECParameter(oProject, electric, "S25", (uint)GEC.ContactorFB.empty);
+
+            //S26 KEY_MINIMUM_TIME
+            SetGECParameter(oProject, electric, "S26", 500);
+
+            //S27 UP_DOWN_ALLOWED
+            SetGECParameter(oProject, electric, "S27", 0);
 
             //S28	AUTCONT_OPTIONS
             if (modofuncionamiento.CurrentReference.Equals("INTERM") ||
@@ -1054,104 +1350,35 @@ namespace EPLAN_API.User
             #endregion
 
             #region Safety Inputs
-            ////SI12	SF Safety Input 4
-            ////Contactor Fb 2
-            //if (motorConnection.CurrentReference.Equals("YD") ||
-            //    motorConnection.CurrentReference.Equals("VVF_YD"))
-            //{
-            //    GEC SF_Safety_Input_4 = new GEC("SI12", 335, buscarNombreParametroGEC("SI12"));
-            //    GEC_Parameter.Add(SF_Safety_Input_4);
-            //}
+            //SI15	SF Safety Input 7
+            SetGECParameter(oProject, electric, "S15", (uint)GEC.Param.Empty);
 
-            ////SI15	SF Safety Input 7
-            //if (sDobleFreno.CurrentReference.Equals("4/4"))
-            //{
-            //    //Brake function brake3 Mot.-1
-            //    GEC SF_Safety_Input_7 = new GEC("SI15", 28, buscarNombreParametroGEC("SI15"));
-            //    GEC_Parameter.Add(SF_Safety_Input_7);
-            //}
+            //SI16	SF Safety Input 8
+            SetGECParameter(oProject, electric, "S16", (uint)GEC.Param.Empty);
 
-            ////SI16	SF Safety Input 8
-            //if (sDobleFreno.CurrentReference.Equals("4/4"))
-            //{
-            //    //Brake function brake4 Mot.-1
-            //    GEC SF_Safety_Input_8 = new GEC("SI16", 29, buscarNombreParametroGEC("SI16"));
-            //    GEC_Parameter.Add(SF_Safety_Input_8);
-            //}
+            //SI17	SF Safety Input 9
+            SetGECParameter(oProject, electric, "S17", (uint)GEC.Param.Empty);
 
-            ////SI17	SF Safety Input 9
-            //GEC SF_Safety_Input_9 = new GEC("SI17", buscarNombreParametroGEC("SI17"));
-            //GEC_Parameter.Add(SF_Safety_Input_9);
-            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
-            //    (FrenoAux.CurrentReference.Equals("HWSPERRKMAGN") ||
-            //    FrenoAux.CurrentReference.Equals("NAB")))
-            //    //Aux brake status 1
-            //    SF_Safety_Input_9.value = 34;
+            //SI18	SF Safety Input 10
+            SetGECParameter(oProject, electric, "S18", (uint)GEC.Param.Empty);
 
-            //if ((ubicacionControlador.CurrentReference.Equals("INNENOBEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("INNENUNTEN")) &&
-            //    sCadena.CurrentReference.Equals("SI"))
-            //    //Drive chain (Du-, Triplex)
-            //    SF_Safety_Input_9.value = 36;
+            //SI19	SF Safety Input 11
+            SetGECParameter(oProject, electric, "S19", (uint)GEC.Param.Up_maint_order);
 
+            //SI20	SF Safety Input 12
+            SetGECParameter(oProject, electric, "S20", (uint)GEC.Param.Down_maint_order);
 
-            ////SI18	SF Safety Input 10
-            //GEC SF_Safety_Input_10 = new GEC("SI18", buscarNombreParametroGEC("SI18"));
-            //GEC_Parameter.Add(SF_Safety_Input_10);
-            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
-            //    sCadena.CurrentReference.Equals("SI"))
-            //    //Drive chain (Du-, Triplex)
-            //    SF_Safety_Input_10.value = 36;
-            //if (Producto.CurrentReference.Contains("CLASSIC") &&
-            //    (normativa.CurrentReference.Equals("ASME") || normativa.CurrentReference.Equals("CSA")))
-            //    SF_Safety_Input_10.value = 34;
+            //SI23 SF Safety Input 15 X23
+            SetGECParameter(oProject, electric, "S23", (uint)GEC.Param.Top_open_floor_plate_1);
 
-            ////SI21	SF Safety Input 13
-            ////Contactor FB 3
-            //if (motorConnection.CurrentReference.Equals("VVF_D") ||
-            //    motorConnection.CurrentReference.Equals("VVF_YD") ||
-            //    motorConnection.CurrentReference.Equals("VVF"))
-            //{
-            //    GEC SF_Safety_Input_13 = new GEC("SI21", 14, buscarNombreParametroGEC("SI21"));
-            //    GEC_Parameter.Add(SF_Safety_Input_13);
-            //}
+            //SI24    SF Safety Input 16
+            SetGECParameter(oProject, electric, "S24", (uint)GEC.Param.Top_open_floor_plate_2);
 
-            ////SI22	SF Safety Input 14 X22
-            ////Contactor FB 4
-            //if (motorConnection.CurrentReference.Equals("VVF_D") ||
-            //    motorConnection.CurrentReference.Equals("VVF_YD"))
-            //{
-            //    GEC SF_Safety_Input_13 = new GEC("SI22", 15, buscarNombreParametroGEC("SI22"));
-            //    GEC_Parameter.Add(SF_Safety_Input_13);
-            //}
+            //SI25 SF Safety Input 17
+            SetGECParameter(oProject, electric, "S25", (uint)GEC.Param.Bottom_open_floor_plate_1);
 
-            ////SI27	SF Safety Input 19
-            //if (!sistemaAnden.CurrentReference.Equals("KEINE"))
-            //{
-            //    //Up Key Order
-            //    GEC SF_Safety_Input_19 = new GEC("SI27", 26, buscarNombreParametroGEC("SI27"));
-            //    GEC_Parameter.Add(SF_Safety_Input_19);
-            //}
-            //else if (!ubicacionControlador.CurrentReference.Equals("AUSSEN") &&
-            //    !ubicacionControlador.CurrentReference.Equals("ARM_ESP") &&
-            //    normativa.CurrentReference.Equals("EN") &&
-            //    (FrenoAux.CurrentReference.Equals("HWSPERRKMAGN") ||
-            //    FrenoAux.CurrentReference.Equals("NAB")))
-            //{
-            //    //Aux Brake Status 1
-            //    GEC SF_Safety_Input_19 = new GEC("SI27", 34, buscarNombreParametroGEC("SI27"));
-            //    GEC_Parameter.Add(SF_Safety_Input_19);
-            //}
-
-            ////SI28	SF Safety Input 20
-            //if (!sistemaAnden.CurrentReference.Equals("KEINE"))
-            //{
-            //    //Top Down Key Order
-            //    GEC SF_Safety_Input_20 = new GEC("SI28", 27, buscarNombreParametroGEC("SI28"));
-            //    GEC_Parameter.Add(SF_Safety_Input_20);
-            //}
+            //SI26 SF Safety Input 18
+            SetGECParameter(oProject, electric, "S26", (uint)GEC.Param.Bottom_open_floor_plate_1);
             #endregion
 
             #endregion
@@ -1258,7 +1485,7 @@ namespace EPLAN_API.User
 
             //C25	IP_ADDRESS_BYTE4
             //string str_IP = tB_OE.Text.Substring(tB_OE.Text.Length - 2, 2);
-            string str_IP = "1150015910";
+            string str_IP = "10";
             uint IP = (uint)Int32.Parse(str_IP);
             if (IP == 00)
             {
@@ -1431,576 +1658,404 @@ namespace EPLAN_API.User
             #endregion
 
             #region Modbus
+            //C100 MODBUS000
+            SetGECParameter(oProject, electric, "C100", 1);
+            //C101 MODBUS001
+            SetGECParameter(oProject, electric, "C101", 5);
+            //C102 MODBUS002
+            SetGECParameter(oProject, electric, "C102", 7);
+            //C103 MODBUS003
+            SetGECParameter(oProject, electric, "C103", 12);
+            //C104 MODBUS004
+            SetGECParameter(oProject, electric, "C104", 13);
+            //C105 MODBUS005
+            SetGECParameter(oProject, electric, "C105", 14);
+            //C106 MODBUS006
+            SetGECParameter(oProject, electric, "C106", 15);
+            //C107 MODBUS007
+            SetGECParameter(oProject, electric, "C107", 16);
+            //C108 MODBUS008
+            SetGECParameter(oProject, electric, "C108", 20);
+            //C109 MODBUS009
+            SetGECParameter(oProject, electric, "C109", 21);
+            //C110 MODBUS010
+            SetGECParameter(oProject, electric, "C110", 24);
+            //C111 MODBUS011
+            SetGECParameter(oProject, electric, "C111", 25);
+            //C112 MODBUS012
+            SetGECParameter(oProject, electric, "C112", 26);
+            //C113 MODBUS013
+            SetGECParameter(oProject, electric, "C113", 28);
+            //C114 MODBUS014
+            SetGECParameter(oProject, electric, "C114", 30);
+            //C115 MODBUS015
+            SetGECParameter(oProject, electric, "C115", 32);
+            //C116 MODBUS016
+            SetGECParameter(oProject, electric, "C116", 34);
+            //C117 MODBUS017
+            SetGECParameter(oProject, electric, "C117", 36);
+            //C118 MODBUS018
+            SetGECParameter(oProject, electric, "C118", 38);
+            //C119 MODBUS019
+            SetGECParameter(oProject, electric, "C119", 40);
+            //C120 MODBUS020
+            SetGECParameter(oProject, electric, "C120", 42);
+            //C121 MODBUS021
+            SetGECParameter(oProject, electric, "C121", 44);
+            //C122 MODBUS022
+            SetGECParameter(oProject, electric, "C122", 46);
+            //C123 MODBUS023
+            SetGECParameter(oProject, electric, "C123", 48);
+            //C124 MODBUS024
+            SetGECParameter(oProject, electric, "C124", 50);
+            //C125 MODBUS025
+            SetGECParameter(oProject, electric, "C125", 52);
+            //C126 MODBUS026
+            SetGECParameter(oProject, electric, "C126", 54);
+            //C127 MODBUS027
+            SetGECParameter(oProject, electric, "C127", 56);
+            //C128 MODBUS028
+            SetGECParameter(oProject, electric, "C128", 0);
+            //C129 MODBUS029
+            SetGECParameter(oProject, electric, "C129", 0);
+            //C130 MODBUS030
+            SetGECParameter(oProject, electric, "C130", 0);
+            //C131 MODBUS031
+            SetGECParameter(oProject, electric, "C131", 0);
+            //C132 MODBUS032
+            SetGECParameter(oProject, electric, "C132", 57);
+            //C133 MODBUS033
+            SetGECParameter(oProject, electric, "C133", 0);
+            //C134 MODBUS034
+            SetGECParameter(oProject, electric, "C134", 58);
+            //C135 MODBUS035
+            SetGECParameter(oProject, electric, "C135", 0);
+            //C136 MODBUS036
+            SetGECParameter(oProject, electric, "C136", 0);
+            //C137 MODBUS037
+            SetGECParameter(oProject, electric, "C137", 59);
+            //C138 MODBUS038
+            SetGECParameter(oProject, electric, "C138", 0);
+            //C139 MODBUS039
+            SetGECParameter(oProject, electric, "C139", 0);
+            //C140 MODBUS TYPE
+            SetGECParameter(oProject, electric, "C140", 2);
+            //C141    LOG_ERASE
+            SetGECParameter(oProject, electric, "C141", (uint)GEC.Active.Enable);
+            //C142    UNIT ID
+            SetGECParameter(oProject, electric, "C142", 1);
+            //C143 RESERVED
+            //C144 RUN REMOTE
+            SetGECParameter(oProject, electric, "C144", (uint)GEC.Active.Enable);
+            //C145 GENERAL 1 BIT 0
+            SetGECParameter(oProject, electric, "C145", 1007);
+            //C146 GENERAL 1 BIT 1
+            SetGECParameter(oProject, electric, "C146", 1003);
+            //C147 GENERAL 1 BIT 2
+            SetGECParameter(oProject, electric, "C147", 1013);
+            //C148 GENERAL 1 BIT 3
+            SetGECParameter(oProject, electric, "C148", 1014);
+            //C149 GENERAL 1 BIT 4
+            SetGECParameter(oProject, electric, "C149", 48);
+            //C150 GENERAL 1 BIT 5
+            SetGECParameter(oProject, electric, "C150", 244);
+            //C151 GENERAL 1 BIT 6
+            SetGECParameter(oProject, electric, "C151", 1009);
+            //C152 GENERAL 1 BIT 7
+            SetGECParameter(oProject, electric, "C152", 1006);
+            //C153 GENERAL 1 BIT 8
+            SetGECParameter(oProject, electric, "C153", 1015);
+            //C154 GENERAL 1 BIT 9
+            SetGECParameter(oProject, electric, "C154", 324);
+            //C155 GENERAL 1 BIT 10
+            SetGECParameter(oProject, electric, "C155", 483);
+            //C156 GENERAL 1 BIT 11
+            SetGECParameter(oProject, electric, "C156", 9);
+            //C157 GENERAL 1 BIT 12
+            SetGECParameter(oProject, electric, "C157", 67);
+            //C158 GENERAL 1 BIT 13
+            SetGECParameter(oProject, electric, "C158", 4);
+            //C159 GENERAL 1 BIT 14
+            SetGECParameter(oProject, electric, "C159", 26);
+            //C160 GENERAL 1 BIT 15
+            SetGECParameter(oProject, electric, "C160", 28);
+            //C161 GENERAL 1 BIT 16
+            SetGECParameter(oProject, electric, "C161", 259);
+            //C162 GENERAL 1 BIT 17
+            SetGECParameter(oProject, electric, "C162", 258);
+            //C163 GENERAL 1 BIT 18
+            SetGECParameter(oProject, electric, "C163", 328);
+            //C164 GENERAL 1 BIT 19
+            SetGECParameter(oProject, electric, "C164", 23);
+            //C165 GENERAL 1 BIT 20
+            SetGECParameter(oProject, electric, "C165", 24);
+            //C166 GENERAL 1 BIT 21
+            SetGECParameter(oProject, electric, "C166", 40);
+            //C167 GENERAL 1 BIT 22
+            SetGECParameter(oProject, electric, "C167", 41);
+            //C168 GENERAL 1 BIT 23
+            SetGECParameter(oProject, electric, "C168", 32);
+            //C169 GENERAL 1 BIT 24
+            SetGECParameter(oProject, electric, "C169", 406);
+            //C170 GENERAL 1 BIT 25
+            SetGECParameter(oProject, electric, "C170", 33);
+            //C171 GENERAL 1 BIT 26
+            SetGECParameter(oProject, electric, "C171", 434);
+            //C172 GENERAL 1 BIT 27
+            SetGECParameter(oProject, electric, "C172", 21);
+            //C173 GENERAL 1 BIT 28
+            SetGECParameter(oProject, electric, "C173", 22);
+            //C174 GENERAL 1 BIT 29
+            SetGECParameter(oProject, electric, "C174", 95);
+            //C175 GENERAL 1 BIT 30
+            SetGECParameter(oProject, electric, "C175", 96);
+            //C176 GENERAL 1 BIT 31
+            SetGECParameter(oProject, electric, "C176", 38);
+            //C177 GENERAL 1 BIT 32
+            SetGECParameter(oProject, electric, "C177", 39);
+            //C178 GENERAL 1 BIT 33
+            SetGECParameter(oProject, electric, "C178", 97);
+            //C179 GENERAL 1 BIT 34
+            SetGECParameter(oProject, electric, "C179", 98);
+            //C180 GENERAL 1 BIT 35
+            SetGECParameter(oProject, electric, "C180", 44);
+            //C181 GENERAL 1 BIT 36
+            SetGECParameter(oProject, electric, "C181", 45);
+            //C182 GENERAL 1 BIT 37
+            SetGECParameter(oProject, electric, "C182", 50);
+            //C183 GENERAL 1 BIT 38
+            SetGECParameter(oProject, electric, "C183", 51);
+            //C184 GENERAL 1 BIT 39
+            SetGECParameter(oProject, electric, "C184", 46);
+            //C185 GENERAL 1 BIT 40
+            SetGECParameter(oProject, electric, "C185", 47);
+            //C186 GENERAL 1 BIT 41
+            SetGECParameter(oProject, electric, "C186", 35);
+            //C187 GENERAL 1 BIT 42
+            SetGECParameter(oProject, electric, "C187", 36);
+            //C188 GENERAL 1 BIT 43
+            SetGECParameter(oProject, electric, "C188", 11);
+            //C189 GENERAL 1 BIT 44
+            SetGECParameter(oProject, electric, "C189", 12);
+            //C190 GENERAL 1 BIT 45
+            SetGECParameter(oProject, electric, "C190", 286);
+            //C191 GENERAL 1 BIT 46
+            SetGECParameter(oProject, electric, "C191", 0);
+            //C192 GENERAL 1 BIT 47
+            SetGECParameter(oProject, electric, "C192", 0);
+            //C193 GENERAL 1 BIT 48
+            SetGECParameter(oProject, electric, "C193", 0);
+            //C194 GENERAL 1 BIT 49
+            SetGECParameter(oProject, electric, "C194", 0);
+            //C195 GENERAL 1 BIT 50
+            SetGECParameter(oProject, electric, "C195", 0);
+            //C196 GENERAL 1 BIT 51
+            SetGECParameter(oProject, electric, "C196", 0);
+            //C197 GENERAL 1 BIT 52
+            SetGECParameter(oProject, electric, "C197", 0);
+            //C198 GENERAL 1 BIT 53
+            SetGECParameter(oProject, electric, "C198", 0);
+            //C199 GENERAL 1 BIT 54
+            SetGECParameter(oProject, electric, "C199", 0);
+            //C200 GENERAL 1 BIT 55
+            SetGECParameter(oProject, electric, "C200", 0);
+            //C201 GENERAL 1 BIT 56
+            SetGECParameter(oProject, electric, "C201", 0);
+            //C202 GENERAL 1 BIT 57
+            SetGECParameter(oProject, electric, "C202", 0);
+            //C203 GENERAL 1 BIT 58
+            SetGECParameter(oProject, electric, "C203", 0);
+            //C204 GENERAL 1 BIT 59
+            SetGECParameter(oProject, electric, "C204", 0);
+            //C205 GENERAL 1 BIT 60
+            SetGECParameter(oProject, electric, "C205", 0);
+            //C206 GENERAL 1 BIT 61
+            SetGECParameter(oProject, electric, "C206", 0);
+            //C207 GENERAL 1 BIT 62
+            SetGECParameter(oProject, electric, "C207", 0);
+            //C208 GENERAL 1 BIT 63
+            SetGECParameter(oProject, electric, "C208", 2014);
+            //C209 GENERAL 2 BIT 0
+            SetGECParameter(oProject, electric, "C209", 2014);
+            //C210 GENERAL 2 BIT 1
+            SetGECParameter(oProject, electric, "C210", 2030);
+            //C211 GENERAL 2 BIT 2
+            SetGECParameter(oProject, electric, "C211", 2031);
+            //C212 GENERAL 2 BIT 3
+            SetGECParameter(oProject, electric, "C212", 2005);
+            //C213 GENERAL 2 BIT 4
+            SetGECParameter(oProject, electric, "C213", 2004);
+            //C214 GENERAL 2 BIT 5
+            SetGECParameter(oProject, electric, "C214", 2000);
+            //C215 GENERAL 2 BIT 6
+            SetGECParameter(oProject, electric, "C215", 2001);
+            //C216 GENERAL 2 BIT 7
+            SetGECParameter(oProject, electric, "C216", 2015);
+            //C217 GENERAL 2 BIT 8
+            SetGECParameter(oProject, electric, "C217", 2024);
+            //C218 GENERAL 2 BIT 9
+            SetGECParameter(oProject, electric, "C218", 2016);
+            //C219 GENERAL 2 BIT 10
+            SetGECParameter(oProject, electric, "C219", 2003);
+            //C220 GENERAL 2 BIT 11
+            SetGECParameter(oProject, electric, "C220", 2032);
+            //C221 GENERAL 2 BIT 12
+            SetGECParameter(oProject, electric, "C221", 2033);
+            //C222 GENERAL 2 BIT 13
+            SetGECParameter(oProject, electric, "C222", 2022);
+            //C223 GENERAL 2 BIT 14
+            SetGECParameter(oProject, electric, "C223", 2029);
+            //C224 GENERAL 2 BIT 15
+            SetGECParameter(oProject, electric, "C224", 2026);
+            //C225 GENERAL 2 BIT 16
+            SetGECParameter(oProject, electric, "C225", 2027);
+            //C226 GENERAL 2 BIT 17
+            SetGECParameter(oProject, electric, "C226", 2011);
+            //C227 GENERAL 2 BIT 18
+            SetGECParameter(oProject, electric, "C227", 2012);
+            //C228 GENERAL 2 BIT 19
+            SetGECParameter(oProject, electric, "C228", 2013);
+            //C229 GENERAL 2 BIT 20
+            SetGECParameter(oProject, electric, "C229", 2036);
+            //C230 GENERAL 2 BIT 21
+            SetGECParameter(oProject, electric, "C230", 2017);
+            //C231 GENERAL 2 BIT 22
+            SetGECParameter(oProject, electric, "C231", 2018);
+            //C232 GENERAL 2 BIT 23
+            SetGECParameter(oProject, electric, "C232", 2019);
+            //C233 GENERAL 2 BIT 24
+            SetGECParameter(oProject, electric, "C233", 2025);
+            //C234 GENERAL 2 BIT 25
+            SetGECParameter(oProject, electric, "C234", 2014);
+            //C235 GENERAL 2 BIT 26
+            SetGECParameter(oProject, electric, "C235", 2039);
+            //C236 GENERAL 2 BIT 27
+            SetGECParameter(oProject, electric, "C236", 0);
+            //C237 GENERAL 2 BIT 28
+            SetGECParameter(oProject, electric, "C237", 0);
+            //C238 GENERAL 2 BIT 29
+            SetGECParameter(oProject, electric, "C238", 0);
+            //C239 GENERAL 2 BIT 30
+            SetGECParameter(oProject, electric, "C239", 0);
+            //C240 GENERAL 2 BIT 31
+            SetGECParameter(oProject, electric, "C240", 0);
+            //C241 ORDER BIT 0
+            SetGECParameter(oProject, electric, "C241", 3);
+            //C242 ORDER  BIT 1
+            SetGECParameter(oProject, electric, "C242", 4);
+            //C243 ORDER BIT 2
+            SetGECParameter(oProject, electric, "C243", 5);
+            //C244 ORDER  BIT 3
+            SetGECParameter(oProject, electric, "C244", 6);
+            //C245 ORDER  BIT 4
+            SetGECParameter(oProject, electric, "C245", 7);
+            //C246 ORDER  BIT 5
+            SetGECParameter(oProject, electric, "C246", 8);
+            //C247 ORDER  BIT 6
+            SetGECParameter(oProject, electric, "C247", 9);
+            //C248 ORDER  BIT 7
+            SetGECParameter(oProject, electric, "C248", 10);
+            //C249 ORDER  BIT 8
+            SetGECParameter(oProject, electric, "C249", 11);
+            //C250 ORDER  BIT 9
+            SetGECParameter(oProject, electric, "C250", 12);
+            //C251 ORDER  BIT 10
+            SetGECParameter(oProject, electric, "C251", 13);
+            //C252 ORDER  BIT 11
+            SetGECParameter(oProject, electric, "C252", 14);
+            //C253 ORDER  BIT 12
+            SetGECParameter(oProject, electric, "C253", 0);
+            //C254 ORDER  BIT 13
+            SetGECParameter(oProject, electric, "C254", 0);
+            //C255 ORDER  BIT 14
+            SetGECParameter(oProject, electric, "C255", 0);
+            //C256 ORDER  BIT 15
+            SetGECParameter(oProject, electric, "C256", 0);
+            //C257 GENERAL 3 BIT 0
+            SetGECParameter(oProject, electric, "C257", 3008);
+            //C258 GENERAL 3 BIT 1
+            SetGECParameter(oProject, electric, "C258", 0);
+            //C259 GENERAL 3 BIT 2
+            SetGECParameter(oProject, electric, "C259", 0);
+            //C260 GENERAL 3 BIT 3
+            SetGECParameter(oProject, electric, "C260", 0);
+            //C261 GENERAL 3 BIT 4
+            SetGECParameter(oProject, electric, "C261", 3023);
+            //C262 GENERAL 3 BIT 5
+            SetGECParameter(oProject, electric, "C262", 3024);
+            //C263 GENERAL 3 BIT 6
+            SetGECParameter(oProject, electric, "C263", 0);
+            //C264 GENERAL 3 BIT 7
+            SetGECParameter(oProject, electric, "C264", 0);
+            //C265 GENERAL 3 BIT 8
+            SetGECParameter(oProject, electric, "C265", 3025);
+            //C266 GENERAL 3 BIT 9
+            SetGECParameter(oProject, electric, "C266", 3026);
+            //C267 GENERAL 3 BIT 10
+            SetGECParameter(oProject, electric, "C267", 0);
+            //C268 GENERAL 3 BIT 11
+            SetGECParameter(oProject, electric, "C268", 0);
+            //C269 GENERAL 3 BIT 12
+            SetGECParameter(oProject, electric, "C269", 0);
+            //C270 GENERAL 3 BIT 13
+            SetGECParameter(oProject, electric, "C270", 0);
+            //C271 GENERAL 3 BIT 14
+            SetGECParameter(oProject, electric, "C271", 0);
+            //C272 GENERAL 3 BIT 15
+            SetGECParameter(oProject, electric, "C272", 0);
+
             #endregion
 
+            
+
             #region Control Outputs
-            ////O2	C Relay 2 NO 2L
-            ////Speed Selection Fast
-            //if (sistAhorro.CurrentReference.Contains("VA"))
-            //{
-            //    GEC C_Relay_2_NO = new GEC("O2", 201, buscarNombreParametroGEC("O2"));
-            //    GEC_Parameter.Add(C_Relay_2_NO);
-            //}
+            //O12	C NO2 K2.1
+            //K2.1
+            if (motorConnection.CurrentReference.Equals("YD") ||
+            motorConnection.CurrentReference.Equals("VVF_YD"))
+                SetGECParameter(oProject, electric, "O12", (uint)GEC.Param.Star);
+            else
+                SetGECParameter(oProject, electric, "O12", (uint)GEC.Param.Empty);
 
-            ////O3	C Relay 3 NO 3L
-            ////Main 2
-            //if (motorConnection.CurrentReference.Equals("VVF_D") ||
-            //    motorConnection.CurrentReference.Equals("VVF_YD") ||
-            //    motorConnection.CurrentReference.Equals("VVF"))
-            //{
-            //    //Coil
-            //    GEC C_Relay_3_NO = new GEC("O3", 202, buscarNombreParametroGEC("O3"));
-            //    GEC_Parameter.Add(C_Relay_3_NO);
-            //}
+            //O13	C NO1 K2.2
+            //K2.2
+            if (motorConnection.CurrentReference.Equals("YD") ||
+                motorConnection.CurrentReference.Equals("VVF_YD"))
+                SetGECParameter(oProject, electric, "O13", (uint)GEC.Param.Delta);
+            else
+                SetGECParameter(oProject, electric, "O13", (uint)GEC.Param.Empty);
 
-            ////O4	C Relay 4 NO 4L/Q4
-            ////Main 1
-            //if (motorConnection.CurrentReference.Equals("VVF_D") ||
-            //    motorConnection.CurrentReference.Equals("VVF_YD"))
-            //{
-            //    //Coil
-            //    GEC C_Relay_4_NO = new GEC("O4", 263, buscarNombreParametroGEC("O4"));
-            //    GEC_Parameter.Add(C_Relay_4_NO);
-            //}
-
-            ////O9	C Relay 9 NO 9L/Q9
-            //if (normativa.CurrentReference.Equals("EN") &&
-            //    (bombaEngrase.CurrentReference.Equals("S") ||
-            //    bombaEngrase.CurrentReference.Equals("C")))
-            //{
-            //    //Oil Pump 1 Activation
-            //    GEC C_Relay_9_NO = new GEC("O9", 222, buscarNombreParametroGEC("O9"));
-            //    GEC_Parameter.Add(C_Relay_9_NO);
-            //    //Oil Pump Control 1
-            //    if (Producto.CurrentReference == "VELINO_CLASSIC" ||
-            //        Producto.CurrentReference == "TUGELA_CLASSIC")
-            //        C_Relay_9_NO.value = 223;
-
-            //}
-
-            ////O12	C NO2 K2.1
-            ////K2.1
-            //if (motorConnection.CurrentReference.Equals("YD") ||
-            //motorConnection.CurrentReference.Equals("VVF_YD"))
-            //{
-            //    //Coil
-            //    GEC C_NO4_K2_1 = new GEC("O12", 262, buscarNombreParametroGEC("O12"));
-            //    GEC_Parameter.Add(C_NO4_K2_1);
-            //}
-
-            ////O13	C NO1 K2.2
-            ////K2.2
-            //if (motorConnection.CurrentReference.Equals("YD") ||
-            //    motorConnection.CurrentReference.Equals("VVF_YD"))
-            //{
-            //    GEC C_NO4_K2_2 = new GEC("O13", 260, buscarNombreParametroGEC("O13"));
-            //    GEC_Parameter.Add(C_NO4_K2_2);
-            //}
 
             #endregion
 
             #region Control Inputs
 
-            #region Control Board
-            ////I4 C Standard input 4
-            //GEC C_Standard_Input_4 = new GEC("I4", buscarNombreParametroGEC("I4"));
-            //GEC_Parameter.Add(C_Standard_Input_4);
-            //if ((ubicacionControlador.CurrentReference.Equals("INNENOBEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("INNENUNTEN")) &&
-            //    !sistemaAnden.CurrentReference.Equals("KEINE"))
-            //    //Extra Fault
-            //    C_Standard_Input_4.value = 82;
-            //if (!normativa.CurrentReference.Equals("EN") &&
-            //    sistAhorro.CurrentReference.Contains("VA"))
-            //    //VFD/EEC
-            //    C_Standard_Input_4.value = 69;
+            #region Control Board Inputs
+            //I1 C Standard input 1 X01
+            SetGECParameter(oProject, electric, "I1", (uint)GEC.Param.Asymmetry_phase_control_relay);
 
+            //I2  C Standard input 2
+            SetGECParameter(oProject, electric, "I2", (uint)GEC.Param.Overtemperature_M1);
 
-            ////I5 C Standard input 5
-            //GEC C_Standard_input_5 = new GEC("I5", buscarNombreParametroGEC("I5"));
-            //GEC_Parameter.Add(C_Standard_input_5);
-            //if (normativa.CurrentReference.Equals("EN") &&
-            //    sistAhorro.CurrentReference.Contains("VA"))
-            //    //VFD/EEC
-            //    C_Standard_input_5.value = 69;
-            //if (!normativa.CurrentReference.Equals("EN") &&
-            //    (bombaEngrase.CurrentReference.Equals("S") ||
-            //    bombaEngrase.CurrentReference.Equals("C")))
-            //    //Oil Level In Pump 1
-            //    C_Standard_input_5.value = 64;
+            //I3 C Standard input 3
+            SetGECParameter(oProject, electric, "I3", (uint)GEC.Param.Protection_switch_drive_M1);
 
-            ////I6 C Standard input 6
-            //GEC C_Standard_Input_6 = new GEC("I6", buscarNombreParametroGEC("I6"));
-            //GEC_Parameter.Add(C_Standard_Input_6);
-            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
-            //    !sistemaAnden.CurrentReference.Equals("KEINE"))
-            //    //Top light barrier NC
-            //    C_Standard_Input_6.value = 96;
-            //else if (!ubicacionControlador.CurrentReference.Equals("AUSSEN") &&
-            //    !ubicacionControlador.CurrentReference.Equals("ARM_ESP") &&
-            //    normativa.CurrentReference.Equals("EN") &&
-            //    contactoFuego.CurrentReference.Equals("S"))
-            //    //Fire alarm/ Smoke detector 1
-            //    C_Standard_Input_6.value = 62;
-
-
-            ////I7 C Standard input 7
-            //GEC C_Standard_input_7 = new GEC("I7", buscarNombreParametroGEC("I7"));
-            //GEC_Parameter.Add(C_Standard_input_7);
-            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
-            //    llavinLocalRemoto.CurrentReference.Equals("A"))
-            //    //Local Key Top
-            //    C_Standard_input_7.value = 91;
-            //if ((ubicacionControlador.CurrentReference.Equals("INNENOBEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("INNENUNTEN")) &&
-            //    !sistemaAnden.CurrentReference.Equals("KEINE"))
-            //    //Top Up Key Order
-            //    C_Standard_input_7.value = 130;
-
-
-            ////I8 C Standard input 8
-            //GEC C_Standard_input_8 = new GEC("I8", buscarNombreParametroGEC("I8"));
-            //GEC_Parameter.Add(C_Standard_input_8);
-            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
-            //    llavinLocalRemoto.CurrentReference.Equals("A"))
-            //    //Remote Key Top
-            //    C_Standard_input_8.value = 90;
-            //if ((ubicacionControlador.CurrentReference.Equals("INNENOBEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("INNENUNTEN")) &&
-            //    !sistemaAnden.CurrentReference.Equals("KEINE"))
-            //    //Top Down Key Order
-            //    C_Standard_input_8.value = 131;
-
-
-            ////I9	C Standard input 9
-            //GEC C_Standard_input_9 = new GEC("I9", buscarNombreParametroGEC("I9"));
-            //GEC_Parameter.Add(C_Standard_input_9);
-            //if (normativa.CurrentReference.Equals("EN") &&
-            //    (!bypass.CurrentReference.Equals("N") ||
-            //    ubicacionControlador.CurrentReference.Equals("INNENOBEN")))
-            //    //Bypass VFD
-            //    C_Standard_input_9.value = 65;
-            //if (!normativa.CurrentReference.Equals("EN"))
-            //    //Fire alarm/ Smoke detector 1
-            //    C_Standard_input_9.value = 62;
-
-            ////I10	C Standard input 10
-            //GEC C_Standard_input_10 = new GEC("I10", buscarNombreParametroGEC("I10"));
-            //GEC_Parameter.Add(C_Standard_input_10);
-            //if (!normativa.CurrentReference.Equals("EN") &&
-            //    (!bypass.CurrentReference.Equals("N") ||
-            //    ubicacionControlador.CurrentReference.Equals("INNENOBEN")))
-            //    //Bypass VFD
-            //    C_Standard_input_10.value = 65;
-
-            ////I11 C Standard input 11
-            //if (normativa.CurrentReference.Equals("EN") &&
-            //   (bombaEngrase.CurrentReference.Equals("S") ||
-            //   bombaEngrase.CurrentReference.Equals("C")) &&
-            //   (ubicacionControlador.CurrentReference.Equals("INNENOBEN") ||
-            //   ubicacionControlador.CurrentReference.Equals("INNENUNTEN")))
-            //{
-            //    //Oil Level In Pump 1
-            //    GEC C_Standard_input_11 = new GEC("I11", 64, buscarNombreParametroGEC("I11"));
-            //    GEC_Parameter.Add(C_Standard_input_11);
-            //}
-
-            ////I12 C Standard input 12
-            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
-            //    llavinAutoCont.CurrentReference.Equals("A"))
-            //{
-            //    //Automatic key Top
-            //    GEC C_Standard_input_12 = new GEC("I12", 88, buscarNombreParametroGEC("I12"));
-            //    GEC_Parameter.Add(C_Standard_input_12);
-            //}
-
-            ////I13 C Standard input 13
-            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
-            //    llavinAutoCont.CurrentReference.Equals("A"))
-            //{
-            //    //Continuous key Top
-            //    GEC C_Standard_input_13 = new GEC("I13", 89, buscarNombreParametroGEC("I13"));
-            //    GEC_Parameter.Add(C_Standard_input_13);
-            //}
-
-            ////I14 C Standard input 14
-            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
-            //    llavinParo.CurrentReference.Equals("A"))
-            //{
-            //    //Top Operational stop lokal B16
-            //    GEC C_Standard_input_14 = new GEC("I14", 144, buscarNombreParametroGEC("I14"));
-            //    GEC_Parameter.Add(C_Standard_input_14);
-            //}
             #endregion
 
-            #region Upper Diagnostic
-            ////UI11	UDL1 Standard input 11
-            ////Stop externo / carritos
-            //GEC UDL1_Standard_input_11 = new GEC("UI11", buscarNombreParametroGEC("UI11"));
-            //GEC_Parameter.Add(UDL1_Standard_input_11);
+            #region Upper Diagnostic Inputs
+            //UI23    UDL1 Standard input 23 X23
+            SetGECParameter(oProject, electric, "UI23", (uint)GEC.Param.Top_up_key_order);
 
-            //if (stopCarritos.CurrentReference.Equals("KEINE") &&
-            //    normativa.CurrentReference.Equals("EN"))
-            //    //Top Emergency Stop External (SS)
-            //    UDL1_Standard_input_11.value = 152;
-            //else
-            //    //Top Emergency Stop Trolley (SS)
-            //    UDL1_Standard_input_11.value = 153;
-
-            ////UI12	UDL1 Standard input 12
-            //GEC UDL1_Standard_input_12 = new GEC("UI12", buscarNombreParametroGEC("UI12"));
-            //GEC_Parameter.Add(UDL1_Standard_input_12);
-            //if (!cerrojo.CurrentReference.Equals("N") &&
-            //    !(stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")) &&
-            //    sMicrosZocalo.NumVal > 6 &&
-            //    !(sBuggy.CurrentReference.Equals("KEINE") || sBuggy.CurrentReference.Equals("BUGGYUT")) &&
-            //    !sPeines.CurrentReference.Equals("INDEPENDIENTE"))
-            //    //Step chain locking device (SS)
-            //    UDL1_Standard_input_12.value = 45;
-
-            ////UI13	UDL1 Standard input 13
-            ////Stop externo
-            //GEC UDL1_Standard_input_13 = new GEC("UI13", buscarNombreParametroGEC("UI13"));
-            //GEC_Parameter.Add(UDL1_Standard_input_13);
-            //if (!stopCarritos.CurrentReference.Equals("KEINE") &&
-            //    sMicrosZocalo.NumVal > 6 &&
-            //    !(sBuggy.CurrentReference.Equals("KEINE") ||
-            //     sBuggy.CurrentReference.Equals("BUGGYUT")) &&
-            //     !sPeines.CurrentReference.Equals("INDEPENDIENTE"))
-            //    //Top Emergency Stop External (SS)
-            //    UDL1_Standard_input_13.value = 152;
-            //else if (normativa.CurrentReference.Equals("EN"))
-            //    //Top Vertical Combplate Left (SS)
-            //    UDL1_Standard_input_13.value = 158;
-            //else if (!normativa.CurrentReference.Equals("EN"))
-            //    //Top Vertical Combplate Right (SS)
-            //    UDL1_Standard_input_13.value = 157;
-            //else if (FrenoAux.CurrentReference.Equals("HWSPERRKMECH") &&
-            //    !(stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")) &&
-            //    sMicrosZocalo.NumVal > 6 &&
-            //    !(sBuggy.CurrentReference.Equals("KEINE") || sBuggy.CurrentReference.Equals("BUGGYUT")) &&
-            //    !sPeines.CurrentReference.Equals("INDEPENDIENTE"))
-            //    //Mechanical Pawl Brake (SS)
-            //    UDL1_Standard_input_13.value = 166;
-
-            ////UI14	UDL1 Standard input 14
-            ////Stop externo
-            //GEC UDL1_Standard_input_14 = new GEC("UI14", buscarNombreParametroGEC("UI14"));
-            //GEC_Parameter.Add(UDL1_Standard_input_14);
-            //if (!normativa.CurrentReference.Equals("EN"))
-            //    //Top Vertical Combplate Left (SS)
-            //    UDL1_Standard_input_14.value = 158;
-            //else if (!cerrojo.CurrentReference.Equals("N") &&
-            //    !(stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")) &&
-            //    sMicrosZocalo.NumVal > 6 &&
-            //    (sBuggy.CurrentReference.Equals("KEINE") || sBuggy.CurrentReference.Equals("BUGGYUT")))
-            //    //Step chain locking device (SS)
-            //    UDL1_Standard_input_14.value = 45;
-
-            ////UI15	UDL1 Standard input 15
-            ////Stop externo
-            //GEC UDL1_Standard_input_15 = new GEC("UI15", buscarNombreParametroGEC("UI15"));
-            //GEC_Parameter.Add(UDL1_Standard_input_15);
-            //if (!stopCarritos.CurrentReference.Equals("KEINE") &&
-            //    sMicrosZocalo.NumVal > 6 &&
-            //    (sBuggy.CurrentReference.Equals("KEINE") ||
-            //     sBuggy.CurrentReference.Equals("BUGGYUT")))
-            //    //Top Emergency Stop External (SS)
-            //    UDL1_Standard_input_15.value = 152;
-            //else if (FrenoAux.CurrentReference.Equals("HWSPERRKMECH") &&
-            //    !(stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")) &&
-            //    sMicrosZocalo.NumVal > 6 &&
-            //    (sBuggy.CurrentReference.Equals("KEINE") || sBuggy.CurrentReference.Equals("BUGGYUT")))
-            //    //Mechanical Pawl Brake (SS)
-            //    UDL1_Standard_input_15.value = 166;
-            //else
-            //    //Top Buggy Right (SS)
-            //    UDL1_Standard_input_15.value = 155;
-
-            ////UI16	UDL1 Standard input 16
-            //GEC UDL1_Standard_input_16 = new GEC("UI16", buscarNombreParametroGEC("UI16"));
-            //GEC_Parameter.Add(UDL1_Standard_input_16);
-            //if (!cerrojo.CurrentReference.Equals("N") &&
-            //    !(stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")) &&
-            //    sMicrosZocalo.NumVal <= 6)
-            //    //Step chain locking device (SS)
-            //    UDL1_Standard_input_16.value = 45;
-            //else if (FrenoAux.CurrentReference.Equals("HWSPERRKMECH") &&
-            //    cerrojo.CurrentReference.Equals("N") &&
-            //    !(stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")) &&
-            //    sMicrosZocalo.NumVal <= 6)
-            //    //Mechanical Pawl Brake (SS)
-            //    UDL1_Standard_input_16.value = 166;
-
-            ////UI17	UDL1 Standard input 17
-            ////Stop externo
-            //GEC UDL1_Standard_input_17 = new GEC("UI17", buscarNombreParametroGEC("UI17"));
-            //GEC_Parameter.Add(UDL1_Standard_input_17);
-            //if (paqueteEspecial.CurrentReference.Equals("MERCADONA"))
-            //    UDL1_Standard_input_17.value = 154;
-            //else if (!stopCarritos.CurrentReference.Equals("KEINE") &&
-            //    sMicrosZocalo.NumVal <= 6)
-            //    //Top Emergency Stop External (SS)
-            //    UDL1_Standard_input_17.value = 152;
-            //else if (!cerrojo.CurrentReference.Equals("N") &&
-            //    (stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")))
-            //    //Step chain locking device (SS)
-            //    UDL1_Standard_input_17.value = 45;
-            //else if (FrenoAux.CurrentReference.Equals("HWSPERRKMECH") &&
-            //    cerrojo.CurrentReference.Equals("N") &&
-            //    (stopCarritos.CurrentReference.Equals("KEINE") || stopAdicional.CurrentReference.Equals("N")))
-            //    //Mechanical Pawl Brake (SS)
-            //    UDL1_Standard_input_17.value = 166;
-            //else if (normativa.CurrentReference.Equals("EN"))
-            //    //Top Skirt Inclined Left (SS)
-            //    UDL1_Standard_input_17.value = 162;
-            //else if (!normativa.CurrentReference.Equals("EN"))
-            //    //Mechanical Pawl Brake (SS)
-            //    UDL1_Standard_input_17.value = 166;
-
-
-
-            ////UI18	UDL1 Standard input 18
-            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
-            //ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
-            //(aceiteReductor.CurrentReference.Equals("S")))
-            //{
-            //    //Oil level in gearbox
-            //    GEC UDL1_Standard_input_18 = new GEC("UI18", 112, buscarNombreParametroGEC("UI18"));
-            //    GEC_Parameter.Add(UDL1_Standard_input_18);
-            //}
-
-            ////UI19	UDL1 Standard input 19
-            //GEC UDL1_Standard_input_19 = new GEC("UI19", buscarNombreParametroGEC("UI19"));
-            //GEC_Parameter.Add(UDL1_Standard_input_19);
-            //if (deteccionPersonas.CurrentReference.Equals("RADAR") &&
-            //    normativa.CurrentReference.Equals("EN"))
-            //    //Top radar right NC
-            //    UDL1_Standard_input_19.value = 92;
-
-            ////UI20	UDL1 Standard input 20
-            //GEC UDL1_Standard_input_20 = new GEC("UI20", buscarNombreParametroGEC("UI20"));
-            //GEC_Parameter.Add(UDL1_Standard_input_20);
-            //if (deteccionPersonas.CurrentReference.Equals("RADAR") &&
-            //    normativa.CurrentReference.Equals("EN"))
-            //    //Top radar left NC
-            //    UDL1_Standard_input_20.value = 94;
-
-
-            ////UI21	UDL1 Standard input 21
-            //GEC UDL1_Standard_input_21 = new GEC("UI21", buscarNombreParametroGEC("UI21"));
-            //GEC_Parameter.Add(UDL1_Standard_input_21);
-            //if ((deteccionPersonas.CurrentReference.Equals("LICHTINT") ||
-            //    (deteccionPersonas.CurrentReference.Equals("RADAR") &&
-            //    (modofuncionamiento.CurrentReference.Equals("INTERM") ||
-            //    modofuncionamiento.CurrentReference.Equals("SG") ||
-            //    modofuncionamiento.CurrentReference.Equals("SGBV")))) &&
-            //    normativa.CurrentReference.Equals("EN"))
-            //    //Top Light Barrier NC
-            //    UDL1_Standard_input_21.value = 96;
-
-            ////UI22	UDL1 Standard input 22
-            //if (normativa.CurrentReference.Equals("EN") &&
-            //    (ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
-            //    (bombaEngrase.CurrentReference.Equals("S") ||
-            //    bombaEngrase.CurrentReference.Equals("C")))
-            //{
-            //    //Oil Level In Pump 1
-            //    GEC UDL1_Standard_input_22 = new GEC("UI22", 64, buscarNombreParametroGEC("UI22"));
-            //    GEC_Parameter.Add(UDL1_Standard_input_22);
-            //}
-
-            ////UI25	UDL1 Standard input 25
-            //GEC UDL1_Standard_input_25 = new GEC("UI25", buscarNombreParametroGEC("UI25"));
-            //GEC_Parameter.Add(UDL1_Standard_input_25);
-            //if (normativa.CurrentReference.Equals("EN") &&
-            //    (llavinAutoCont.CurrentReference.Equals("E") ||
-            //    llavinAutoCont.CurrentReference.Equals("P") ||
-            //    llavinAutoCont.CurrentReference.Equals("B")))
-            //    //Continuous key Top
-            //    UDL1_Standard_input_25.value = 89;
-            //if (!normativa.CurrentReference.Equals("EN") &&
-            //    deteccionPersonas.CurrentReference.Equals("RADAR"))
-            //    //Top radar right NC
-            //    UDL1_Standard_input_25.value = 92;
-            //if (!normativa.CurrentReference.Equals("EN") &&
-            //    deteccionPersonas.CurrentReference.Equals("LICHTINT"))
-            //    //Top Light Barrier Combplate NC
-            //    UDL1_Standard_input_25.value = 98;
-
-            ////UI26	UDL1 Standard input 26
-            //GEC UDL1_Standard_input_26 = new GEC("UI26", buscarNombreParametroGEC("UI26"));
-            //GEC_Parameter.Add(UDL1_Standard_input_26);
-            //if (normativa.CurrentReference.Equals("EN") &&
-            //    (llavinAutoCont.CurrentReference.Equals("E") ||
-            //    llavinAutoCont.CurrentReference.Equals("P") ||
-            //    llavinAutoCont.CurrentReference.Equals("B")))
-            //    //Automatic key Top
-            //    UDL1_Standard_input_26.value = 88;
-            //if (!normativa.CurrentReference.Equals("EN") &&
-            //    deteccionPersonas.CurrentReference.Equals("RADAR"))
-            //    //Top radar left NC
-            //    UDL1_Standard_input_26.value = 94;
-
-            ////UI27	UDL1 Standard input 27
-            //GEC UDL1_Standard_input_27 = new GEC("UI27", buscarNombreParametroGEC("UI27"));
-            //GEC_Parameter.Add(UDL1_Standard_input_27);
-            //if (sDesgasteFrenos.CurrentReference.Equals("INDUCTIVO"))
-            //    //Brake wear brake1 M1
-            //    UDL1_Standard_input_27.value = 73;
-
-            ////UI28	UDL1 Standard input 28
-            //GEC UDL1_Standard_input_28 = new GEC("UI28", buscarNombreParametroGEC("UI28"));
-            //GEC_Parameter.Add(UDL1_Standard_input_28);
-            //if (sDesgasteFrenos.CurrentReference.Equals("INDUCTIVO"))
-            //    //Brake wear brake2 M1
-            //    UDL1_Standard_input_28.value = 74;
-
-
-            ////UI30	UDL1 Standard input 30
-            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
-            //    ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
-            //    (llavinParo.CurrentReference.Equals("C") ||
-            //    llavinParo.CurrentReference.Equals("P") ||
-            //    llavinParo.CurrentReference.Equals("B")))
-            //{
-            //    //Top Operational stop lokal B16
-            //    GEC UDL1_Standard_input_30 = new GEC("UI30", 144, buscarNombreParametroGEC("UI30"));
-            //    GEC_Parameter.Add(UDL1_Standard_input_30);
-            //}
-
-            ////UI31	UDL1 Standard input 31
-            //GEC UDL1_Standard_input_31 = new GEC("UI31", buscarNombreParametroGEC("UI31"));
-            //GEC_Parameter.Add(UDL1_Standard_input_31);
-            //if (normativa.CurrentReference.Equals("EN") &&
-            //    (llavinLocalRemoto.CurrentReference.Equals("E") ||
-            //    llavinLocalRemoto.CurrentReference.Equals("P") ||
-            //    llavinLocalRemoto.CurrentReference.Equals("B") ||
-            //    llavinLocalRemoto.CurrentReference.Equals("S")))
-            //{
-            //    //Local Key Top
-            //    UDL1_Standard_input_31.value = 91;
-            //}
-
-            ////UI32	UDL1 Standard input 32
-            ////Remote Key Top
-            //GEC UDL1_Standard_input_32 = new GEC("UI32", buscarNombreParametroGEC("UI32"));
-            //GEC_Parameter.Add(UDL1_Standard_input_32);
-            //if (normativa.CurrentReference.Equals("EN") &&
-            //    (llavinLocalRemoto.CurrentReference.Equals("E") ||
-            //    llavinLocalRemoto.CurrentReference.Equals("P") ||
-            //    llavinLocalRemoto.CurrentReference.Equals("B") ||
-            //    llavinLocalRemoto.CurrentReference.Equals("S")))
-            //{
-            //    //Remote Key Top
-            //    UDL1_Standard_input_32.value = 90;
-            //}
-
+            //UI24    UDL1 Standard input 24
+            SetGECParameter(oProject, electric, "UI24", (uint)GEC.Param.Top_down_key_order);
             #endregion
 
             #region Lower Diagnostic
+            //LI23    LDL1 Standard input 23 X23
+            SetGECParameter(oProject, electric, "LI23", (uint)GEC.Param.Bottom_up_key_order);
 
-
-            ////LI17	LDL1 Standard input 17
-            //GEC LDL1_Standard_input_17 = new GEC("LI17", buscarNombreParametroGEC("LI17"));
-            //GEC_Parameter.Add(LDL1_Standard_input_17);
-            //if (!normativa.CurrentReference.Equals("EN") &&
-            //    sRoturaPasamanos.CurrentReference.Equals("BRUCHSCHALT"))
-            //    //Broken Handrail L
-            //    LDL1_Standard_input_17.value = 72;
-            //if (normativa.CurrentReference.Equals("EN"))
-            //    //Bottom Emergency Stop External (SS)
-            //    LDL1_Standard_input_17.value = 164;
-
-            ////LI18	LDL1 Standard input 18
-            //GEC LDL1_Standard_input_18 = new GEC("LI18", buscarNombreParametroGEC("LI18"));
-            //GEC_Parameter.Add(LDL1_Standard_input_18);
-            //if (!normativa.CurrentReference.Equals("EN") &&
-            //    sRoturaPasamanos.CurrentReference.Equals("BRUCHSCHALT"))
-            //    //Broken Handrail R
-            //    LDL1_Standard_input_18.value = 71;
-            //if (normativa.CurrentReference.Equals("EN") &&
-            //    !stopCarritos.CurrentReference.Equals("KEINE"))
-            //    //Bottom Emergency Stop Trolley (SS)
-            //    LDL1_Standard_input_18.value = 165;
-
-            ////LI19	LDL1 Standard input 19
-            //GEC LDL1_Standard_input_19 = new GEC("LI19", buscarNombreParametroGEC("LI19"));
-            //GEC_Parameter.Add(LDL1_Standard_input_19);
-            //if (deteccionPersonas.CurrentReference.Equals("RADAR") &&
-            //   normativa.CurrentReference.Equals("EN"))
-            //{
-            //    //Bottom radar right NC
-            //    LDL1_Standard_input_19.value = 100;
-            //}
-
-            ////LI20	LDL1 Standard input 20
-            //GEC LDL1_Standard_input_20 = new GEC("LI20", buscarNombreParametroGEC("LI20"));
-            //GEC_Parameter.Add(LDL1_Standard_input_20);
-            //if (deteccionPersonas.CurrentReference.Equals("RADAR") &&
-            //   normativa.CurrentReference.Equals("EN"))
-            //{
-            //    //Bottom radar left NC
-            //    LDL1_Standard_input_20.value = 102;
-            //}
-
-            ////LI21	LDL1 Standard input 21
-            //GEC LDL1_Standard_input_21 = new GEC("LI21", buscarNombreParametroGEC("LI21"));
-            //GEC_Parameter.Add(LDL1_Standard_input_21);
-            //if ((deteccionPersonas.CurrentReference.Equals("LICHTINT") ||
-            //   (deteccionPersonas.CurrentReference.Equals("RADAR") &&
-            //   (modofuncionamiento.CurrentReference.Equals("INTERM") ||
-            //   modofuncionamiento.CurrentReference.Equals("SG") ||
-            //   modofuncionamiento.CurrentReference.Equals("SGBV")))) &&
-            //   normativa.CurrentReference.Equals("EN"))
-            //    //Bottom Light Barrier Combplate NC
-            //    LDL1_Standard_input_21.value = 104;
-
-            ////LI25	LDL1 Standard input 25
-            //GEC LDL1_Standard_input_25 = new GEC("LI25", buscarNombreParametroGEC("LI25"));
-            //GEC_Parameter.Add(LDL1_Standard_input_25);
-            //if (normativa.CurrentReference.Equals("EN") &&
-            //    sRoturaPasamanos.CurrentReference.Equals("BRUCHSCHALT"))
-            //    //Broken Handrail L
-            //    LDL1_Standard_input_25.value = 72;
-            //if (!normativa.CurrentReference.Equals("EN") &&
-            //    deteccionPersonas.CurrentReference.Equals("RADAR"))
-            //    //Bottom radar right NC
-            //    LDL1_Standard_input_25.value = 100;
-            //if (!normativa.CurrentReference.Equals("EN") &&
-            //    deteccionPersonas.CurrentReference.Equals("LICHTINT"))
-            //    //Bottom Light Barrier Combplate NC
-            //    LDL1_Standard_input_25.value = 106;
-
-            ////LI26	LDL1 Standard input 26
-            //GEC LDL1_Standard_input_26 = new GEC("LI26", buscarNombreParametroGEC("LI26"));
-            //GEC_Parameter.Add(LDL1_Standard_input_26);
-            //if (normativa.CurrentReference.Equals("EN") &&
-            //    sRoturaPasamanos.CurrentReference.Equals("BRUCHSCHALT"))
-            //    //Broken Handrail R
-            //    LDL1_Standard_input_26.value = 71;
-            //if (!normativa.CurrentReference.Equals("EN") &&
-            //    deteccionPersonas.CurrentReference.Equals("RADAR"))
-            //    //Bottom radar left NC
-            //    LDL1_Standard_input_26.value = 102;
-
-            ////LI27	LDL1 Standard input 27
-            //if ((ubicacionControlador.CurrentReference.Equals("AUSSEN") ||
-            //   ubicacionControlador.CurrentReference.Equals("ARM_ESP")) &&
-            //   (detectorAgua.CurrentReference.Equals("S")))
-            //{
-            //    //Water detection bottom
-            //    GEC LDL1_Standard_input_27 = new GEC("LI27", 63, buscarNombreParametroGEC("LI27"));
-            //    GEC_Parameter.Add(LDL1_Standard_input_27);
-            //}
-
+            //LI24    LDL1 Standard input 24
+            SetGECParameter(oProject, electric, "UI23", (uint)GEC.Param.Bottom_down_key_order);
             #endregion
 
             #endregion

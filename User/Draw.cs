@@ -143,7 +143,8 @@ namespace EPLAN_API.User
             Caracteristic norma = electric.CaractComercial["FNORM"] as Caracteristic;
             Caracteristic maniobra = electric.CaractIng["MANIOBRA"] as Caracteristic;
 
-            DrawStandardArmIntEN d;
+            DrawStandardArmIntEN drawStandardArmIntEN;
+            DrawArmExteriorEN drawArmExteriorEN;
 
             //Armario Standard
             if (!maniobra.CurrentReference.Equals("BASIC"))
@@ -153,13 +154,16 @@ namespace EPLAN_API.User
                     //Armario interior EN115
                     if (ubicacionArmario.CurrentReference.Equals("INNENOBEN"))
                     {
-                        d = new DrawStandardArmIntEN(oProject, electric);
-                        d.ProgressChanged += UpdateProgressBar;
+                        drawStandardArmIntEN = new DrawStandardArmIntEN(oProject, electric);
+                        drawStandardArmIntEN.ProgressChanged += UpdateProgressBar;
                     }
 
                     //Armario exterior EN115
                     else
-                        ;
+                    {
+                        drawArmExteriorEN = new DrawArmExteriorEN(oProject, electric);
+                        //drawArmExteriorEN.ProgressChanged += UpdateProgressBar;
+                    }
                 }
                 //Armario interior ASME
                 else if (norma.CurrentReference.Equals("ASME") ||

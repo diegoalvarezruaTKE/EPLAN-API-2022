@@ -1299,10 +1299,10 @@ namespace EPLAN_API.User
             //en página de "Control Outputs II"
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Oil_Pump.ema", 'P', "Control Outputs II", 276.0, 168.0);
 
-            SetGECParameter(oProject, oElectric, "Q9", (uint)GEC.Param.Oil_pump_activation, true);
+            SetGECParameter(oProject, oElectric, "O9", (uint)GEC.Param.Oil_pump_activation, true);
             Caracteristic modelo = (Caracteristic)oElectric.CaractComercial["FMODELL"];
             if (modelo.CurrentReference.Contains("CLASSIC"))
-                SetGECParameter(oProject, oElectric, "Q9", (uint)GEC.Param.Oil_pump_control_1, true);
+                SetGECParameter(oProject, oElectric, "O9", (uint)GEC.Param.Oil_pump_control_1, true);
 
             //en página de "Control I"
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Oil_Pump.ema", 'B', "Control I", 384.0, 212.0);

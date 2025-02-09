@@ -127,6 +127,7 @@
     <Compile Include="Abstract\IActionService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="User\Draw.cs" />
+    <Compile Include="User\DrawArmExteriorEN.cs" />
     <Compile Include="User\DrawBasicArmIntEN.cs" />
     <Compile Include="User\DrawCDIBasicEN.cs" />
     <Compile Include="User\DrawCDSBasicEN.cs" />
