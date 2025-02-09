@@ -1351,34 +1351,34 @@ namespace EPLAN_API.User
 
             #region Safety Inputs
             //SI15	SF Safety Input 7
-            SetGECParameter(oProject, electric, "S15", (uint)GEC.Param.Empty);
+            SetGECParameter(oProject, electric, "SI15", (uint)GEC.Param.Empty);
 
             //SI16	SF Safety Input 8
-            SetGECParameter(oProject, electric, "S16", (uint)GEC.Param.Empty);
+            SetGECParameter(oProject, electric, "SI16", (uint)GEC.Param.Empty);
 
             //SI17	SF Safety Input 9
-            SetGECParameter(oProject, electric, "S17", (uint)GEC.Param.Empty);
+            SetGECParameter(oProject, electric, "SI17", (uint)GEC.Param.Empty);
 
             //SI18	SF Safety Input 10
-            SetGECParameter(oProject, electric, "S18", (uint)GEC.Param.Empty);
+            SetGECParameter(oProject, electric, "SI18", (uint)GEC.Param.Empty);
 
             //SI19	SF Safety Input 11
-            SetGECParameter(oProject, electric, "S19", (uint)GEC.Param.Up_maint_order);
+            SetGECParameter(oProject, electric, "SI19", (uint)GEC.Param.Up_maint_order);
 
             //SI20	SF Safety Input 12
-            SetGECParameter(oProject, electric, "S20", (uint)GEC.Param.Down_maint_order);
+            SetGECParameter(oProject, electric, "SI20", (uint)GEC.Param.Down_maint_order);
 
             //SI23 SF Safety Input 15 X23
-            SetGECParameter(oProject, electric, "S23", (uint)GEC.Param.Top_open_floor_plate_1);
+            SetGECParameter(oProject, electric, "SI23", (uint)GEC.Param.Top_open_floor_plate_1);
 
             //SI24    SF Safety Input 16
-            SetGECParameter(oProject, electric, "S24", (uint)GEC.Param.Top_open_floor_plate_2);
+            SetGECParameter(oProject, electric, "SI24", (uint)GEC.Param.Top_open_floor_plate_2);
 
             //SI25 SF Safety Input 17
-            SetGECParameter(oProject, electric, "S25", (uint)GEC.Param.Bottom_open_floor_plate_1);
+            SetGECParameter(oProject, electric, "SI25", (uint)GEC.Param.Bottom_open_floor_plate_1);
 
             //SI26 SF Safety Input 18
-            SetGECParameter(oProject, electric, "S26", (uint)GEC.Param.Bottom_open_floor_plate_1);
+            SetGECParameter(oProject, electric, "SI26", (uint)GEC.Param.Bottom_open_floor_plate_2);
             #endregion
 
             #endregion
@@ -2006,8 +2006,6 @@ namespace EPLAN_API.User
 
             #endregion
 
-            
-
             #region Control Outputs
             //O12	C NO2 K2.1
             //K2.1
@@ -2026,6 +2024,19 @@ namespace EPLAN_API.User
                 SetGECParameter(oProject, electric, "O13", (uint)GEC.Param.Empty);
 
 
+            #endregion
+
+            #region Upper Diagnostic Outputs
+            //UO4 UDL1 Relay output 1 NO Q4/ 4L
+            SetGECParameter(oProject, electric, "UO4", (uint)GEC.Param.Up_indication);
+            //UO5 UDL1 Relay output 2NO Q5/ 5L
+            SetGECParameter(oProject, electric, "UO5", (uint)GEC.Param.Down_indication);
+            //UO6 UDL1 Relay output 3 NO Q6/ 6L
+            SetGECParameter(oProject, electric, "UO6", (uint)GEC.Param.Oil_pump_activation);
+            //UO7 UDL1 Relay output 4 NO Q7/ 7L
+            SetGECParameter(oProject, electric, "UO7", (uint)GEC.Param.Fault_bit_60_63);
+            //UO8 UDL1 Relay output 5 NO Q8/ 8L
+            SetGECParameter(oProject, electric, "UO8", (uint)GEC.Param.Maintenance_indication);
             #endregion
 
             #region Control Inputs
@@ -2050,12 +2061,12 @@ namespace EPLAN_API.User
             SetGECParameter(oProject, electric, "UI24", (uint)GEC.Param.Top_down_key_order);
             #endregion
 
-            #region Lower Diagnostic
+            #region Lower Diagnostic Inputs
             //LI23    LDL1 Standard input 23 X23
             SetGECParameter(oProject, electric, "LI23", (uint)GEC.Param.Bottom_up_key_order);
 
             //LI24    LDL1 Standard input 24
-            SetGECParameter(oProject, electric, "UI23", (uint)GEC.Param.Bottom_down_key_order);
+            SetGECParameter(oProject, electric, "LI24", (uint)GEC.Param.Bottom_down_key_order);
             #endregion
 
             #endregion
