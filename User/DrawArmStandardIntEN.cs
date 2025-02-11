@@ -17,19 +17,15 @@ using System.Windows.Media.Media3D;
 
 namespace EPLAN_API.User
 {
-    public class DrawStandardArmIntEN : DrawTools
+    public class DrawArmStandardIntEN : DrawTools
     {
         private Project oProject;
-        //private Page[] oPages;
-        //Dictionary<int, string> dictPages;
         private Electric oElectric;
-        //private DrawingService oDs;
         private string log;
-        //private String OE;
         private uint completedPercentaje = 0;
         public event Action<int> ProgressChanged;
 
-        public DrawStandardArmIntEN(Project project, Electric electric) 
+        public DrawArmStandardIntEN(Project project, Electric electric) 
         {
             oProject = project;
             oElectric = electric;
@@ -44,6 +40,8 @@ namespace EPLAN_API.User
             int progress = 0;
             int step = 100/34;
 
+            //Contactores
+            Draw_Contactors();
             
             //Sensores de Freno
             Draw_Freno();
@@ -529,6 +527,7 @@ namespace EPLAN_API.User
             edit.RedrawGed();
 
             paramGEC(oProject, oElectric);
+            writeGECtoEPLAN(oProject, oElectric);
 
             MessageBox.Show(log);
             String path = String.Concat(oProject.DocumentDirectory.Substring(0, oProject.DocumentDirectory.Length - 3), "Log\\Log_Draw.txt");
@@ -539,6 +538,16 @@ namespace EPLAN_API.User
 
         #region Metodos de dibujo
 
+        public void Draw_Contactors()
+        {
+            //Conexion Motor "VVF_YD"
+            SetGECParameter(oProject, oElectric, "SI12", (uint)GEC.Param.Contactor_FB_2, true);
+            SetGECParameter(oProject, oElectric, "SI21", (uint)GEC.Param.Contactor_FB_3, true);
+            SetGECParameter(oProject, oElectric, "SI22", (uint)GEC.Param.Contactor_FB_4, true);
+            SetGECParameter(oProject, oElectric, "O3", (uint)GEC.Param.Main_2, true);
+            SetGECParameter(oProject, oElectric, "O4", (uint)GEC.Param.Main_1, true);
+        }
+       
         public void Draw_Freno()
         {
             string unidadAccionamiento = ((Caracteristic)oElectric.CaractComercial["FANTREHT"]).CurrentReference;
@@ -634,6 +643,7 @@ namespace EPLAN_API.User
 
         public void Draw_LuzEstroboscopica(string type)
         {
+            SetGECParameter(oProject, oElectric, "O1", (uint)GEC.Param.Lighting_1, true);
             switch (type)
             {
                 //Una tira LED
@@ -695,6 +705,7 @@ namespace EPLAN_API.User
 
         public void Draw_LuzPeines(string type, string luzEstro)
         {
+            SetGECParameter(oProject, oElectric, "O1", (uint)GEC.Param.Lighting_1, true);
             if (type.Equals("DI"))
             {
                 //en página de "Upper Lighting I"
@@ -717,7 +728,7 @@ namespace EPLAN_API.User
 
         public void Draw_LuzBajopasamanos(string type, string luzEstro, string luzPeines)
         {
-
+            SetGECParameter(oProject, oElectric, "O1", (uint)GEC.Param.Lighting_1, true);
             if (type.Equals("DIRECTA") || type.Equals("LED"))
             {
                 if (luzEstro.Equals("KEINE") && luzPeines.Equals("NO"))
@@ -750,6 +761,8 @@ namespace EPLAN_API.User
         public void Draw_LuzZocalos(string type, string luzBajopasamanos, string luzEstro, string luzPeines)
         {
             Caracteristic modelo = (Caracteristic)oElectric.CaractComercial["FMODELL"];
+
+            SetGECParameter(oProject, oElectric, "O1", (uint)GEC.Param.Lighting_1, true);
 
             if (type.Equals("DIRECTA") || type.Equals("LED"))
             {
@@ -1464,4 +1477,5 @@ namespace EPLAN_API.User
 
         #endregion
     }
+
 }

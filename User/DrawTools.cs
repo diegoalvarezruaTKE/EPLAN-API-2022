@@ -13,6 +13,7 @@ using Eplan.EplApi.DataModel.E3D;
 using Eplan.EplApi.DataModel.Graphics;
 using System.IO;
 using Eplan.EplApi.Base.Enums;
+using System.Globalization;
 
 namespace EPLAN_API.User
 {
@@ -481,6 +482,51 @@ namespace EPLAN_API.User
 
             return sr.ObjectIdentifier;
         }
+
+        public long insertInterruptionPoint(Project oProject, string symbol, string symbolLibrary, char variante, string page, string deviceName, string propertySchema, double x, double y)
+        {
+
+            int key;
+            Insert oInsert = new Insert();
+
+            Dictionary<int, string> dictPages = GetPageTable(oProject);
+
+            key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == page);
+            
+            Page oPage = oProject.Pages[key];
+            string strSymbolLibName = symbolLibrary;
+            string strSymbolName = symbol;
+            SymbolLibrary oSymbolLibrary = new SymbolLibrary(oProject, strSymbolLibName);
+            Symbol oSymbol = new Symbol(oSymbolLibrary, strSymbolName);
+
+            int nVariante = -1;
+            if (variante >= 'A' && variante <= 'Z')
+            {
+                nVariante = variante - 'A';
+            }
+            else
+            {
+                nVariante = -1; // Manejo de error
+            }
+
+            SymbolVariant oSymbolVariant = new SymbolVariant(oSymbol, nVariante);
+            SymbolReference sr = oSymbolVariant.Create(oPage);
+            sr.Location = new PointD(x, y);
+            InterruptionPoint ip = (InterruptionPoint)sr;
+            ip.Name = deviceName;
+            ip.VisibleName = deviceName.Split('-')[1];
+            foreach (SymbolReference.PropertyPlacementsSchema property in ip.PropertyPlacementsSchemas.All)
+            {
+                if (property.Name.Contains(propertySchema))
+                {
+                    ip.PropertyPlacementsSchemas.Selected = property;
+                    break;
+                }
+            }
+
+            return sr.ObjectIdentifier;
+        }
+
 
         public void setRecordContactor(StorableObject[] oInsertedObjects, Caracteristic iMotor)
         {
@@ -1368,6 +1414,12 @@ namespace EPLAN_API.User
             //SI20	SF Safety Input 12
             SetGECParameter(oProject, electric, "SI20", (uint)GEC.Param.Down_maint_order);
 
+            //SI21	SF Safety Input 13
+            SetGECParameter(oProject, electric, "SI21", (uint)GEC.Param.Empty);
+
+            //SI22	SF Safety Input 14
+            SetGECParameter(oProject, electric, "SI22", (uint)GEC.Param.Empty);
+
             //SI23 SF Safety Input 15 X23
             SetGECParameter(oProject, electric, "SI23", (uint)GEC.Param.Top_open_floor_plate_1);
 
@@ -1654,6 +1706,8 @@ namespace EPLAN_API.User
             else if (modofuncionamiento.CurrentReference.Equals("BV"))
                 SetGECParameter(oProject, electric, "C70", (uint)GEC.Mode.Standby);
 
+            //C89	DELAY_TIME_STOP_IF_FIRE_ALARM
+            SetGECParameter(oProject, electric, "C89", 15);
 
             #endregion
 
@@ -3761,6 +3815,74 @@ namespace EPLAN_API.User
                     data = String.Concat(data, "GEC_", gEC.ID, ";", gEC.getValue(), "\r\n");
             }
             File.WriteAllText(path, data);
+        }
+
+        public void writeGECtoEPLAN(Project oProject, Electric oElectric)
+        {
+            foreach (GEC gec in oElectric.GECParameterList.Values)
+            {
+                try
+                {
+                    string controlName = "GEC.CONTROL."+ gec.ID;
+                    string safetyName = "GEC.CONTROL." + gec.ID;
+                    AnyPropertyId propertyId = new AnyPropertyId(oProject, controlName);
+                    if (propertyId == null)
+                        propertyId= new AnyPropertyId(oProject, safetyName);
+                    PropertyValue propertyValue = oProject.Properties[propertyId];
+
+                    if (!gec.isNumeric)
+                    {
+                        MultiLangString langString = new MultiLangString();
+                        langString.AddString(ISOCode.Language.L_en_US, gec.sValue);
+                        propertyValue.Set(langString);
+                    }
+                    else
+                    {
+                        CultureInfo esES = CultureInfo.CreateSpecificCulture("es-ES");
+                        MultiLangString value = new MultiLangString();
+                        value.AddString(ISOCode.Language.L_en_US, String.Format(esES, "{0:0}", gec.value));
+                        propertyValue.Set(value);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ;
+                }
+            }
+
+        }
+
+        public void readGECfromEPLAN(Project oProject, Electric oElectric)
+        {
+            foreach (GEC gec in oElectric.GECParameterList.Values)
+            {
+                try
+                {
+                    string controlName = "GEC.CONTROL." + gec.ID;
+                    string safetyName = "GEC.CONTROL." + gec.ID;
+                    AnyPropertyId propertyId = new AnyPropertyId(oProject, controlName);
+                    if (propertyId == null)
+                        propertyId = new AnyPropertyId(oProject, safetyName);
+                    PropertyValue propertyValue = oProject.Properties[propertyId];
+
+                    string value = propertyValue.ToMultiLangString().GetString(ISOCode.Language.L_en_US);
+
+                    if (int.TryParse(value, out int result))
+                    {
+                        gec.setValue((uint)result);
+                    }
+                    else
+                    {
+                        gec.setValue(value);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    ;
+                }
+
+            }
         }
 
         #endregion

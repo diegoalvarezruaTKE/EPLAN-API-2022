@@ -67,6 +67,8 @@ namespace EPLAN_API.User
 
             Draw_Temperatura_Motor();
 
+            Draw_Sincronismo();
+
             //PLC
             c = (Caracteristic)oElectric.CaractIng["TNCR_DO_CONTROL"];
             if (c.CurrentReference.Equals("GEC+PLC"))
@@ -875,6 +877,23 @@ namespace EPLAN_API.User
             log = String.Concat(log, "\r\nIncluidos contactores");
         }
 
+        public void Draw_Sincronismo()
+        {
+            string Modelo = (oElectric.CaractComercial["FMODELL"] as Caracteristic).CurrentReference;
+
+            //Sensores superiores
+            if (Modelo.Contains("CLASSIC"))
+            {
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Handrail_Speed_Sensors.ema", 'D', "Upper Sensors II", 48.0, 116.0);
+                log = String.Concat(log, "\r\nIncluidos sensores Sincronismo en CI");
+            }
+            else
+            {
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Handrail_Speed_Sensors.ema", 'C', "Upper Sensors II", 48.0, 116.0);
+                log = String.Concat(log, "\r\nIncluidos sensores Sincronismo en CI");
+            }
+        }
+
         public void Draw_VVF()
         {
 
@@ -1162,7 +1181,7 @@ namespace EPLAN_API.User
             if (modelo.CurrentReference.Contains("CLASSIC"))
             {
                 //en página de "Upper Traffic Lights"
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Traffic_Light.ema", 'R', "Oil pump & Traffic Lights", 228.0, 120.0);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Traffic_Light.ema", 'R', "Oil pump & Traffic Lights", 192.0, 120.0);
                 //en página de "Lower Traffic Lights"
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Traffic_Light.ema", 'Q', "Lower Traffic Lights", 128.0, 148.0);
                 log = String.Concat(log, "\nIncluidos Semáforos Chinos de VC3.0");

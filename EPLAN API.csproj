@@ -128,11 +128,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="User\Draw.cs" />
     <Compile Include="User\DrawArmExteriorEN.cs" />
+    <Compile Include="User\DrawArmStandardIntASME.cs" />
     <Compile Include="User\DrawBasicArmIntEN.cs" />
     <Compile Include="User\DrawCDIBasicEN.cs" />
     <Compile Include="User\DrawCDSBasicEN.cs" />
     <Compile Include="User\DrawMainCabinetBasicEN.cs" />
-    <Compile Include="User\DrawStandardArmIntEN.cs" />
+    <Compile Include="User\DrawArmStandardIntEN.cs" />
     <Compile Include="User\DrawTools.cs" />
     <Compile Include="User\GEC.cs" />
     <Compile Include="User\HCValue.cs" />

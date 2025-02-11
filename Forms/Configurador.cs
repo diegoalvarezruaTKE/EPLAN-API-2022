@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web.Services.Protocols;
 using System.Windows.Forms;
 
 namespace EPLAN_API_2022.Forms
@@ -22,6 +23,7 @@ namespace EPLAN_API_2022.Forms
         public Project oProject;
         public Draw Draw;
         public DrawTools DrawTools;
+        public PanelGEC PGEC;
 
         public Configurador()
         {
@@ -234,7 +236,7 @@ namespace EPLAN_API_2022.Forms
                         CultureInfo esES = new CultureInfo("es-ES");
                         CultureInfo enUS = new CultureInfo("en-US");
 
-                        string Svalue = SAPCararct[key];
+                        string Svalue = SAPCararct[key].TrimStart();
                         if (Svalue.Split(' ').Length > 0)
                             Svalue = Svalue.Split(' ')[0];
 
@@ -828,8 +830,10 @@ namespace EPLAN_API_2022.Forms
 
         private void BGEC_Click(object sender, EventArgs e)
         {
-            AbrirFormEnPanel(new PanelGEC(oElectricList));
-            DrawTools.calcParmGEC_Basic(oProject, oElectricList[0]);
+            PGEC = new PanelGEC(oElectricList);
+            AbrirFormEnPanel(PGEC);
+            DrawTools.readGECfromEPLAN(oProject, oElectricList[0]);
+            PGEC.UpdateGECData();
         }
 
         private void BRead_Click(object sender, EventArgs e)
@@ -838,9 +842,22 @@ namespace EPLAN_API_2022.Forms
             //LoadSAPtoEPLAN(new SAPReader(tB_OE.Text).readCaracConfigElec());
             if (tB_OE.Text.Length == 10)
             {
-                SAPService sAPService = new SAPService();
-                Dictionary<string, string> values = sAPService.ReadSAPCaract(tB_OE.Text);
-                LoadSAPtoEPLAN(values);
+                try
+                {
+                    SAPService sAPService = new SAPService();
+                    Dictionary<string, string> values = sAPService.ReadSAPCaract(tB_OE.Text);
+                    if (values != null)
+                        LoadSAPtoEPLAN(values);
+                    else
+                    {
+                        LoadSAPtoEPLAN(new PortalContReader(tB_OE.Text).readCaracConfigElec());
+                    }
+                }
+                catch
+                {
+                    LoadSAPtoEPLAN(new PortalContReader(tB_OE.Text).readCaracConfigElec());
+                }
+
                 UpdateSpecialCaract();
                 CalculateCaractIng();
                 DrawTools.calcParmGEC_Basic(oProject, oElectricList[0]);
