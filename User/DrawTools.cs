@@ -527,7 +527,6 @@ namespace EPLAN_API.User
             return sr.ObjectIdentifier;
         }
 
-
         public void setRecordContactor(StorableObject[] oInsertedObjects, Caracteristic iMotor)
         {
             foreach (StorableObject oSOTemp in oInsertedObjects)
@@ -1421,16 +1420,16 @@ namespace EPLAN_API.User
             SetGECParameter(oProject, electric, "SI22", (uint)GEC.Param.Empty);
 
             //SI23 SF Safety Input 15 X23
-            SetGECParameter(oProject, electric, "SI23", (uint)GEC.Param.Top_open_floor_plate_1);
+            SetGECParameter(oProject, electric, "SI23", (uint)GEC.Param.Empty);
 
             //SI24    SF Safety Input 16
-            SetGECParameter(oProject, electric, "SI24", (uint)GEC.Param.Top_open_floor_plate_2);
+            SetGECParameter(oProject, electric, "SI24", (uint)GEC.Param.Empty);
 
             //SI25 SF Safety Input 17
-            SetGECParameter(oProject, electric, "SI25", (uint)GEC.Param.Bottom_open_floor_plate_1);
+            SetGECParameter(oProject, electric, "SI25", (uint)GEC.Param.Empty);
 
             //SI26 SF Safety Input 18
-            SetGECParameter(oProject, electric, "SI26", (uint)GEC.Param.Bottom_open_floor_plate_2);
+            SetGECParameter(oProject, electric, "SI26", (uint)GEC.Param.Empty);
             #endregion
 
             #endregion
@@ -2082,15 +2081,15 @@ namespace EPLAN_API.User
 
             #region Upper Diagnostic Outputs
             //UO4 UDL1 Relay output 1 NO Q4/ 4L
-            SetGECParameter(oProject, electric, "UO4", (uint)GEC.Param.Up_indication);
+            SetGECParameter(oProject, electric, "UO4", (uint)GEC.Param.Empty);
             //UO5 UDL1 Relay output 2NO Q5/ 5L
-            SetGECParameter(oProject, electric, "UO5", (uint)GEC.Param.Down_indication);
+            SetGECParameter(oProject, electric, "UO5", (uint)GEC.Param.Empty);
             //UO6 UDL1 Relay output 3 NO Q6/ 6L
-            SetGECParameter(oProject, electric, "UO6", (uint)GEC.Param.Oil_pump_activation);
+            SetGECParameter(oProject, electric, "UO6", (uint)GEC.Param.Empty);
             //UO7 UDL1 Relay output 4 NO Q7/ 7L
-            SetGECParameter(oProject, electric, "UO7", (uint)GEC.Param.Fault_bit_60_63);
+            SetGECParameter(oProject, electric, "UO7", (uint)GEC.Param.Empty);
             //UO8 UDL1 Relay output 5 NO Q8/ 8L
-            SetGECParameter(oProject, electric, "UO8", (uint)GEC.Param.Maintenance_indication);
+            SetGECParameter(oProject, electric, "UO8", (uint)GEC.Param.Empty);
             #endregion
 
             #region Control Inputs
@@ -2108,19 +2107,10 @@ namespace EPLAN_API.User
             #endregion
 
             #region Upper Diagnostic Inputs
-            //UI23    UDL1 Standard input 23 X23
-            SetGECParameter(oProject, electric, "UI23", (uint)GEC.Param.Top_up_key_order);
-
-            //UI24    UDL1 Standard input 24
-            SetGECParameter(oProject, electric, "UI24", (uint)GEC.Param.Top_down_key_order);
             #endregion
 
             #region Lower Diagnostic Inputs
-            //LI23    LDL1 Standard input 23 X23
-            SetGECParameter(oProject, electric, "LI23", (uint)GEC.Param.Bottom_up_key_order);
 
-            //LI24    LDL1 Standard input 24
-            SetGECParameter(oProject, electric, "LI24", (uint)GEC.Param.Bottom_down_key_order);
             #endregion
 
             #endregion

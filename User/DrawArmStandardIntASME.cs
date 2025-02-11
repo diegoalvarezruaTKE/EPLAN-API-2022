@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace EPLAN_API.User
 {
@@ -32,15 +33,14 @@ namespace EPLAN_API.User
 
         public void DrawMacro()
         {
-            Caracteristic c, c2, c3, c4;
-            String refVal, refVal2, refVal3, refVal4;
+            Caracteristic c, c2;
+            String refVal, refVal2;
 
+            Draw_Default_Param();
 
             //Sensores de Freno
             c = (Caracteristic)oElectric.CaractComercial["FANTREHT"];
             Draw_Freno(c.CurrentReference);
-
-            //oProgressBar.Maximum = oElectric.Caracteristics.Count;
 
             //Segundo freno
             c = (Caracteristic)oElectric.CaractComercial["FBREMSE2"];
@@ -58,14 +58,20 @@ namespace EPLAN_API.User
             
 
             //Freno Auxiliar
-            c = (Caracteristic)oElectric.CaractComercial["FMODELL"];
+            c = (Caracteristic)oElectric.CaractComercial["FZUSBREMSE"];
             refVal = c.CurrentReference;
             if (refVal != null)
             {
-                if (refVal.Contains("CLASSIC"))
+                if (refVal.Equals("NAB"))
                 {
                     Draw_Freno_Aux();
-                    log = String.Concat(log, "\nFreno Auxiliar");
+                    log = String.Concat(log, "\nTrinquete NAB");
+                }
+
+                if (refVal.Equals("HWSPERRKMECH"))
+                {
+                    Draw_Trinquete_Mecanico();
+                    log = String.Concat(log, "\nTrinquete Mecánico");
                 }
 
             }
@@ -328,8 +334,91 @@ namespace EPLAN_API.User
 
         }
 
-       
+
         #region Metodos de dibujo
+        public void Draw_Default_Param()
+        {
+            //I9 C Standard input 9
+            SetGECParameter(oProject, oElectric, "I9", (uint)GEC.Param.Fire_alarm_smoke_detector_1);
+
+            //I10 C Standard input 10
+            SetGECParameter(oProject, oElectric, "I10", (uint)GEC.Param.Bypass_VFD);
+
+            //I13 C Standard input 13
+            SetGECParameter(oProject, oElectric, "I13", (uint)GEC.Param.Earthquake);
+
+            //I16 C Standard input 16
+            SetGECParameter(oProject, oElectric, "I16", (uint)GEC.Param.FPGA_fault);
+
+            //UI9 UDL1 Standard input 9
+            SetGECParameter(oProject, oElectric, "UI9", (uint)GEC.Param.Top_skirt_right_SS);
+
+            //UI10 UDL1 Standard input 10
+            SetGECParameter(oProject, oElectric, "UI10", (uint)GEC.Param.Top_skirt_left_SS);
+
+            //UI13	UDL1 Standard input 13
+            SetGECParameter(oProject, oElectric, "UI13", (uint)GEC.Param.Top_vertical_comb_plate_right_SS);
+
+            //UI14	UDL1 Standard input 14
+            SetGECParameter(oProject, oElectric, "UI14", (uint)GEC.Param.Top_vertical_comb_plate_left_SS);
+
+            //LI11 LDL1 Standard input 11
+            SetGECParameter(oProject, oElectric, "LI11", (uint)GEC.Param.Bottom_vertical_comb_plate_right_SS);
+
+            //LI12 LDL1 Standard input 12
+            SetGECParameter(oProject, oElectric, "LI12", (uint)GEC.Param.Bottom_vertical_comb_plate_left_SS);
+
+            //LI13 LDL1 Standard input 13
+            SetGECParameter(oProject, oElectric, "LI13", (uint)GEC.Param.Bottom_buggy_right_SS);
+
+            //LI14 LDL1 Standard input 14
+            SetGECParameter(oProject, oElectric, "LI14", (uint)GEC.Param.Bottom_buggy_left_SS);
+
+            //LI15 LDL1 Standard input 15
+            SetGECParameter(oProject, oElectric, "LI15", (uint)GEC.Param.Bottom_skirt_right_SS);
+
+            //LI16 LDL1 Standard input 16 X16
+            SetGECParameter(oProject, oElectric, "LI16", (uint)GEC.Param.Bottom_skirt_left_SS);
+
+            //O5 C Relay 5 NO 5L/Q5
+            SetGECParameter(oProject, oElectric, "O5", (uint)GEC.Param.Up_indication);
+
+            //O6 C Relay 6 NO 6L/Q6
+            SetGECParameter(oProject, oElectric, "O6", (uint)GEC.Param.Down_indication);
+
+            //O7 C Relay 7 NO 7L/Q7
+            SetGECParameter(oProject, oElectric, "O7", (uint)GEC.Param.Oil_pump_activation);
+
+            //O8 C Relay 8 NO 8L/Q8
+            SetGECParameter(oProject, oElectric, "O8", (uint)GEC.Param.Fault_indication);
+
+            //O9 C Relay 9 NO 9L/Q9
+            SetGECParameter(oProject, oElectric, "O9", (uint)GEC.Param.Maintenance_indication);
+
+            //UO4 UDL1 Relay output 1 NO Q4/4L
+            SetGECParameter(oProject, oElectric, "UO4", (uint)GEC.Param.Buzzer_top);
+
+            //UO7	UDL1 Relay output 4 NO Q7/7L
+            SetGECParameter(oProject, oElectric, "UO7", (uint)GEC.Param.Buzzer_during_start);
+
+            //LO4	LDL1 Relay output 1 NO Q4/4L
+            SetGECParameter(oProject, oElectric, "LO4", (uint)GEC.Param.Buzzer_bottom);
+
+            //LO7	LDL1 Relay output 4 NO Q7/7L
+            SetGECParameter(oProject, oElectric, "LO7", (uint)GEC.Param.Buzzer_during_start);
+
+            //SI17	SF Safety Input 9
+            SetGECParameter(oProject, oElectric, "SI17", (uint)GEC.Param.Drive_chain_DuTriplex, true);
+            //C39	LOWER_DIAG_SS_LENGTH
+            SetGECParameter(oProject, oElectric, "C39", 16);
+            //Conexion Motor "VVF_YD"
+            SetGECParameter(oProject, oElectric, "SI12", (uint)GEC.Param.Contactor_FB_2, true);
+            SetGECParameter(oProject, oElectric, "SI21", (uint)GEC.Param.Contactor_FB_3, true);
+            SetGECParameter(oProject, oElectric, "SI22", (uint)GEC.Param.Contactor_FB_4, true);
+            SetGECParameter(oProject, oElectric, "O3", (uint)GEC.Param.Main_2, true);
+            SetGECParameter(oProject, oElectric, "O4", (uint)GEC.Param.Main_1, true);
+        }
+
         public void Draw_LuzEstroboscopica(string type)
         {
 
@@ -486,6 +575,11 @@ namespace EPLAN_API.User
 
             Caracteristic modelo = (Caracteristic)oElectric.CaractComercial["FMODELL"];
 
+            SetGECParameter(oProject, oElectric, "UO6", (uint)GEC.Param.Top_traffic_light_red, true);
+            SetGECParameter(oProject, oElectric, "UO5", (uint)GEC.Param.Top_traffic_light_green, true);
+            SetGECParameter(oProject, oElectric, "LO6", (uint)GEC.Param.Bottom_traffic_light_red, true);
+            SetGECParameter(oProject, oElectric, "LO5", (uint)GEC.Param.Bottom_traffic_light_green, true);
+
             //Semaforos superiores
             insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\Upper_Traffic_Lights.emp", "Upper Keys", "Upper Traffic Lights");
 
@@ -545,41 +639,58 @@ namespace EPLAN_API.User
 
         public void Draw_Radar()
         {
+            Caracteristic producto = (Caracteristic)oElectric.CaractComercial["FMODELL"];
 
             //Radares Superiores
             insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\Upper_People_Detection.emp", "Upper Diagnostic Outputs I", "Upper People Detection");
 
-            //en página de "Upper People Detection"
-            insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Radar.ema", 'E', "Upper People Detection", 212.0, 256.0);
+            if (producto.CurrentReference.Contains("CLASSIC"))
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Radar.ema", 'K', "Upper People Detection", 212.0, 256.0);
+            else
+                //en página de "Upper People Detection"
+                insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Radar.ema", 'E', "Upper People Detection", 212.0, 256.0);
 
             //en página de "Upper Diagnostic Inputs IV"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Radar.ema", 'N', "Upper Diagnostic Inputs IV", 220.0, 168.0);
+
+            SetGECParameter(oProject, oElectric, "UI25", (uint)GEC.Param.Top_radar_right_NC, true);
+            SetGECParameter(oProject, oElectric, "UI26", (uint)GEC.Param.Top_radar_left_NC, true);
 
             //******************************************************************************************************************************************************
             //******************************************************************************************************************************************************
 
             //Radares Inferiores
             insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\Lower_People_Detection.emp", "Lower Diagnostic Outputs I", "Lower People Detection");
-            
-            //en página de "Lower People Detection"
-            insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Radar.ema", 'F', "Lower People Detection", 212.0, 256.0);
+
+            if (producto.CurrentReference.Contains("CLASSIC"))
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Radar.ema", 'L', "Lower People Detection", 212.0, 256.0);
+            else
+                //en página de "Lower People Detection"
+                insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Radar.ema", 'F', "Lower People Detection", 212.0, 256.0);
 
             //en página de "Lower Diagnostic Inputs IV"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Radar.ema", 'M', "Lower Diagnostic Inputs IV", 216.0, 168.0);
 
+            SetGECParameter(oProject, oElectric, "LI26", (uint)GEC.Param.Bottom_radar_right_NC, true);
+            SetGECParameter(oProject, oElectric, "LI25", (uint)GEC.Param.Bottom_radar_left_NC, true);
         }
 
         public void Draw_Fotocelulas()
         {
+            Caracteristic producto = (Caracteristic)oElectric.CaractComercial["FMODELL"];
 
             //Fotocélulas superiores
             insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\Upper_People_Detection.emp", "Upper Diagnostic Outputs I","Upper People Detection");
-           
-            //en página de "Upper People Detection"
-            insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Comb_Photocell.ema", 'F', "Upper People Detection", 12.0, 256.0);
+
+            if (producto.CurrentReference.Contains("CLASSIC"))
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Comb_Photocell.ema", 'L', "Upper People Detection", 12.0, 256.0);
+            else
+                //en página de "Upper People Detection"
+                insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Comb_Photocell.ema", 'F', "Upper People Detection", 12.0, 256.0);
 
             //en página de "Upper Diagnostic Inputs IV"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Comb_Photocell.ema", 'N', "Upper Diagnostic Inputs IV", 220.0, 168.0);
+            SetGECParameter(oProject, oElectric, "UI25", (uint)GEC.Param.Top_light_barrier_comb_plate_NC, true);
 
 
             //******************************************************************************************************************************************************
@@ -588,25 +699,19 @@ namespace EPLAN_API.User
             //Fotocélulas inferiores
             insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\Lower_People_Detection.emp", "Lower Diagnostic Outputs I", "Lower People Detection");
 
-            //en página de "Lower People Detection"
-            insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Comb_Photocell.ema", 'E', "Lower People Detection", 12.0, 256.0);
+            if (producto.CurrentReference.Contains("CLASSIC"))
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Comb_Photocell.ema", 'K', "Lower People Detection", 12.0, 256.0);
+            else
+                //en página de "Lower People Detection"
+                insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Comb_Photocell.ema", 'E', "Lower People Detection", 12.0, 256.0);
+
 
             //en página de "Upper Diagnostic Inputs IV"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Comb_Photocell.ema", 'M', "Lower Diagnostic Inputs IV", 216.0, 168.0);
+            SetGECParameter(oProject, oElectric, "LI25", (uint)GEC.Param.Bottom_light_barrier_comb_plate_NC, true);
 
 
 
-        }
-
-        public void Draw_RoturaCadenaPrincipal()
-        {
-
-            //en página de "Motor Sensors"
-            insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Broken_Chain.ema", 'A', "Motor Sensors", 296.0, 260.0);
-
-
-            //en página de "Safety Inputs I"
-            insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Broken_Chain.ema", 'P', "Safety Inputs I", 292.0, 184.0);
         }
 
         public void Draw_RoturaPasamanos()
@@ -619,6 +724,8 @@ namespace EPLAN_API.User
 
             //en página de "Lower Diagnostic Inputs IV"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Broken_Handrail.ema", 'N', "Lower Diagnostic Inputs III", 160.0, 168.0);
+            SetGECParameter(oProject, oElectric, "LI17", (uint)GEC.Param.Broken_handrail_R, true);
+            SetGECParameter(oProject, oElectric, "LI18", (uint)GEC.Param.Broken_handrail_L, true);
         }
 
         public void Draw_ControlDesgasteFrenos()
@@ -631,13 +738,9 @@ namespace EPLAN_API.User
 
             //en página de "Upper Diagnostic Inputs IV"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Brake_Wear.ema", 'O', "Upper Diagnostic Inputs IV", 340.0, 168.0);
-        }
+            SetGECParameter(oProject, oElectric, "UI27", (uint)GEC.Param.Brake_wear_brake_1_M1, true);
+            SetGECParameter(oProject, oElectric, "UI28", (uint)GEC.Param.Brake_wear_brake_2_M1, true);
 
-        public void Draw_BuggyInferior()
-        {
-
-            //en página de "Lower Diagnostic Inputs III"
-            insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Buggy.ema", 'B', "Lower Diagnostic Inputs III", 16.0, 156.0);
         }
 
         public void Draw_BuggySuperior()
@@ -648,6 +751,8 @@ namespace EPLAN_API.User
 
             //en página de "Upper Diagnostic Inputs III"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Buggy.ema", 'F', "Upper Diagnostic Inputs III", 12.0, 156.0);
+            SetGECParameter(oProject, oElectric, "UI15", (uint)GEC.Param.Top_buggy_right_SS, true);
+            SetGECParameter(oProject, oElectric, "UI16", (uint)GEC.Param.Top_buggy_left_SS, true);
         }
 
         public void Draw_Cerrojo()
@@ -671,42 +776,21 @@ namespace EPLAN_API.User
             }
         }
 
-        public void Draw_SeguridadVerticalPeines()
-        {
-
-            //en página de "Upper Diagnostic Inputs II"
-            insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Vertical_Comb.ema", 'A', "Upper Diagnostic Inputs II", 252.0, 156.0);
-
-            //en página de "Lower Diagnostic Inputs II"
-            insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Vertical_Comb.ema", 'B', "Lower Diagnostic Inputs II", 312.0, 156.0);
-        }
-
         public void Draw_StopAdicionalSuperior()
         {
 
             //en página de "Upper Diagnostic Inputs II"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Stop_External.ema", 'C', "Upper Diagnostic Inputs II", 192.0, 156.0);
+            SetGECParameter(oProject, oElectric, "UI11", (uint)GEC.Param.Top_emergency_stop_external_SS, true);
         }
 
         public void Draw_StopAdicionalInferior()
         {
+            //No se puede usar de momento porque no esta habilitado
+
             //en página de "Lower Diagnostic Inputs III"
-            insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Stop_External.ema", 'D', "Lower Diagnostic Inputs III", 132.0, 156.0);
-        }
-
-        public void Draw_Micros_Zocalo(int nMicros)
-        {
-            int key;
-            Insert oInsert = new Insert();
-
-            if (nMicros >= 4)
-            {
-                //en página de "Upper Diagnostic Inputs II"
-                insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Skirt_Microswitch_1.ema", 'A', "Upper Diagnostic Inputs II", 72.0, 156.0);
-
-                //en página de "Lower Diagnostic Inputs II"
-                insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Skirt_Microswitch_1.ema", 'B', "Lower Diagnostic Inputs II", 192.0, 156.0);
-            }
+            //insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Stop_External.ema", 'D', "Lower Diagnostic Inputs III", 132.0, 156.0);
+            //SetGECParameter(oProject, oElectric, "UI11", (uint)GEC.Param.Top_emergency_stop_external_SS, true);
 
         }
 
@@ -760,6 +844,8 @@ namespace EPLAN_API.User
 
 
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Encoder.ema", 'K', "Safety Pulse Inputs", 232, 140);
+            SetGECParameter(oProject, oElectric, "SI7", (uint)GEC.Param.Main_shaft_speed_monitor_1, true);
+            SetGECParameter(oProject, oElectric, "SI8", (uint)GEC.Param.Main_shaft_speed_monitor_2, true);
 
             //Incluir SAI
             moveSymbol(oProject, "Control I", -12, 12, 124, 212, 124, 212);
@@ -789,9 +875,15 @@ namespace EPLAN_API.User
 
         }
 
+        public void Draw_Trinquete_Mecanico()
+        {
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Mechanical_Pawl_Brake.ema", 'A', "Upper Diagnostic Inputs III", 132.0, 156.0);
+            SetGECParameter(oProject, oElectric, "UI17", (uint)GEC.Param.Mechanical_pawl_brake_SS, true);
+        }
+
         public void Draw_Sincro_Pasamanos(string model)
         {
-            if (!model.Equals("VELINO_CLASSIC"))
+            if (!model.Contains("CLASSIC"))
             {
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Handrail_Speed_Sensors.ema", 'A', "Upper Sensors I", 284, 260);
             }
@@ -823,15 +915,13 @@ namespace EPLAN_API.User
 
             //en página de "Safety Inputs I"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Brake_2.ema", 'L', "Safety Inputs I", 228.0, 184.0);
+            SetGECParameter(oProject, oElectric, "SI15", (uint)GEC.Param.Brake_function_brake_3_mot_1, true);
+            SetGECParameter(oProject, oElectric, "SI16", (uint)GEC.Param.Brake_function_brake_4_mot_1, true);
 
         }
 
         public void Draw_Lubricacion_auto()
         {
-
-            ////Oil Level In Pump 1
-            //GEC C_Standard_input_5 = new GEC("I5", 64);
-            //GEC_Parameter.Add(C_Standard_input_5);
 
             //en página de "Sensors & Oil Pump"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Oil_Pump.ema", 'E', "Sensors & Oil Pump", 272.0, 144.0);
@@ -841,23 +931,11 @@ namespace EPLAN_API.User
 
             //en página de "Control Inputs I"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\Oil_Pump.ema", 'G', "Control Inputs I", 192.0, 204.0);
+            SetGECParameter(oProject, oElectric, "I5", (uint)GEC.Param.Oil_level_in_pump_1, true);
         }
 
         public void Draw_VVF(Double power)
         {
-
-            ////Entrada Fallo variador
-            //GEC C_Standard_input_4 = new GEC("I4", 69);
-            //GEC_Parameter.Add(C_Standard_input_4);
-
-            ////Salida segunda velocidad
-            //GEC C_Relay_2_NO = new GEC("O2", 201);
-            //GEC_Parameter.Add(C_Relay_2_NO);
-
-            ////Entrada Bypass
-            //GEC C_Standard_input_10 = new GEC("I10", 65);
-            //GEC_Parameter.Add(C_Standard_input_10);
-
             //en página de "VVF Power"
             StorableObject[] oInsertedObjects = insertWindowMacro_ObjCont(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\VVF.ema", 'J', "VVF Power", 44.0, 208.0);
 
@@ -890,26 +968,16 @@ namespace EPLAN_API.User
 
             //en página de "Control Outputs II"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\VVF.ema", 'L', "Control Outputs II", 188.0, 132.0);
+            SetGECParameter(oProject, oElectric, "O2", (uint)GEC.Param.Speed_selection_output_2, true);
 
             //en página de "Control Inputs I"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\VVF.ema", 'K', "Control Inputs I", 160.0, 204.0);
+            SetGECParameter(oProject, oElectric, "I4", (uint)GEC.Param.VFD_EEC, true);
 
         }
 
         public void Draw_VVF_Regen(Double power)
         {
-
-            ////Entrada Fallo variador
-            //GEC C_Standard_input_4 = new GEC("I4", 69);
-            //GEC_Parameter.Add(C_Standard_input_4);
-
-            ////Salida segunda velocidad
-            //GEC C_Relay_2_NO = new GEC("O2", 201);
-            //GEC_Parameter.Add(C_Relay_2_NO);
-
-            ////Entrada Bypass
-            //GEC C_Standard_input_10 = new GEC("I10", 65);
-            //GEC_Parameter.Add(C_Standard_input_10);
 
             //en página de "VVF Power"
             StorableObject[] oInsertedObjects = insertWindowMacro_ObjCont(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\VVF.ema", 'N', "VVF Power", 76.0, 184.0);
@@ -944,9 +1012,11 @@ namespace EPLAN_API.User
 
             //en página de "Control Outputs II"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\VVF.ema", 'L', "Control Outputs II", 188.0, 132.0);
+            SetGECParameter(oProject, oElectric, "O2", (uint)GEC.Param.Speed_selection_output_2, true);
 
             //en página de "Control Inputs I"
             insertWindowMacro(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\VVF.ema", 'K', "Control Inputs I", 160.0, 204.0);
+            SetGECParameter(oProject, oElectric, "I4", (uint)GEC.Param.VFD_EEC, true);
 
 
 

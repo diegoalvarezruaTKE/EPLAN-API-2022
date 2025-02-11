@@ -860,12 +860,13 @@ namespace EPLAN_API_2022.Forms
 
                 UpdateSpecialCaract();
                 CalculateCaractIng();
-                DrawTools.calcParmGEC_Basic(oProject, oElectricList[0]);
             }
         }
 
         private void b_Draw_Click(object sender, EventArgs e)
         {
+            DrawTools.calcParmGEC_Basic(oProject, oElectricList[0]);
+
             Draw = new Draw(oElectricList[0]);
             Draw.ProjectOpenedToConfigurador += new Draw.ProejctOpenedDelegate(DrawDataToConfigurador);
             Draw.ProgressChangedToConfigurador += UpdateProgressBar;

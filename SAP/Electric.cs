@@ -887,6 +887,7 @@ namespace EPLAN_API.SAP
             #endregion
 
         }
+        
         private void CreateCaractIng()
         {
             CaractIng = new SortedList();

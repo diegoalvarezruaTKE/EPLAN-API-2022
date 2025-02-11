@@ -41,7 +41,7 @@ namespace EPLAN_API.User
             int step = 100/34;
 
             //Contactores
-            Draw_Contactors();
+            Draw_Default_Param();
             
             //Sensores de Freno
             Draw_Freno();
@@ -538,8 +538,47 @@ namespace EPLAN_API.User
 
         #region Metodos de dibujo
 
-        public void Draw_Contactors()
+        public void Draw_Default_Param()
         {
+            //UI23    UDL1 Standard input 23 X23
+            SetGECParameter(oProject, oElectric, "UI23", (uint)GEC.Param.Top_up_key_order);
+
+            //UI24    UDL1 Standard input 24
+            SetGECParameter(oProject, oElectric, "UI24", (uint)GEC.Param.Top_down_key_order);
+
+            //LI23    LDL1 Standard input 23 X23
+            SetGECParameter(oProject, oElectric, "LI23", (uint)GEC.Param.Bottom_up_key_order);
+
+            //LI24    LDL1 Standard input 24
+            SetGECParameter(oProject, oElectric, "LI24", (uint)GEC.Param.Bottom_down_key_order);
+
+            //UO4 UDL1 Relay output 1 NO Q4/ 4L
+            SetGECParameter(oProject, oElectric, "UO4", (uint)GEC.Param.Up_indication);
+
+            //UO5 UDL1 Relay output 2NO Q5/ 5L
+            SetGECParameter(oProject, oElectric, "UO5", (uint)GEC.Param.Down_indication);
+
+            //UO6 UDL1 Relay output 3 NO Q6/ 6L
+            SetGECParameter(oProject, oElectric, "UO6", (uint)GEC.Param.Oil_pump_activation);
+
+            //UO7 UDL1 Relay output 4 NO Q7/ 7L
+            SetGECParameter(oProject, oElectric, "UO7", (uint)GEC.Param.Fault_bit_60_63);
+
+            //UO8 UDL1 Relay output 5 NO Q8/ 8L
+            SetGECParameter(oProject, oElectric, "UO8", (uint)GEC.Param.Maintenance_indication);
+
+            //SI23 SF Safety Input 15 X23
+            SetGECParameter(oProject, oElectric, "SI23", (uint)GEC.Param.Top_open_floor_plate_1);
+
+            //SI24    SF Safety Input 16
+            SetGECParameter(oProject, oElectric, "SI24", (uint)GEC.Param.Top_open_floor_plate_2);
+
+            //SI25 SF Safety Input 17
+            SetGECParameter(oProject, oElectric, "SI25", (uint)GEC.Param.Bottom_open_floor_plate_1);
+
+            //SI26 SF Safety Input 18
+            SetGECParameter(oProject, oElectric, "SI26", (uint)GEC.Param.Bottom_open_floor_plate_2);
+
             //Conexion Motor "VVF_YD"
             SetGECParameter(oProject, oElectric, "SI12", (uint)GEC.Param.Contactor_FB_2, true);
             SetGECParameter(oProject, oElectric, "SI21", (uint)GEC.Param.Contactor_FB_3, true);
