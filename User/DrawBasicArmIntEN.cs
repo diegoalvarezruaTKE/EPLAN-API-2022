@@ -23,25 +23,16 @@ namespace EPLAN_API.User
     public class DrawBasicArmIntEN:DrawTools
     {
         private Project oProject;
-        private Page[] oPages;
-        private Function[] oCablesFunctions;
-        private Cable[] sCables;
-        private Cable[] oCables;
-        private Hashtable oHPages;
-        Dictionary<int, string> dictPages;
         private Electric oElectric;
-        private DrawingService oDs;
         private string log;
-        private ProgressBar oProgressBar;
-        private String OE;
-        StorableObject[] oInsertedObjects;
         private TextBox stateTexbox;
+        public delegate void ProgressChangedDelegate(int value);
+        public event ProgressChangedDelegate ProgressChangedToDraw;
 
         public DrawBasicArmIntEN(Project project, Electric electric)
         {
             oProject = project;
             oElectric = electric;
-            DrawMacro();
         }
 
         public void DrawMacro()
@@ -51,7 +42,13 @@ namespace EPLAN_API.User
             Insert oInsert = new Insert();
             PageMacro oPageMacro = new PageMacro();
 
+            int progress = 0;
+            int step = 100 / 20;
+
+
             draw_Default_Param();
+            progress += step;
+            ProgressChanged(progress);
 
             /*********************/
             /****MAIN CABINET*****/
@@ -60,9 +57,17 @@ namespace EPLAN_API.User
             //Main Cabinet
             setStatusText("Insertando macro Armario Basic");
             oPageMacro.Open("$(MD_MACROS)\\_Esquema\\3_Basic\\200004271300-ARMARIO INTERIOR BASIC GEC EN_ES.emp", oProject);
-            oInsertedObjects = oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore);
+            oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore);
+            progress += step;
+            ProgressChanged(progress);
+
             //draw_Main_Cab_3D();
+            progress += step;
+            ProgressChanged(progress);
+
             draw_Main_Basic_Cables();
+            progress += step;
+            ProgressChanged(progress);
 
             /*********************/
             /*********CDS*********/
@@ -70,9 +75,17 @@ namespace EPLAN_API.User
             //Upper Box
             setStatusText("Insertando macro Caja Derivación Superior Basic");
             oPageMacro.Open("$(MD_MACROS)\\_Esquema\\3_Basic\\200004271100-CAJA DERIV SUP. BASIC GEC EN_ES_EXT.emp", oProject);
-            oInsertedObjects.Concat(oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore));
+            oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore);
+            progress += step;
+            ProgressChanged(progress);
+
             //draw_CDS_3D();
+            progress += step;
+            ProgressChanged(progress);
+
             draw_CDS_Basic_Cables();
+            progress += step;
+            ProgressChanged(progress);
 
             /*********************/
             /*********CDI*********/
@@ -80,50 +93,73 @@ namespace EPLAN_API.User
             //Lower Box
             setStatusText("Insertando macro Caja Derivación Inferior Basic");
             oPageMacro.Open("$(MD_MACROS)\\_Esquema\\3_Basic\\200004271200-CAJA DERIV INF. BASIC GEC EN_ES_EXT.emp", oProject);
-            oInsertedObjects.Concat(oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore));
+            oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore);
+            progress += step;
+            ProgressChanged(progress);
+
             //draw_CDI_3D();
+            progress += step;
+            ProgressChanged(progress);
+
             draw_CDI_Basic_Cables();
+            progress += step;
+            ProgressChanged(progress);
 
             /*********************/
             /******ADVANCED*******/
             /*********************/
-     
+
             //1	GENERAL
             //1.6.1 Stop para Carritos
             //11200004441900  STOP CARRITOS SUP.ADV.
             //11200004444100  STOP CARRITOS INF.ADV.
             draw_stop_carritos();
-
+            progress += step;
+            ProgressChanged(progress);
 
             //8 CONTROL
             //8.2  MAX
             //11200004443300  MAX INSTALADO ADV.
             draw_MAX();
+            progress += step;
+            ProgressChanged(progress);
 
             //9	SAFETY DEVICES
             //9.2  Sensor de sincronismo de pasamanos
             //11200004441700  SINCRONISMO PASAMANOS ADV.
             draw_Speed_Handrail_Monitoring();
+            progress += step;
+            ProgressChanged(progress);
 
             //9.3   Handrail breakage sensor
             //11200004444200  ROTURA PASAMANOS ADV.
             draw_Handrail_breakage_sensor();
+            progress += step;
+            ProgressChanged(progress);
 
             //9.4	Seguridad funcionamiento de frenos
             //11200004323000  FRENO 1 MOTOR 1 - FINAL DE CARRERA_ADV
             //11200004323200  FRENO 1 MOTOR 1 - INDUCTIVO_ADV
             draw_Freno_1_M1();
+            progress += step;
+            ProgressChanged(progress);
             //11200004323100  FRENO 2 MOTOR 1 - FINAL DE CARRERA_ADV
             //11200004323300  FRENO 2 MOTOR 1 - INDUCTIVO_ADV
             draw_Freno_2_M1();
+            progress += step;
+            ProgressChanged(progress);
 
             //9.5	Brake wear indicator
             //11200004442000  DESGASTE FRENOS ADV.
             draw_Brake_wear_assembly();
+            progress += step;
+            ProgressChanged(progress);
 
             //9.7	Full motor protection
             //11200004299200  RELÉ TÉRMICO MOTOR_BAS
             draw_termico();
+            progress += step;
+            ProgressChanged(progress);
 
             //9.14  Comb plate safety devices
             //11200004442100  SEG.VERT.PEINES CL. SUP.ADV.
@@ -131,6 +167,8 @@ namespace EPLAN_API.User
             //11200004444400  SEG.VERT.PEINES CL. INF.ADV.
             //11200004444300  SEG.VERT.PEINES INF. ADV.
             draw_Vertical_Combplate();
+            progress += step;
+            ProgressChanged(progress);
 
             //9.20	Buggy device
             //11200004442300  BUGGY CLASSIC SUP.ADV.
@@ -138,10 +176,14 @@ namespace EPLAN_API.User
             //11200004444500  BUGGY CLASSIC INF.ADV.
             //11200004444600  BUGGY INF. ADV.
             draw_Buggy();
+            progress += step;
+            ProgressChanged(progress);
 
             //9.21	Drive chain safety devices
             //11200004442900  CADENA MOTRIZ ADV.
             draw_Drive_Chain_Safety();
+            progress += step;
+            ProgressChanged(progress);
 
             //9.22	Skirting microswitches
             //9.23	Fire/smoke detectors
@@ -151,6 +193,8 @@ namespace EPLAN_API.User
             //11200004441600  SEMAFORO SUP. ADV.
             //11200004443900  SEMAFORO INF. ADV.
             draw_Traffic_Lights();
+            progress += step;
+            ProgressChanged(progress);
 
             //9.27	Failure display -- Always included
             //9.28	Passenger detection system
@@ -159,10 +203,14 @@ namespace EPLAN_API.User
             //9.30	Level of water on pit detector
             //11200004444000  NIVEL DE AGUA ADV.
             draw_Level_Water();
+            progress += step;
+            ProgressChanged(progress);
 
             //9.31	Cerrojo mantenimiento en eje 
             //11200004441800  CERROJO MANTENIMIENTO ADV
             draw_Main_shaft_maintenance_lock();
+            progress += step;
+            ProgressChanged(progress);
 
             //9.32	Temperature sensor
             //9.33	LHD (linear heat detection)
@@ -178,6 +226,8 @@ namespace EPLAN_API.User
             //10.2.1  VVVF
             //11200004443200  CABLEADO VARIADOR ADV.
             draw_VVF();
+            progress += step;
+            ProgressChanged(progress);
 
             //10.2.2	Tipo detección - Fotocélula
             //11200004442500  FOTOCELULA CL. SUP.ADV.
@@ -185,11 +235,16 @@ namespace EPLAN_API.User
             //11200004444700  FOTOCELULA CL. INF.ADV.
             //11200004444800  FOTOCELULA INF. ADV.
             draw_fotocélula_VVF();
+            progress += step;
+            ProgressChanged(progress);
+
             //11200004442700  RADAR CL. SUP.ADV.
             //11200004442800  RADAR SUP. ADV.
             //11200004444900  RADAR CL. INF.ADV.
             //11200004445000  RADAR INF. ADV.
             draw_radar();
+            progress += step;
+            ProgressChanged(progress);
 
             //10.11	Automatic lubrication
             //draw_automatic_lubrication();
@@ -203,10 +258,12 @@ namespace EPLAN_API.User
             //Packages
             //11200004443400	PAQUETE MERCADONA ADV.
             draw_Paquete_Mercadona();
-
-
+            progress += step;
+            ProgressChanged(progress);
 
             deleteAllDummyConnections(oProject);
+            progress += step;
+            ProgressChanged(progress);
 
 
             Reports report = new Reports();
@@ -216,18 +273,26 @@ namespace EPLAN_API.User
             Edit edit = new Edit();
             edit.RedrawGed();
 
-            //setStatusText("Finalizado");
-            //oProgressBar.Style = ProgressBarStyle.Continuous;
-            //oProgressBar.MarqueeAnimationSpeed = 0;
-
-            //calcParmGEC_Basic();
             paramGEC(oProject, oElectric);
+            writeGECtoEPLAN(oProject, oElectric);
+
+            log = String.Concat(log, "Basic");
+            MessageBox.Show(new Form() { TopMost = true, TopLevel = true }, log, "Resultado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            ProgressChanged(0);
+            String path = String.Concat(oProject.DocumentDirectory.Substring(0, oProject.DocumentDirectory.Length - 3), "Log\\Log_Draw.txt");
+            File.WriteAllText(path, log);
 
             return;
 
         }
 
-        public void draw_Default_Param()
+        private void ProgressChanged(int progress)
+        {
+            ProgressChangedToDraw(progress);
+        }
+
+
+        private void draw_Default_Param()
         {
             //UI23    UDL1 Standard input 23 X23
             SetGECParameter(oProject, oElectric, "UI23", (uint)GEC.Param.Top_up_key_order);
@@ -269,7 +334,7 @@ namespace EPLAN_API.User
             SetGECParameter(oProject, oElectric, "SI26", (uint)GEC.Param.Bottom_open_floor_plate_2);
         }
 
-        public void draw_Main_Cab_3D()
+        private void draw_Main_Cab_3D()
         {
             InstallationSpace installationSpace = new InstallationSpace();
             foreach (InstallationSpace iSpace in oProject.InstallationSpaces)
@@ -394,7 +459,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void draw_CDS_3D()
+        private void draw_CDS_3D()
         {
             InstallationSpace installationSpace = new InstallationSpace();
             foreach (InstallationSpace iSpace in oProject.InstallationSpaces)
@@ -465,7 +530,7 @@ namespace EPLAN_API.User
                 }
             }
 
-
+            Dictionary<int, string> dictPages = GetPageTable(oProject);
             int key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == "Layout CDS");
             Placement[] Placements = oProject.Pages[key].AllFirstLevelPlacements;
             Placements = Placements.Concat(oProject.Pages[key + 1].AllFirstLevelPlacements).ToArray();
@@ -531,7 +596,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void draw_CDI_3D()
+        private void draw_CDI_3D()
         {
             InstallationSpace installationSpace = new InstallationSpace();
             foreach (InstallationSpace iSpace in oProject.InstallationSpaces)
@@ -602,7 +667,7 @@ namespace EPLAN_API.User
                 }
             }
 
-
+            Dictionary<int, string> dictPages = GetPageTable(oProject);
             int key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == "Layout CDI");
             Placement[] Placements = oProject.Pages[key].AllFirstLevelPlacements;
             Placements = Placements.Concat(oProject.Pages[key + 1].AllFirstLevelPlacements).ToArray();
@@ -670,7 +735,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void draw_Main_Basic_Cables()
+        private void draw_Main_Basic_Cables()
         {
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'A', "External Feed Wiring", 76, 256);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'B', "Safety Inputs I", 84, 156);
@@ -692,7 +757,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void draw_CDS_Basic_Cables()
+        private void draw_CDS_Basic_Cables()
         {
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'A', "Upper Power Supply", 76, 252);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'B', "Upper Diagnostic Inputs I", 4, 220);
@@ -710,7 +775,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void draw_CDI_Basic_Cables()
+        private void draw_CDI_Basic_Cables()
         {
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'A', "Lower Power Supply", 40, 208);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'B', "Lower Diagnostic Inputs I", 32, 188);
@@ -723,7 +788,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void draw_termico()
+        private void draw_termico()
         {
             setStatusText("Insertando Termico");
 
@@ -779,7 +844,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_VVF()
+        private void draw_VVF()
         {
             if (((Caracteristic)oElectric.CaractComercial["TNCR_SD_SIST_AHORRO"]).CurrentReference.Equals("VA"))
             {
@@ -798,7 +863,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_MAX()
+        private void draw_MAX()
         {
             if (((Caracteristic)oElectric.CaractComercial["TNCR_S_MAX"]).CurrentReference.Equals("A"))
             {
@@ -807,7 +872,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_Freno_1_M1()
+        private void draw_Freno_1_M1()
         {
 
             if (((Caracteristic)oElectric.CaractComercial["FANTREHT"]).CurrentReference.Equals("FJ") ||
@@ -822,7 +887,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_Freno_2_M1()
+        private void draw_Freno_2_M1()
         {
 
             if (((Caracteristic)oElectric.CaractComercial["FBREMSE2"]).CurrentReference.Equals("4/4"))
@@ -843,7 +908,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_stop_carritos()
+        private void draw_stop_carritos()
         {
             if (!((Caracteristic)oElectric.CaractComercial["TNCR_POSTE_STOP_CARRITOS"]).CurrentReference.Equals("KEINE"))
             {
@@ -863,7 +928,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_Speed_Handrail_Monitoring()
+        private void draw_Speed_Handrail_Monitoring()
         {
             setStatusText("Insertando control velocidad pasamanos");
 
@@ -885,7 +950,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void draw_Handrail_breakage_sensor()
+        private void draw_Handrail_breakage_sensor()
         {
 
             if (((Caracteristic)oElectric.CaractComercial["F09ZUB1"]).CurrentReference.Equals("BRUCHSCHALT"))
@@ -903,7 +968,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void draw_Brake_wear_assembly()
+        private void draw_Brake_wear_assembly()
         {
             if (((Caracteristic)oElectric.CaractComercial["F01ZUB"]).CurrentReference.Equals("INDUCTIVO"))
             {
@@ -921,7 +986,7 @@ namespace EPLAN_API.User
 
         }
         
-        public void draw_Vertical_Combplate()
+        private void draw_Vertical_Combplate()
         {
             if (((Caracteristic)oElectric.CaractComercial["FKAMMPLHK"]).CurrentReference.Equals("INDEPENDIENTE"))
             {
@@ -955,7 +1020,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_Buggy()
+        private void draw_Buggy()
         {
             if (((Caracteristic)oElectric.CaractComercial["F04ZUB"]).CurrentReference.Equals("BUGGY") ||
                 ((Caracteristic)oElectric.CaractComercial["F04ZUB"]).CurrentReference.Equals("BUGGYOT"))
@@ -999,7 +1064,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_Drive_Chain_Safety()
+        private void draw_Drive_Chain_Safety()
         {
             if (((Caracteristic)oElectric.CaractComercial["TNCR_S_DRIVE_CHAIN"]).CurrentReference.Equals("SI"))
             {
@@ -1011,7 +1076,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_Traffic_Lights()
+        private void draw_Traffic_Lights()
         {
             if (((Caracteristic)oElectric.CaractComercial["FAMPELSYM"]).CurrentReference.Equals("BICOLOR"))
             {
@@ -1048,7 +1113,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_Level_Water()
+        private void draw_Level_Water()
         {
             if (((Caracteristic)oElectric.CaractComercial["TNCR_OT_NIVEL_AGUA"]).CurrentReference.Equals("S"))
             {
@@ -1064,7 +1129,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_Main_shaft_maintenance_lock()
+        private void draw_Main_shaft_maintenance_lock()
         {
             if (!((Caracteristic)oElectric.CaractComercial["TNCR_OT_CERROJO_MANTENIMIENTO"]).CurrentReference.Equals("N"))
             {
@@ -1077,7 +1142,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_fotocélula_VVF()
+        private void draw_fotocélula_VVF()
         {
             string deteccion = ((Caracteristic)oElectric.CaractComercial["FLICHTINT"]).CurrentReference;
             string modoFuncionamiento = ((Caracteristic)oElectric.CaractComercial["FBETRART"]).CurrentReference;
@@ -1116,7 +1181,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_radar()
+        private void draw_radar()
         {
             if (((Caracteristic)oElectric.CaractComercial["FLICHTINT"]).CurrentReference.Equals("RADAR"))
             {
@@ -1154,7 +1219,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_automatic_lubrication()
+        private void draw_automatic_lubrication()
         {
 
             if (((Caracteristic)oElectric.CaractComercial["TNCR_ENGRASE_AUTOMATICO"]).CurrentReference.Equals("S"))
@@ -1187,13 +1252,13 @@ namespace EPLAN_API.User
             }
         }
 
-        public void draw_auxiliary_brake()
+        private void draw_auxiliary_brake()
         {
 
 
         }
 
-        public void draw_Paquete_Mercadona()
+        private void draw_Paquete_Mercadona()
         {
             if (((Caracteristic)oElectric.CaractIng["PAQUETE_ESP"]).CurrentReference.Equals("MERCADONA"))
             {

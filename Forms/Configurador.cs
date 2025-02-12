@@ -2,6 +2,7 @@
 using Eplan.EplApi.DataModel;
 using EPLAN_API.SAP;
 using EPLAN_API.User;
+using Microsoft.VisualBasic.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -812,6 +813,7 @@ namespace EPLAN_API_2022.Forms
 
         private void UpdateProgressBar(int progress)
         {
+            this.TopMost = true;
             progressBar_Draw.Value=progress;
         }
 
@@ -867,10 +869,23 @@ namespace EPLAN_API_2022.Forms
         {
             DrawTools.calcParmGEC_Basic(oProject, oElectricList[0]);
 
-            Draw = new Draw(oElectricList[0]);
-            Draw.ProjectOpenedToConfigurador += new Draw.ProejctOpenedDelegate(DrawDataToConfigurador);
-            Draw.ProgressChangedToConfigurador += UpdateProgressBar;
-            Draw.StartDrawing();
+            try
+            {
+                Draw = new Draw(oElectricList[0]);
+                Draw.ProjectOpenedToConfigurador += new Draw.ProejctOpenedDelegate(DrawDataToConfigurador);
+                Draw.ProgressChangedToConfigurador += new Draw.ProgressChangedDelegate(UpdateProgressBar);
+                //Draw.ProgressChangedToConfigurador += Draw.ProgressChangedDelegate()
+                Draw.StartDrawing();
+            }
+            catch (Exception ex)
+            {
+                this.TopMost = false;
+                MessageBox.Show(new Form() { TopMost = true, TopLevel = true }, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally 
+            {
+                this.TopMost = false; 
+            }
         }
 
         #endregion

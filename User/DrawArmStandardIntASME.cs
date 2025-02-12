@@ -20,15 +20,14 @@ namespace EPLAN_API.User
         private Project oProject;
         private Electric oElectric;
         private string log;
+        public delegate void ProgressChangedDelegate(int value);
+        public event ProgressChangedDelegate ProgressChangedToDraw;
 
 
         public DrawArmStandardIntASME(Project project, Electric electric)
         {
             oProject = project;
             oElectric = electric;
-
-            DrawMacro();
-
         }
 
         public void DrawMacro()
@@ -36,11 +35,18 @@ namespace EPLAN_API.User
             Caracteristic c, c2;
             String refVal, refVal2;
 
+            int progress = 0;
+            int step = 100 / 20;
+
             Draw_Default_Param();
+            progress += step;
+            ProgressChanged(progress);
 
             //Sensores de Freno
             c = (Caracteristic)oElectric.CaractComercial["FANTREHT"];
             Draw_Freno(c.CurrentReference);
+            progress += step;
+            ProgressChanged(progress);
 
             //Segundo freno
             c = (Caracteristic)oElectric.CaractComercial["FBREMSE2"];
@@ -55,7 +61,9 @@ namespace EPLAN_API.User
                     log = String.Concat(log, "\nIncluido segundo freno");
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
+
 
             //Freno Auxiliar
             c = (Caracteristic)oElectric.CaractComercial["FZUSBREMSE"];
@@ -75,7 +83,9 @@ namespace EPLAN_API.User
                 }
 
             }
-            
+            progress += step;
+            ProgressChanged(progress);
+
 
             //Sensores de sincronismo pasamanos
             c = (Caracteristic)oElectric.CaractComercial["FMODELL"];
@@ -85,7 +95,9 @@ namespace EPLAN_API.User
                 Draw_Sincro_Pasamanos(refVal);
                 log = String.Concat(log, "\nIncluido sincronismo de pasamanos");
             }
-            
+            progress += step;
+            ProgressChanged(progress);
+
 
             //Bomba de lubricación
             c = (Caracteristic)oElectric.CaractComercial["TNCR_ENGRASE_AUTOMATICO"];
@@ -99,7 +111,8 @@ namespace EPLAN_API.User
                     log = String.Concat(log, "\nIncluida Bomba de lubricacion");
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
 
             //Variador
             c = (Caracteristic)oElectric.CaractComercial["TNCR_SD_SIST_AHORRO"];
@@ -119,7 +132,8 @@ namespace EPLAN_API.User
                     log = String.Concat(log, "\nIncluido VVF Regenerativo");
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
 
             //Stop adicional superior
             c = (Caracteristic)oElectric.CaractComercial["TNCR_OT_E_STOP_ADICIONAL"];
@@ -133,7 +147,8 @@ namespace EPLAN_API.User
                     log = String.Concat(log, "\nIncluido Stop adicional superior");
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
 
             //Stop adicional inferior
             c = (Caracteristic)oElectric.CaractComercial["TNCR_OT_E_STOP_ADICIONAL"];
@@ -146,7 +161,8 @@ namespace EPLAN_API.User
                     log = String.Concat(log, "\nIncluido Stop adicional inferior");
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
 
             //Seguridad de buggy superior
             c = (Caracteristic)oElectric.CaractComercial["F04ZUB"];
@@ -160,7 +176,8 @@ namespace EPLAN_API.User
                     log = String.Concat(log, "\nIncluida seguridad buggy superior");
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
 
             //Cerrojo mantenimiento eje ppal
             c = (Caracteristic)oElectric.CaractComercial["TNCR_OT_CERROJO_MANTENIMIENTO"];
@@ -173,7 +190,8 @@ namespace EPLAN_API.User
                     log = String.Concat(log, "\nIncluido Cerrojo de mantenimiento");
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
 
             //Control de desgaste de frenos
             c = (Caracteristic)oElectric.CaractComercial["F01ZUB"];
@@ -186,7 +204,8 @@ namespace EPLAN_API.User
                     log = String.Concat(log, "\nIncluido control de desgaste de frenos");
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
 
             //Rotura pasamanos
             c = (Caracteristic)oElectric.CaractComercial["F09ZUB1"];
@@ -199,7 +218,8 @@ namespace EPLAN_API.User
                     log = String.Concat(log, "\nIncluida seguridad de rotura de pasamanos");
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
 
             //Detección de personas por radar
             c = (Caracteristic)oElectric.CaractComercial["FLICHTINT"];
@@ -212,7 +232,8 @@ namespace EPLAN_API.User
                     log = String.Concat(log, "\nIncluidos Radares");
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
 
             //Detección de personas por fotocélulas
             c = (Caracteristic)oElectric.CaractComercial["FLICHTINT"];
@@ -225,7 +246,8 @@ namespace EPLAN_API.User
                     log = String.Concat(log, "\nIncluidas fotocelulas de peines");
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
 
             //Semáforos
             c = (Caracteristic)oElectric.CaractComercial["FAMPELSYM"];
@@ -237,7 +259,8 @@ namespace EPLAN_API.User
                     Draw_Semaforo(refVal);
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
 
             //Luz de foso
             c = (Caracteristic)oElectric.CaractComercial["FBELANTRST"];
@@ -249,7 +272,8 @@ namespace EPLAN_API.User
                     Draw_LuzFoso(refVal);
                 }
             }
-            
+            progress += step;
+            ProgressChanged(progress);
 
             //Luz Estroboscopica
             c = (Caracteristic)oElectric.CaractComercial["FSHEITSBEL"];
@@ -261,8 +285,9 @@ namespace EPLAN_API.User
                     Draw_LuzEstroboscopica(refVal);
                 }
             }
+            progress += step;
+            ProgressChanged(progress);
 
-            
 
             //Luz de peines
             c = (Caracteristic)oElectric.CaractComercial["ILUPEI"];
@@ -276,7 +301,7 @@ namespace EPLAN_API.User
                     Draw_LuzPeines(refVal, refVal2);
                 }
             }
-
+            ProgressChanged(100);
 
 
             ////Luz bajopasamanos
@@ -326,7 +351,8 @@ namespace EPLAN_API.User
             paramGEC(oProject, oElectric);
             writeGECtoEPLAN(oProject, oElectric);
 
-            MessageBox.Show(log);
+            MessageBox.Show(new Form() { TopMost = true, TopLevel = true }, log, "Resultado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            ProgressChanged(0);
             String path = String.Concat(oProject.DocumentDirectory.Substring(0, oProject.DocumentDirectory.Length - 3), "Log\\Log_Draw.txt");
             File.WriteAllText(path, log);
 
@@ -334,9 +360,14 @@ namespace EPLAN_API.User
 
         }
 
+        private void ProgressChanged(int progress)
+        {
+            ProgressChangedToDraw(progress);
+        }
+
 
         #region Metodos de dibujo
-        public void Draw_Default_Param()
+        private void Draw_Default_Param()
         {
             //I9 C Standard input 9
             SetGECParameter(oProject, oElectric, "I9", (uint)GEC.Param.Fire_alarm_smoke_detector_1);
@@ -361,6 +392,12 @@ namespace EPLAN_API.User
 
             //UI14	UDL1 Standard input 14
             SetGECParameter(oProject, oElectric, "UI14", (uint)GEC.Param.Top_vertical_comb_plate_left_SS);
+
+            //UI23    UDL1 Standard input 23 X23
+            SetGECParameter(oProject, oElectric, "UI23", (uint)GEC.Param.Top_up_key_order);
+
+            //UI24    UDL1 Standard input 24
+            SetGECParameter(oProject, oElectric, "UI24", (uint)GEC.Param.Top_down_key_order);
 
             //LI11 LDL1 Standard input 11
             SetGECParameter(oProject, oElectric, "LI11", (uint)GEC.Param.Bottom_vertical_comb_plate_right_SS);
@@ -419,7 +456,7 @@ namespace EPLAN_API.User
             SetGECParameter(oProject, oElectric, "O4", (uint)GEC.Param.Main_1, true);
         }
 
-        public void Draw_LuzEstroboscopica(string type)
+        private void Draw_LuzEstroboscopica(string type)
         {
 
             switch (type)
@@ -459,7 +496,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void Draw_LuzPeines(string type, string luzEstro)
+        private void Draw_LuzPeines(string type, string luzEstro)
         {
 
             if (type.Contains("PREMIUM"))
@@ -480,7 +517,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void Draw_LuzBajopasamanos(string type, string luzEstro, string luzPeines)
+        private void Draw_LuzBajopasamanos(string type, string luzEstro, string luzPeines)
         {
 
             if (type.Equals("DIRECTA") || type.Equals("LED"))
@@ -512,7 +549,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void Draw_LuzZocalos(string type, string luzBajopasamanos, string luzEstro, string luzPeines)
+        private void Draw_LuzZocalos(string type, string luzBajopasamanos, string luzEstro, string luzPeines)
         {
 
             if (type.Equals("DIRECTA") || type.Equals("LED"))
@@ -554,7 +591,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void Draw_LuzFoso(string type)
+        private void Draw_LuzFoso(string type)
         {
 
             if (type.Equals("HANDL") ||
@@ -570,7 +607,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void Draw_Semaforo(string type)
+        private void Draw_Semaforo(string type)
         {
 
             Caracteristic modelo = (Caracteristic)oElectric.CaractComercial["FMODELL"];
@@ -637,7 +674,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void Draw_Radar()
+        private void Draw_Radar()
         {
             Caracteristic producto = (Caracteristic)oElectric.CaractComercial["FMODELL"];
 
@@ -675,7 +712,7 @@ namespace EPLAN_API.User
             SetGECParameter(oProject, oElectric, "LI25", (uint)GEC.Param.Bottom_radar_left_NC, true);
         }
 
-        public void Draw_Fotocelulas()
+        private void Draw_Fotocelulas()
         {
             Caracteristic producto = (Caracteristic)oElectric.CaractComercial["FMODELL"];
 
@@ -714,7 +751,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void Draw_RoturaPasamanos()
+        private void Draw_RoturaPasamanos()
         {
             //Compruebo si ya esta insertada la página "Lower Sensors II"
             insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\Lower_Sensors_II.emp", "Lower Sensors I", "Lower Sensors II");
@@ -728,7 +765,7 @@ namespace EPLAN_API.User
             SetGECParameter(oProject, oElectric, "LI18", (uint)GEC.Param.Broken_handrail_L, true);
         }
 
-        public void Draw_ControlDesgasteFrenos()
+        private void Draw_ControlDesgasteFrenos()
         {
 
             insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\Upper_Sensors_II.emp", "Upper Sensors I", "Upper Sensors II");
@@ -743,7 +780,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void Draw_BuggySuperior()
+        private void Draw_BuggySuperior()
         {
 
             //en página de "Upper Diagnostic Inputs III"
@@ -755,7 +792,7 @@ namespace EPLAN_API.User
             SetGECParameter(oProject, oElectric, "UI16", (uint)GEC.Param.Top_buggy_left_SS, true);
         }
 
-        public void Draw_Cerrojo()
+        private void Draw_Cerrojo()
         {
             Caracteristic sMicrosZocalo = (Caracteristic)oElectric.CaractComercial["TNCR_OT_NUM_MICROCONT"];
             Caracteristic sBuggy = (Caracteristic)oElectric.CaractComercial["F04ZUB"];
@@ -776,7 +813,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void Draw_StopAdicionalSuperior()
+        private void Draw_StopAdicionalSuperior()
         {
 
             //en página de "Upper Diagnostic Inputs II"
@@ -784,7 +821,7 @@ namespace EPLAN_API.User
             SetGECParameter(oProject, oElectric, "UI11", (uint)GEC.Param.Top_emergency_stop_external_SS, true);
         }
 
-        public void Draw_StopAdicionalInferior()
+        private void Draw_StopAdicionalInferior()
         {
             //No se puede usar de momento porque no esta habilitado
 
@@ -794,7 +831,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void Draw_Freno(string motorType)
+        private void Draw_Freno(string motorType)
         {
 
             if (motorType.Equals("QC") ||
@@ -812,7 +849,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void Draw_Freno_Aux()
+        private void Draw_Freno_Aux()
         {
             //Incluir sensor de encoder
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Encoder.ema", 'J', "Upper Sensors I", 120, 264);
@@ -875,13 +912,13 @@ namespace EPLAN_API.User
 
         }
 
-        public void Draw_Trinquete_Mecanico()
+        private void Draw_Trinquete_Mecanico()
         {
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Mechanical_Pawl_Brake.ema", 'A', "Upper Diagnostic Inputs III", 132.0, 156.0);
             SetGECParameter(oProject, oElectric, "UI17", (uint)GEC.Param.Mechanical_pawl_brake_SS, true);
         }
 
-        public void Draw_Sincro_Pasamanos(string model)
+        private void Draw_Sincro_Pasamanos(string model)
         {
             if (!model.Contains("CLASSIC"))
             {
@@ -893,7 +930,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void Draw_Freno_adicional(string motorType)
+        private void Draw_Freno_adicional(string motorType)
         {
 
             //en página de "Control I"
@@ -920,7 +957,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void Draw_Lubricacion_auto()
+        private void Draw_Lubricacion_auto()
         {
 
             //en página de "Sensors & Oil Pump"
@@ -934,7 +971,7 @@ namespace EPLAN_API.User
             SetGECParameter(oProject, oElectric, "I5", (uint)GEC.Param.Oil_level_in_pump_1, true);
         }
 
-        public void Draw_VVF(Double power)
+        private void Draw_VVF(Double power)
         {
             //en página de "VVF Power"
             StorableObject[] oInsertedObjects = insertWindowMacro_ObjCont(oProject,"$(MD_MACROS)\\_Esquema\\2_Ventana\\VVF.ema", 'J', "VVF Power", 44.0, 208.0);
@@ -976,7 +1013,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void Draw_VVF_Regen(Double power)
+        private void Draw_VVF_Regen(Double power)
         {
 
             //en página de "VVF Power"

@@ -23,7 +23,12 @@ namespace EPLAN_API.User
         private string drawingNumber;
         public delegate void ProejctOpenedDelegate(Project project);
         public event ProejctOpenedDelegate ProjectOpenedToConfigurador;
-        public event Action<int> ProgressChangedToConfigurador;
+        public delegate void ProgressChangedDelegate(int progress);
+        public event ProgressChangedDelegate ProgressChangedToConfigurador;
+        DrawArmStandardIntEN drawStandardArmIntEN;
+        DrawArmExteriorEN drawArmExteriorEN;
+        DrawArmStandardIntASME drawStandardIntASME;
+        DrawBasicArmIntEN drawBasicArmIntEN;
 
         public Draw(Electric oElectric)
         {
@@ -143,10 +148,6 @@ namespace EPLAN_API.User
             Caracteristic norma = electric.CaractComercial["FNORM"] as Caracteristic;
             Caracteristic maniobra = electric.CaractIng["MANIOBRA"] as Caracteristic;
 
-            DrawArmStandardIntEN drawStandardArmIntEN;
-            DrawArmExteriorEN drawArmExteriorEN;
-            DrawArmStandardIntASME drawStandardIntASME;
-
             //Armario Standard
             if (!maniobra.CurrentReference.Equals("BASIC"))
             {
@@ -156,13 +157,16 @@ namespace EPLAN_API.User
                     if (ubicacionArmario.CurrentReference.Equals("INNENOBEN"))
                     {
                         drawStandardArmIntEN = new DrawArmStandardIntEN(oProject, electric);
-                        drawStandardArmIntEN.ProgressChanged += UpdateProgressBar;
+                        drawStandardArmIntEN.ProgressChangedToDraw += new DrawArmStandardIntEN.ProgressChangedDelegate(UpdateProgressBar);
+                        drawStandardArmIntEN.DrawMacro();
                     }
 
                     //Armario exterior EN115
                     else
                     {
                         drawArmExteriorEN = new DrawArmExteriorEN(oProject, electric);
+                        drawArmExteriorEN.ProgressChangedToDraw += new DrawArmExteriorEN.ProgressChangedDelegate(UpdateProgressBar);
+                        drawArmExteriorEN.DrawMacro();
                         //drawArmExteriorEN.ProgressChanged += UpdateProgressBar;
                     }
                 }
@@ -171,11 +175,22 @@ namespace EPLAN_API.User
                     norma.CurrentReference.Equals("CSA"))
                 {
                     drawStandardIntASME = new DrawArmStandardIntASME(oProject, electric);
+                    drawStandardIntASME.ProgressChangedToDraw += new DrawArmStandardIntASME.ProgressChangedDelegate(UpdateProgressBar);
+                    drawStandardIntASME.DrawMacro();
                 }
             }
             //Armario Basic
             else
-                new DrawBasicArmIntEN(oProject, electric);
+            {
+                drawBasicArmIntEN = new DrawBasicArmIntEN(oProject, electric);
+                drawBasicArmIntEN.ProgressChangedToDraw += new DrawBasicArmIntEN.ProgressChangedDelegate(UpdateProgressBar);
+                drawBasicArmIntEN.DrawMacro();
+            }
+        }
+
+        private void UpdateProgressBar(int value)
+        {
+            ProgressChangedToConfigurador(value);
         }
 
         private void CopyFilesRecursively(string sourcePath, string targetPath)
@@ -198,9 +213,5 @@ namespace EPLAN_API.User
             ProjectOpenedToConfigurador(project);
         }
 
-        private void UpdateProgressBar(int progress)
-        {
-            ProgressChangedToConfigurador?.Invoke(progress);
-        }
     }
 }
