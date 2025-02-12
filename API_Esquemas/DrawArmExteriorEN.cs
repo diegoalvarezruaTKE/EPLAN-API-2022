@@ -43,7 +43,7 @@ namespace EPLAN_API.User
             String refVal, refVal2, refVal3, refVal4;
 
             int progress = 0;
-            int step = 100 / 43;
+            int step = 100 / 44;
 
             Draw_Default_Param();
             progress += step;

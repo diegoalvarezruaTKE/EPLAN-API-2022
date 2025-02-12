@@ -126,19 +126,19 @@
     <Compile Include="EplanAddIn.cs" />
     <Compile Include="Abstract\IActionService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="User\Draw.cs" />
-    <Compile Include="User\DrawArmExteriorEN.cs" />
-    <Compile Include="User\DrawArmStandardIntASME.cs" />
-    <Compile Include="User\DrawBasicArmIntEN.cs" />
-    <Compile Include="User\DrawCDIBasicEN.cs" />
-    <Compile Include="User\DrawCDSBasicEN.cs" />
-    <Compile Include="User\DrawMainCabinetBasicEN.cs" />
-    <Compile Include="User\DrawArmStandardIntEN.cs" />
-    <Compile Include="User\DrawTools.cs" />
-    <Compile Include="User\GEC.cs" />
-    <Compile Include="User\HCValue.cs" />
-    <Compile Include="User\IDrawable.cs" />
-    <Compile Include="User\MotorCurrentData.cs" />
+    <Compile Include="API_Esquemas\Draw.cs" />
+    <Compile Include="API_Esquemas\DrawArmExteriorEN.cs" />
+    <Compile Include="API_Esquemas\DrawArmStandardIntASME.cs" />
+    <Compile Include="API_Esquemas\DrawBasicArmIntEN.cs" />
+    <Compile Include="API_Basic\DrawCDIBasicEN.cs" />
+    <Compile Include="API_Basic\DrawCDSBasicEN.cs" />
+    <Compile Include="API_Basic\DrawMainCabinetBasicEN.cs" />
+    <Compile Include="API_Esquemas\DrawArmStandardIntEN.cs" />
+    <Compile Include="API_Esquemas\DrawTools.cs" />
+    <Compile Include="API_Esquemas\GEC.cs" />
+    <Compile Include="API_Esquemas\HCValue.cs" />
+    <Compile Include="API_Esquemas\IDrawable.cs" />
+    <Compile Include="API_Esquemas\MotorCurrentData.cs" />
     <Compile Include="SAP\SAPService.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -199,5 +199,6 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -43,228 +43,235 @@ namespace EPLAN_API.User
             PageMacro oPageMacro = new PageMacro();
 
             int progress = 0;
-            int step = 100 / 20;
+            int step = 100 / 30;
+
+            try
+            {
+
+                draw_Default_Param();
+                progress += step;
+                ProgressChanged(progress);
+
+                /*********************/
+                /****MAIN CABINET*****/
+                /*********************/
+
+                //Main Cabinet
+                setStatusText("Insertando macro Armario Basic");
+                oPageMacro.Open("$(MD_MACROS)\\_Esquema\\3_Basic\\200004271300-ARMARIO INTERIOR BASIC GEC EN_ES.emp", oProject);
+                oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore);
+                progress += step;
+                ProgressChanged(progress);
+
+                //draw_Main_Cab_3D();
+                progress += step;
+                ProgressChanged(progress);
+
+                draw_Main_Basic_Cables();
+                progress += step;
+                ProgressChanged(progress);
+
+                /*********************/
+                /*********CDS*********/
+                /*********************/
+                //Upper Box
+                setStatusText("Insertando macro Caja Derivación Superior Basic");
+                oPageMacro.Open("$(MD_MACROS)\\_Esquema\\3_Basic\\200004271100-CAJA DERIV SUP. BASIC GEC EN_ES_EXT.emp", oProject);
+                oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore);
+                progress += step;
+                ProgressChanged(progress);
+
+                //draw_CDS_3D();
+                progress += step;
+                ProgressChanged(progress);
+
+                draw_CDS_Basic_Cables();
+                progress += step;
+                ProgressChanged(progress);
+
+                /*********************/
+                /*********CDI*********/
+                /*********************/
+                //Lower Box
+                setStatusText("Insertando macro Caja Derivación Inferior Basic");
+                oPageMacro.Open("$(MD_MACROS)\\_Esquema\\3_Basic\\200004271200-CAJA DERIV INF. BASIC GEC EN_ES_EXT.emp", oProject);
+                oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore);
+                progress += step;
+                ProgressChanged(progress);
+
+                //draw_CDI_3D();
+                progress += step;
+                ProgressChanged(progress);
+
+                draw_CDI_Basic_Cables();
+                progress += step;
+                ProgressChanged(progress);
+
+                /*********************/
+                /******ADVANCED*******/
+                /*********************/
+
+                //1	GENERAL
+                //1.6.1 Stop para Carritos
+                //11200004441900  STOP CARRITOS SUP.ADV.
+                //11200004444100  STOP CARRITOS INF.ADV.
+                draw_stop_carritos();
+                progress += step;
+                ProgressChanged(progress);
+
+                //8 CONTROL
+                //8.2  MAX
+                //11200004443300  MAX INSTALADO ADV.
+                draw_MAX();
+                progress += step;
+                ProgressChanged(progress);
+
+                //9	SAFETY DEVICES
+                //9.2  Sensor de sincronismo de pasamanos
+                //11200004441700  SINCRONISMO PASAMANOS ADV.
+                draw_Speed_Handrail_Monitoring();
+                progress += step;
+                ProgressChanged(progress);
+
+                //9.3   Handrail breakage sensor
+                //11200004444200  ROTURA PASAMANOS ADV.
+                draw_Handrail_breakage_sensor();
+                progress += step;
+                ProgressChanged(progress);
+
+                //9.4	Seguridad funcionamiento de frenos
+                //11200004323000  FRENO 1 MOTOR 1 - FINAL DE CARRERA_ADV
+                //11200004323200  FRENO 1 MOTOR 1 - INDUCTIVO_ADV
+                draw_Freno_1_M1();
+                progress += step;
+                ProgressChanged(progress);
+                //11200004323100  FRENO 2 MOTOR 1 - FINAL DE CARRERA_ADV
+                //11200004323300  FRENO 2 MOTOR 1 - INDUCTIVO_ADV
+                draw_Freno_2_M1();
+                progress += step;
+                ProgressChanged(progress);
+
+                //9.5	Brake wear indicator
+                //11200004442000  DESGASTE FRENOS ADV.
+                draw_Brake_wear_assembly();
+                progress += step;
+                ProgressChanged(progress);
+
+                //9.7	Full motor protection
+                //11200004299200  RELÉ TÉRMICO MOTOR_BAS
+                draw_termico();
+                progress += step;
+                ProgressChanged(progress);
+
+                //9.14  Comb plate safety devices
+                //11200004442100  SEG.VERT.PEINES CL. SUP.ADV.
+                //11200004442200  SEG.VERT.PEINES SUP. ADV.
+                //11200004444400  SEG.VERT.PEINES CL. INF.ADV.
+                //11200004444300  SEG.VERT.PEINES INF. ADV.
+                draw_Vertical_Combplate();
+                progress += step;
+                ProgressChanged(progress);
+
+                //9.20	Buggy device
+                //11200004442300  BUGGY CLASSIC SUP.ADV.
+                //11200004442400  BUGGY SUP. ADV.
+                //11200004444500  BUGGY CLASSIC INF.ADV.
+                //11200004444600  BUGGY INF. ADV.
+                draw_Buggy();
+                progress += step;
+                ProgressChanged(progress);
+
+                //9.21	Drive chain safety devices
+                //11200004442900  CADENA MOTRIZ ADV.
+                draw_Drive_Chain_Safety();
+                progress += step;
+                ProgressChanged(progress);
+
+                //9.22	Skirting microswitches
+                //9.23	Fire/smoke detectors
+                //9.25	Additional user stop (both heads)  
+
+                //9.26	Traffic lights
+                //11200004441600  SEMAFORO SUP. ADV.
+                //11200004443900  SEMAFORO INF. ADV.
+                draw_Traffic_Lights();
+                progress += step;
+                ProgressChanged(progress);
+
+                //9.27	Failure display -- Always included
+                //9.28	Passenger detection system
+                //9.29	Eject device for the controller
+
+                //9.30	Level of water on pit detector
+                //11200004444000  NIVEL DE AGUA ADV.
+                draw_Level_Water();
+                progress += step;
+                ProgressChanged(progress);
+
+                //9.31	Cerrojo mantenimiento en eje 
+                //11200004441800  CERROJO MANTENIMIENTO ADV
+                draw_Main_shaft_maintenance_lock();
+                progress += step;
+                ProgressChanged(progress);
+
+                //9.32	Temperature sensor
+                //9.33	LHD (linear heat detection)
+                //9.34  Oil lever switch in gear
+                //9.35  Fire contact in controller
+                //9.36	Sismic contact in controller
+                //9.37	People counter
+                //9.38	Run time meter
+                //9.43	Cables in conduits
 
 
-            draw_Default_Param();
-            progress += step;
-            ProgressChanged(progress);
+                //10    DRIVE
+                //10.2.1  VVVF
+                //11200004443200  CABLEADO VARIADOR ADV.
+                draw_VVF();
+                progress += step;
+                ProgressChanged(progress);
 
-            /*********************/
-            /****MAIN CABINET*****/
-            /*********************/
+                //10.2.2	Tipo detección - Fotocélula
+                //11200004442500  FOTOCELULA CL. SUP.ADV.
+                //11200004442600  FOTOCELULA SUP. ADV.
+                //11200004444700  FOTOCELULA CL. INF.ADV.
+                //11200004444800  FOTOCELULA INF. ADV.
+                draw_fotocélula_VVF();
+                progress += step;
+                ProgressChanged(progress);
 
-            //Main Cabinet
-            setStatusText("Insertando macro Armario Basic");
-            oPageMacro.Open("$(MD_MACROS)\\_Esquema\\3_Basic\\200004271300-ARMARIO INTERIOR BASIC GEC EN_ES.emp", oProject);
-            oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore);
-            progress += step;
-            ProgressChanged(progress);
+                //11200004442700  RADAR CL. SUP.ADV.
+                //11200004442800  RADAR SUP. ADV.
+                //11200004444900  RADAR CL. INF.ADV.
+                //11200004445000  RADAR INF. ADV.
+                draw_radar();
+                progress += step;
+                ProgressChanged(progress);
 
-            //draw_Main_Cab_3D();
-            progress += step;
-            ProgressChanged(progress);
-
-            draw_Main_Basic_Cables();
-            progress += step;
-            ProgressChanged(progress);
-
-            /*********************/
-            /*********CDS*********/
-            /*********************/
-            //Upper Box
-            setStatusText("Insertando macro Caja Derivación Superior Basic");
-            oPageMacro.Open("$(MD_MACROS)\\_Esquema\\3_Basic\\200004271100-CAJA DERIV SUP. BASIC GEC EN_ES_EXT.emp", oProject);
-            oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore);
-            progress += step;
-            ProgressChanged(progress);
-
-            //draw_CDS_3D();
-            progress += step;
-            ProgressChanged(progress);
-
-            draw_CDS_Basic_Cables();
-            progress += step;
-            ProgressChanged(progress);
-
-            /*********************/
-            /*********CDI*********/
-            /*********************/
-            //Lower Box
-            setStatusText("Insertando macro Caja Derivación Inferior Basic");
-            oPageMacro.Open("$(MD_MACROS)\\_Esquema\\3_Basic\\200004271200-CAJA DERIV INF. BASIC GEC EN_ES_EXT.emp", oProject);
-            oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore);
-            progress += step;
-            ProgressChanged(progress);
-
-            //draw_CDI_3D();
-            progress += step;
-            ProgressChanged(progress);
-
-            draw_CDI_Basic_Cables();
-            progress += step;
-            ProgressChanged(progress);
-
-            /*********************/
-            /******ADVANCED*******/
-            /*********************/
-
-            //1	GENERAL
-            //1.6.1 Stop para Carritos
-            //11200004441900  STOP CARRITOS SUP.ADV.
-            //11200004444100  STOP CARRITOS INF.ADV.
-            draw_stop_carritos();
-            progress += step;
-            ProgressChanged(progress);
-
-            //8 CONTROL
-            //8.2  MAX
-            //11200004443300  MAX INSTALADO ADV.
-            draw_MAX();
-            progress += step;
-            ProgressChanged(progress);
-
-            //9	SAFETY DEVICES
-            //9.2  Sensor de sincronismo de pasamanos
-            //11200004441700  SINCRONISMO PASAMANOS ADV.
-            draw_Speed_Handrail_Monitoring();
-            progress += step;
-            ProgressChanged(progress);
-
-            //9.3   Handrail breakage sensor
-            //11200004444200  ROTURA PASAMANOS ADV.
-            draw_Handrail_breakage_sensor();
-            progress += step;
-            ProgressChanged(progress);
-
-            //9.4	Seguridad funcionamiento de frenos
-            //11200004323000  FRENO 1 MOTOR 1 - FINAL DE CARRERA_ADV
-            //11200004323200  FRENO 1 MOTOR 1 - INDUCTIVO_ADV
-            draw_Freno_1_M1();
-            progress += step;
-            ProgressChanged(progress);
-            //11200004323100  FRENO 2 MOTOR 1 - FINAL DE CARRERA_ADV
-            //11200004323300  FRENO 2 MOTOR 1 - INDUCTIVO_ADV
-            draw_Freno_2_M1();
-            progress += step;
-            ProgressChanged(progress);
-
-            //9.5	Brake wear indicator
-            //11200004442000  DESGASTE FRENOS ADV.
-            draw_Brake_wear_assembly();
-            progress += step;
-            ProgressChanged(progress);
-
-            //9.7	Full motor protection
-            //11200004299200  RELÉ TÉRMICO MOTOR_BAS
-            draw_termico();
-            progress += step;
-            ProgressChanged(progress);
-
-            //9.14  Comb plate safety devices
-            //11200004442100  SEG.VERT.PEINES CL. SUP.ADV.
-            //11200004442200  SEG.VERT.PEINES SUP. ADV.
-            //11200004444400  SEG.VERT.PEINES CL. INF.ADV.
-            //11200004444300  SEG.VERT.PEINES INF. ADV.
-            draw_Vertical_Combplate();
-            progress += step;
-            ProgressChanged(progress);
-
-            //9.20	Buggy device
-            //11200004442300  BUGGY CLASSIC SUP.ADV.
-            //11200004442400  BUGGY SUP. ADV.
-            //11200004444500  BUGGY CLASSIC INF.ADV.
-            //11200004444600  BUGGY INF. ADV.
-            draw_Buggy();
-            progress += step;
-            ProgressChanged(progress);
-
-            //9.21	Drive chain safety devices
-            //11200004442900  CADENA MOTRIZ ADV.
-            draw_Drive_Chain_Safety();
-            progress += step;
-            ProgressChanged(progress);
-
-            //9.22	Skirting microswitches
-            //9.23	Fire/smoke detectors
-            //9.25	Additional user stop (both heads)  
-
-            //9.26	Traffic lights
-            //11200004441600  SEMAFORO SUP. ADV.
-            //11200004443900  SEMAFORO INF. ADV.
-            draw_Traffic_Lights();
-            progress += step;
-            ProgressChanged(progress);
-
-            //9.27	Failure display -- Always included
-            //9.28	Passenger detection system
-            //9.29	Eject device for the controller
-
-            //9.30	Level of water on pit detector
-            //11200004444000  NIVEL DE AGUA ADV.
-            draw_Level_Water();
-            progress += step;
-            ProgressChanged(progress);
-
-            //9.31	Cerrojo mantenimiento en eje 
-            //11200004441800  CERROJO MANTENIMIENTO ADV
-            draw_Main_shaft_maintenance_lock();
-            progress += step;
-            ProgressChanged(progress);
-
-            //9.32	Temperature sensor
-            //9.33	LHD (linear heat detection)
-            //9.34  Oil lever switch in gear
-            //9.35  Fire contact in controller
-            //9.36	Sismic contact in controller
-            //9.37	People counter
-            //9.38	Run time meter
-            //9.43	Cables in conduits
+                //10.11	Automatic lubrication
+                //draw_automatic_lubrication();
 
 
-            //10    DRIVE
-            //10.2.1  VVVF
-            //11200004443200  CABLEADO VARIADOR ADV.
-            draw_VVF();
-            progress += step;
-            ProgressChanged(progress);
+                //10.13 Auxiliary brake on the main shaft
+                //draw_auxiliary_brake();
 
-            //10.2.2	Tipo detección - Fotocélula
-            //11200004442500  FOTOCELULA CL. SUP.ADV.
-            //11200004442600  FOTOCELULA SUP. ADV.
-            //11200004444700  FOTOCELULA CL. INF.ADV.
-            //11200004444800  FOTOCELULA INF. ADV.
-            draw_fotocélula_VVF();
-            progress += step;
-            ProgressChanged(progress);
+                //11200004445200  MULTICAB.INF.CENT.ADV PARTIDO
 
-            //11200004442700  RADAR CL. SUP.ADV.
-            //11200004442800  RADAR SUP. ADV.
-            //11200004444900  RADAR CL. INF.ADV.
-            //11200004445000  RADAR INF. ADV.
-            draw_radar();
-            progress += step;
-            ProgressChanged(progress);
+                //Packages
+                //11200004443400	PAQUETE MERCADONA ADV.
+                draw_Paquete_Mercadona();
+                progress += step;
+                ProgressChanged(progress);
 
-            //10.11	Automatic lubrication
-            //draw_automatic_lubrication();
+                deleteAllDummyConnections(oProject);
+                progress += step;
+                ProgressChanged(progress);
+            }
 
-
-            //10.13 Auxiliary brake on the main shaft
-            //draw_auxiliary_brake();
-
-            //11200004445200  MULTICAB.INF.CENT.ADV PARTIDO
-
-            //Packages
-            //11200004443400	PAQUETE MERCADONA ADV.
-            draw_Paquete_Mercadona();
-            progress += step;
-            ProgressChanged(progress);
-
-            deleteAllDummyConnections(oProject);
-            progress += step;
-            ProgressChanged(progress);
-
+            catch (Exception ex)
+            {
+                MessageBox.Show(new Form() { TopMost = true, TopLevel = true }, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             Reports report = new Reports();
             report.GenerateProject(oProject);
@@ -291,7 +298,7 @@ namespace EPLAN_API.User
             ProgressChangedToDraw(progress);
         }
 
-
+        #region Metodos de dibujo
         private void draw_Default_Param()
         {
             //UI23    UDL1 Standard input 23 X23
@@ -737,54 +744,79 @@ namespace EPLAN_API.User
 
         private void draw_Main_Basic_Cables()
         {
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'A', "External Feed Wiring", 76, 256);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'B', "Safety Inputs I", 84, 156);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'C', "Motor", 20, 100);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'D', "Control I", 148, 56);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'E', "Motor Sensors", 28, 264);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'F', "Control Inputs I", 356, 124);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'G', "Communication", 148, 172);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'H', "Display", 124, 148);
-            //insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'I', "Safety Inputs I", 228, 172);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'J', "Control I", 252, 56);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'K', "Safety Inputs II", 128, 168);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'L', "Safety Pulse Inputs", 96, 168);
-            //insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'M', "Safety Inputs I", 356, 172);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'N', "Control II", 176, 220);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'O', "Control I", 44, 52);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'P', "Communication", 280, 172);
-
-
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'A', "External Feed Wiring", 76, 256);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'B', "Safety Inputs I", 84, 156);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'C', "Motor", 20, 100);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'D', "Control I", 148, 56);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'E', "Motor Sensors", 28, 264);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'F', "Control Inputs I", 356, 124);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'G', "Communication", 148, 172);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'H', "Display", 124, 148);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'I', "External Feed Wiring", 268, 48);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'J', "Control I", 252, 56);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'K', "Safety Inputs II", 128, 168);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'L', "Safety Pulse Inputs", 96, 168);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'N', "Control II", 176, 220);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'O', "Control I", 44, 52);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359300_CABLEADO_ARMARIO_BASIC.ema", 'P', "Communication", 280, 172);
         }
 
         private void draw_CDS_Basic_Cables()
         {
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'A', "Upper Power Supply", 76, 252);
+            double particiones = ((Caracteristic)(oElectric.CaractComercial["FEFL0"])).NumVal;
+
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'B', "Upper Diagnostic Inputs I", 4, 220);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'C', "Upper Diagnostic Inputs II", 0, 220);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'D', "Upper Diagnostic Inputs III", 168, 220);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'E', "Upper Diagnostic Inputs IV", 68, 172);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'F', "Upper Sensors I", 24, 244);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'G', "Motor Sensor I", 60, 212);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'H', "Brake I", 64, 176);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'I', "Brake II", 64, 176);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'J', "Upper Keys", 32, 144);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'K', "Upper Lighting I", 32, 224);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'L', "Upper Maintenance", 52, 272);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'M', "Interconnection Terminals", 28, 212);
+
+            if (particiones == 0)
+            {
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'N', "Upper Power Supply", 76, 252);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'O', "Upper Diagnostic Inputs III", 168, 220);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'P', "Upper Lighting I", 32, 224);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'Q', "Upper Maintenance", 52, 272);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'R', "Interconnection Terminals", 28, 212);
+            }
+            else
+            {
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'A', "Upper Power Supply", 76, 252);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'D', "Upper Diagnostic Inputs III", 168, 220);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'K', "Upper Lighting I", 32, 224);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'L', "Upper Maintenance", 52, 272);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359400_CABLEADO_CDS_BASIC.ema", 'M', "Interconnection Terminals", 28, 212);
+            }
 
         }
 
         private void draw_CDI_Basic_Cables()
         {
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'A', "Lower Power Supply", 40, 208);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'B', "Lower Diagnostic Inputs I", 32, 188);
+            double particiones = ((Caracteristic)(oElectric.CaractComercial["FEFL0"])).NumVal;
+
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'C', "Lower Diagnostic Inputs II", 20, 108);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'D', "Lower Diagnostic Inputs IV", 72, 164);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'E', "Lower Sensors I", 16, 264);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'F', "Lower Keys", 4, 244);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'G', "Lower Lighting I", 40, 232);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'H', "Lower Maintenance", 120, 188);
+            
+            if (particiones == 0)
+            {
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'I', "Lower Power Supply", 60, 176);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'J', "Lower Diagnostic Inputs I", 32, 188);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'K', "Lower Sensors I", 16, 264);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'L', "Lower Lighting I", 40, 232);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'M', "Lower Maintenance", 120, 188);
+            }
+            else
+            {
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'A', "Lower Power Supply", 40, 208);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'B', "Lower Diagnostic Inputs I", 32, 188);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'E', "Lower Sensors I", 16, 264);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'G', "Lower Lighting I", 40, 232);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\200004359500_CABLEADO_CDI_BASIC.ema", 'H', "Lower Maintenance", 120, 188);
+            }
 
         }
 
@@ -1274,6 +1306,7 @@ namespace EPLAN_API.User
                 moveSymbol(oProject, "Control I", 8, 0, 8, 174, 88, 288);
             }
         }
+        #endregion
 
         #region Metodos auxiliares
         public void setStatusText(string text)

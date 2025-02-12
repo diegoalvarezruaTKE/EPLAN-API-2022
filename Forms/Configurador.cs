@@ -874,7 +874,6 @@ namespace EPLAN_API_2022.Forms
                 Draw = new Draw(oElectricList[0]);
                 Draw.ProjectOpenedToConfigurador += new Draw.ProejctOpenedDelegate(DrawDataToConfigurador);
                 Draw.ProgressChangedToConfigurador += new Draw.ProgressChangedDelegate(UpdateProgressBar);
-                //Draw.ProgressChangedToConfigurador += Draw.ProgressChangedDelegate()
                 Draw.StartDrawing();
             }
             catch (Exception ex)

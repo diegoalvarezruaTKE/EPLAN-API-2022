@@ -40,7 +40,7 @@ namespace EPLAN_API.User
             String refVal, refVal2, refVal3, refVal4;
 
             int progress = 0;
-            int step = 100/36;
+            int step = 100/37;
 
             //Contactores
             Draw_Default_Param();
