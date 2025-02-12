@@ -63,7 +63,7 @@ namespace EPLAN_API.User
                 progress += step;
                 ProgressChanged(progress);
 
-                //draw_Main_Cab_3D();
+                draw_Main_Cab_3D();
                 progress += step;
                 ProgressChanged(progress);
 
@@ -81,7 +81,7 @@ namespace EPLAN_API.User
                 progress += step;
                 ProgressChanged(progress);
 
-                //draw_CDS_3D();
+                draw_CDS_3D();
                 progress += step;
                 ProgressChanged(progress);
 
@@ -99,7 +99,7 @@ namespace EPLAN_API.User
                 progress += step;
                 ProgressChanged(progress);
 
-                //draw_CDI_3D();
+                draw_CDI_3D();
                 progress += step;
                 ProgressChanged(progress);
 
@@ -286,8 +286,8 @@ namespace EPLAN_API.User
             log = String.Concat(log, "Basic");
             MessageBox.Show(new Form() { TopMost = true, TopLevel = true }, log, "Resultado", MessageBoxButtons.OK, MessageBoxIcon.Information);
             ProgressChanged(0);
-            String path = String.Concat(oProject.DocumentDirectory.Substring(0, oProject.DocumentDirectory.Length - 3), "Log\\Log_Draw.txt");
-            File.WriteAllText(path, log);
+            //String path = String.Concat(oProject.DocumentDirectory.Substring(0, oProject.DocumentDirectory.Length - 3), "Log\\Log_Draw.txt");
+            //File.WriteAllText(path, log);
 
             return;
 

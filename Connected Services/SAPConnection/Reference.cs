@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace EPLAN_API.ServiceReference1 {
+namespace EPLAN_API.SAPConnection {
     
     
     /// <remarks/>
@@ -233,17 +233,17 @@ namespace EPLAN_API.ServiceReference1 {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(Namespace="urn:sap-com:document:sap:soap:functions:mc-style", ConfigurationName="ServiceReference1.Z_CV_READ_SALES_CONF")]
+    [System.ServiceModel.ServiceContractAttribute(Namespace="urn:sap-com:document:sap:soap:functions:mc-style", ConfigurationName="SAPConnection.Z_CV_READ_SALES_CONF")]
     public interface Z_CV_READ_SALES_CONF {
         
         // CODEGEN: Se está generando un contrato de mensaje, ya que la operación ZCvReadSalesConf no es RPC ni está encapsulada en un documento.
         [System.ServiceModel.OperationContractAttribute(Action="", ReplyAction="*")]
-        [System.ServiceModel.FaultContractAttribute(typeof(EPLAN_API.ServiceReference1.ZCvReadSalesConfRfcException), Action="", Name="ZCvReadSalesConf.Exception")]
+        [System.ServiceModel.FaultContractAttribute(typeof(EPLAN_API.SAPConnection.ZCvReadSalesConfRfcException), Action="", Name="ZCvReadSalesConf.Exception")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        EPLAN_API.ServiceReference1.ZCvReadSalesConfResponse1 ZCvReadSalesConf(EPLAN_API.ServiceReference1.ZCvReadSalesConfRequest request);
+        EPLAN_API.SAPConnection.ZCvReadSalesConfResponse1 ZCvReadSalesConf(EPLAN_API.SAPConnection.ZCvReadSalesConfRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="", ReplyAction="*")]
-        System.Threading.Tasks.Task<EPLAN_API.ServiceReference1.ZCvReadSalesConfResponse1> ZCvReadSalesConfAsync(EPLAN_API.ServiceReference1.ZCvReadSalesConfRequest request);
+        System.Threading.Tasks.Task<EPLAN_API.SAPConnection.ZCvReadSalesConfResponse1> ZCvReadSalesConfAsync(EPLAN_API.SAPConnection.ZCvReadSalesConfRequest request);
     }
     
     /// <remarks/>
@@ -346,12 +346,12 @@ namespace EPLAN_API.ServiceReference1 {
     public partial class ZCvReadSalesConfRequest {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sap-com:document:sap:soap:functions:mc-style", Order=0)]
-        public EPLAN_API.ServiceReference1.ZCvReadSalesConf ZCvReadSalesConf;
+        public EPLAN_API.SAPConnection.ZCvReadSalesConf ZCvReadSalesConf;
         
         public ZCvReadSalesConfRequest() {
         }
         
-        public ZCvReadSalesConfRequest(EPLAN_API.ServiceReference1.ZCvReadSalesConf ZCvReadSalesConf) {
+        public ZCvReadSalesConfRequest(EPLAN_API.SAPConnection.ZCvReadSalesConf ZCvReadSalesConf) {
             this.ZCvReadSalesConf = ZCvReadSalesConf;
         }
     }
@@ -363,23 +363,23 @@ namespace EPLAN_API.ServiceReference1 {
     public partial class ZCvReadSalesConfResponse1 {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sap-com:document:sap:soap:functions:mc-style", Order=0)]
-        public EPLAN_API.ServiceReference1.ZCvReadSalesConfResponse ZCvReadSalesConfResponse;
+        public EPLAN_API.SAPConnection.ZCvReadSalesConfResponse ZCvReadSalesConfResponse;
         
         public ZCvReadSalesConfResponse1() {
         }
         
-        public ZCvReadSalesConfResponse1(EPLAN_API.ServiceReference1.ZCvReadSalesConfResponse ZCvReadSalesConfResponse) {
+        public ZCvReadSalesConfResponse1(EPLAN_API.SAPConnection.ZCvReadSalesConfResponse ZCvReadSalesConfResponse) {
             this.ZCvReadSalesConfResponse = ZCvReadSalesConfResponse;
         }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface Z_CV_READ_SALES_CONFChannel : EPLAN_API.ServiceReference1.Z_CV_READ_SALES_CONF, System.ServiceModel.IClientChannel {
+    public interface Z_CV_READ_SALES_CONFChannel : EPLAN_API.SAPConnection.Z_CV_READ_SALES_CONF, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class Z_CV_READ_SALES_CONFClient : System.ServiceModel.ClientBase<EPLAN_API.ServiceReference1.Z_CV_READ_SALES_CONF>, EPLAN_API.ServiceReference1.Z_CV_READ_SALES_CONF {
+    public partial class Z_CV_READ_SALES_CONFClient : System.ServiceModel.ClientBase<EPLAN_API.SAPConnection.Z_CV_READ_SALES_CONF>, EPLAN_API.SAPConnection.Z_CV_READ_SALES_CONF {
         
         public Z_CV_READ_SALES_CONFClient() {
         }
@@ -401,26 +401,26 @@ namespace EPLAN_API.ServiceReference1 {
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        EPLAN_API.ServiceReference1.ZCvReadSalesConfResponse1 EPLAN_API.ServiceReference1.Z_CV_READ_SALES_CONF.ZCvReadSalesConf(EPLAN_API.ServiceReference1.ZCvReadSalesConfRequest request) {
+        EPLAN_API.SAPConnection.ZCvReadSalesConfResponse1 EPLAN_API.SAPConnection.Z_CV_READ_SALES_CONF.ZCvReadSalesConf(EPLAN_API.SAPConnection.ZCvReadSalesConfRequest request) {
             return base.Channel.ZCvReadSalesConf(request);
         }
         
-        public EPLAN_API.ServiceReference1.ZCvReadSalesConfResponse ZCvReadSalesConf(EPLAN_API.ServiceReference1.ZCvReadSalesConf ZCvReadSalesConf1) {
-            EPLAN_API.ServiceReference1.ZCvReadSalesConfRequest inValue = new EPLAN_API.ServiceReference1.ZCvReadSalesConfRequest();
+        public EPLAN_API.SAPConnection.ZCvReadSalesConfResponse ZCvReadSalesConf(EPLAN_API.SAPConnection.ZCvReadSalesConf ZCvReadSalesConf1) {
+            EPLAN_API.SAPConnection.ZCvReadSalesConfRequest inValue = new EPLAN_API.SAPConnection.ZCvReadSalesConfRequest();
             inValue.ZCvReadSalesConf = ZCvReadSalesConf1;
-            EPLAN_API.ServiceReference1.ZCvReadSalesConfResponse1 retVal = ((EPLAN_API.ServiceReference1.Z_CV_READ_SALES_CONF)(this)).ZCvReadSalesConf(inValue);
+            EPLAN_API.SAPConnection.ZCvReadSalesConfResponse1 retVal = ((EPLAN_API.SAPConnection.Z_CV_READ_SALES_CONF)(this)).ZCvReadSalesConf(inValue);
             return retVal.ZCvReadSalesConfResponse;
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<EPLAN_API.ServiceReference1.ZCvReadSalesConfResponse1> EPLAN_API.ServiceReference1.Z_CV_READ_SALES_CONF.ZCvReadSalesConfAsync(EPLAN_API.ServiceReference1.ZCvReadSalesConfRequest request) {
+        System.Threading.Tasks.Task<EPLAN_API.SAPConnection.ZCvReadSalesConfResponse1> EPLAN_API.SAPConnection.Z_CV_READ_SALES_CONF.ZCvReadSalesConfAsync(EPLAN_API.SAPConnection.ZCvReadSalesConfRequest request) {
             return base.Channel.ZCvReadSalesConfAsync(request);
         }
         
-        public System.Threading.Tasks.Task<EPLAN_API.ServiceReference1.ZCvReadSalesConfResponse1> ZCvReadSalesConfAsync(EPLAN_API.ServiceReference1.ZCvReadSalesConf ZCvReadSalesConf) {
-            EPLAN_API.ServiceReference1.ZCvReadSalesConfRequest inValue = new EPLAN_API.ServiceReference1.ZCvReadSalesConfRequest();
+        public System.Threading.Tasks.Task<EPLAN_API.SAPConnection.ZCvReadSalesConfResponse1> ZCvReadSalesConfAsync(EPLAN_API.SAPConnection.ZCvReadSalesConf ZCvReadSalesConf) {
+            EPLAN_API.SAPConnection.ZCvReadSalesConfRequest inValue = new EPLAN_API.SAPConnection.ZCvReadSalesConfRequest();
             inValue.ZCvReadSalesConf = ZCvReadSalesConf;
-            return ((EPLAN_API.ServiceReference1.Z_CV_READ_SALES_CONF)(this)).ZCvReadSalesConfAsync(inValue);
+            return ((EPLAN_API.SAPConnection.Z_CV_READ_SALES_CONF)(this)).ZCvReadSalesConfAsync(inValue);
         }
     }
 }

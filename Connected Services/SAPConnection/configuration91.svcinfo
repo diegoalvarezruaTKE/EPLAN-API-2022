@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SavedWcfConfigurationInformation xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="9.1" CheckSum="hLMe0DqD4t3ezyPWmRxMQR5dzNxzhhRkwQO3N0+Jsq0=">
+<SavedWcfConfigurationInformation xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="9.1" CheckSum="BU/jmjKvB2RAPc6d8vQCuoV7BUmmBwLCp5TSbc3umrU=">
   <bindingConfigurations>
     <bindingConfiguration bindingType="customBinding" name="z_cv_read_salcv_binding">
       <properties>
@@ -160,7 +160,7 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
-    <endpoint name="z_cv_read_salcv_binding" contract="ServiceReference1.Z_CV_READ_SALES_CONF" bindingType="customBinding" address="https://av000t2p.sap.tkelevator.com:44348/sap/bc/srt/rfc/sap/z_cv_read_sales_conf/010/z_cv_read_sales_conf/z_cv_read_salcv_binding" bindingConfiguration="z_cv_read_salcv_binding">
+    <endpoint name="z_cv_read_salcv_binding" contract="SAPConnection.Z_CV_READ_SALES_CONF" bindingType="customBinding" address="https://av000t2p.sap.tkelevator.com:44348/sap/bc/srt/rfc/sap/z_cv_read_sales_conf/010/z_cv_read_sales_conf/z_cv_read_salcv_binding" bindingConfiguration="z_cv_read_salcv_binding">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>https://av000t2p.sap.tkelevator.com:44348/sap/bc/srt/rfc/sap/z_cv_read_sales_conf/010/z_cv_read_sales_conf/z_cv_read_salcv_binding</serializedValue>
@@ -175,7 +175,7 @@
           <serializedValue>z_cv_read_salcv_binding</serializedValue>
         </property>
         <property path="/contract" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>ServiceReference1.Z_CV_READ_SALES_CONF</serializedValue>
+          <serializedValue>SAPConnection.Z_CV_READ_SALES_CONF</serializedValue>
         </property>
         <property path="/headers" isComplexType="true" isExplicitlyDefined="false" clrType="System.ServiceModel.Configuration.AddressHeaderCollectionElement, System.ServiceModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>System.ServiceModel.Configuration.AddressHeaderCollectionElement</serializedValue>

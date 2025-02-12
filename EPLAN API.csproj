@@ -75,7 +75,8 @@
     <Compile Include="Actions\Assembly_CDI_Basic.cs" />
     <Compile Include="Actions\Assembly_CDS_Basic.cs" />
     <Compile Include="Actions\Assembly_Main_Cab_Basic.cs" />
-    <Compile Include="Connected Services\ServiceReference1\Reference.cs">
+    <Compile Include="API_Basic\ReleaseBasic.cs" />
+    <Compile Include="Connected Services\SAPConnection\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -172,11 +173,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Connected Services\ServiceReference1\document.wsdl" />
-    <None Include="Connected Services\ServiceReference1\EPLAN_API.ServiceReference1.ZCvReadSalesConfResponse.datasource">
+    <None Include="Connected Services\SAPConnection\document.wsdl" />
+    <None Include="Connected Services\SAPConnection\EPLAN_API.SAPConnection.ZCvReadSalesConfResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Connected Services\ServiceReference1\EPLAN_API.ServiceReference1.ZCvReadSalesConfResponse1.datasource">
+    <None Include="Connected Services\SAPConnection\EPLAN_API.SAPConnection.ZCvReadSalesConfResponse1.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Resources\documento.png" />
@@ -185,16 +186,16 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Connected Services\ServiceReference1\" />
+    <WCFMetadataStorage Include="Connected Services\SAPConnection\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Connected Services\ServiceReference1\configuration91.svcinfo" />
+    <None Include="Connected Services\SAPConnection\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Connected Services\ServiceReference1\configuration.svcinfo" />
+    <None Include="Connected Services\SAPConnection\configuration.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Connected Services\ServiceReference1\Reference.svcmap">
+    <None Include="Connected Services\SAPConnection\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
