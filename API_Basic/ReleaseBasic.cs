@@ -20,30 +20,90 @@ namespace EPLAN_API.API_Basic
             Label oLabel = new Label();
 
             //Crear Estuctura de carpetas
-            string path = oProject.ProjectDirectoryPath + "\\DOC_Basic";
-            if (!Directory.Exists(path)) // Verifica si la carpeta ya existe
+            string pathBasic = oProject.ProjectDirectoryPath + "\\DOC_Basic";
+            if (!Directory.Exists(pathBasic)) // Verifica si la carpeta ya existe
             {
-                Directory.CreateDirectory(path);
+                Directory.CreateDirectory(pathBasic);
             }
 
-            path = oProject.ProjectDirectoryPath + "\\DOC_Basic\\Compras";
-            if (!Directory.Exists(path)) // Verifica si la carpeta ya existe
+            String pathCompras = oProject.ProjectDirectoryPath + "\\DOC_Basic\\Compras";
+            if (!Directory.Exists(pathCompras)) // Verifica si la carpeta ya existe
             {
-                Directory.CreateDirectory(path);
+                Directory.CreateDirectory(pathCompras);
+            }
+
+            String pathProveedor = oProject.ProjectDirectoryPath + "\\DOC_Basic\\Proveedor";
+            if (!Directory.Exists(pathProveedor)) // Verifica si la carpeta ya existe
+            {
+                Directory.CreateDirectory(pathProveedor);
             }
 
 
             switch (ubicacion)
             {
                 case "MAIN":
+                    //Compras
                     oLabel.DoLabel(oProject,
                             "11200004271300-ARMARIO INTERIOR BASIC GEC EN Compras", // use implicitly last used scheme
-                            ubicacion,                 // don't filter
+                            ubicacion,                
                             "",                 // don't sort
                             "en_EN",            // use English language  
-                            path + "\\BOM_11200004271300-ARMARIO INTERIOR BASIC GEC EN.xlsx", // destination file
+                            pathCompras + "\\BOM_11200004271300-ARMARIO INTERIOR BASIC GEC EN.xlsx", // destination file
                             1,                  // Record Repeat = 2
                             1);                 // Task Repeat = 1
+
+
+                    //Proveedor
+                    //01_DOC PROV_LDM_MAIN
+                    oLabel.DoLabel(oProject,
+                            "01_DOC PROV_LDM_MAIN",
+                            "TKN_LDM_MAIN",                 
+                            "",                 
+                            "en_EN",
+                            pathProveedor + "\\MAIN_1_LISTA DE MATERIALES.xlsx", 
+                            1,                  
+                            1);
+
+                    //02_DOC PROV_LDM MANGUERAS+CONECTORES_MAIN
+                    oLabel.DoLabel(oProject,
+                            "02_DOC PROV_LDM MANGUERAS+CONECTORES_MAIN",
+                            "02_DOC PROV_LDM MANGUERAS+CONECTORES_MAIN",
+                            "",
+                            "en_EN",
+                            pathProveedor + "\\MAIN_2_LISTA DE MATERIALES MANGUERAS Y CONECTORES.xlsx",
+                            1,
+                            1);
+
+                    //06_DOC PROV_LIST CABLE_MAIN
+                    oLabel.DoLabel(oProject,
+                            "06_DOC PROV_LIST CABLE_MAIN",
+                            "06_DOC PROV_MAIN",
+                            "",
+                            "en_EN",
+                            pathProveedor + "\\MAIN_6_LISTA CORTE MANGUERAS.xlsx",
+                            1,
+                            1);
+
+                    //07_DOC PROV_LIST CABLE+FC_MAIN
+                    oLabel.DoLabel(oProject,
+                            "07_DOC PROV_LIST CABLE+FC_MAIN",
+                            "07_DOC PROV_CAB+FC_MAIN",
+                            "",
+                            "en_EN",
+                            pathProveedor + "\\MAIN_7_TABLA RESUMEN CABLE + FC.xlsx",
+                            1,
+                            1);
+
+                    //08_DOC PROV_LIST CORTE CAB UNIF_MAIN
+                    oLabel.DoLabel(oProject,
+                            "08_DOC PROV_LIST CORTE CAB UNIF_MAIN",
+                            "INTERNAL CONECTIONS_MAIN",
+                            "COLOR + SECCIÓN",
+                            "en_EN",
+                            pathProveedor + "\\MAIN_8_PLANO DE CORTE DE CABLE UNIFILAR.xlsx",
+                            1,
+                            1);
+
                     break;
 
                 case "CDS":
@@ -52,9 +112,61 @@ namespace EPLAN_API.API_Basic
                             ubicacion,                 // don't filter
                             "",                 // don't sort
                             "en_EN",            // use English language  
-                            path + "\\BOM_11200004366200_ENSAMBLAJE_CAJA_DERIV_SUP_BASIC_Compras.xlsx", // destination file
+                            pathCompras + "\\BOM_11200004366200_ENSAMBLAJE_CAJA_DERIV_SUP_BASIC_Compras.xlsx", // destination file
                             1,                  // Record Repeat = 2
                             1);                 // Task Repeat = 1
+
+                    //Proveedor
+                    //01_DOC PROV_LDM_CDS
+                    oLabel.DoLabel(oProject,
+                            "01_DOC PROV_LDM_MAIN",
+                            ubicacion,
+                            "",
+                            "en_EN",
+                            pathProveedor + "\\MAIN_1_LISTA DE MATERIALES.xlsx",
+                            1,
+                            1);
+
+                    //02_DOC PROV_LDM MANGUERAS+CONECTORES_MAIN
+                    oLabel.DoLabel(oProject,
+                            "02_DOC PROV_LDM MANGUERAS+CONECTORES_MAIN",
+                            ubicacion,
+                            "",
+                            "en_EN",
+                            pathProveedor + "\\MAIN_2_LISTA DE MATERIALES MANGUERAS Y CONECTORES.xlsx",
+                            1,
+                            1);
+
+                    //06_DOC PROV_LIST CABLE_MAIN
+                    oLabel.DoLabel(oProject,
+                            "06_DOC PROV_LIST CABLE_MAIN",
+                            "06_DOC PROV_MAIN",
+                            "",
+                            "en_EN",
+                            pathProveedor + "\\MAIN_6_LISTA CORTE MANGUERAS.xlsx",
+                            1,
+                            1);
+
+                    //07_DOC PROV_LIST CABLE+FC_MAIN
+                    oLabel.DoLabel(oProject,
+                            "07_DOC PROV_LIST CABLE+FC_MAIN",
+                            "07_DOC PROV_CAB+FC_MAIN",
+                            "",
+                            "en_EN",
+                            pathProveedor + "\\MAIN_7_TABLA RESUMEN CABLE + FC.xlsx",
+                            1,
+                            1);
+
+                    //08_DOC PROV_LIST CORTE CAB UNIF_MAIN
+                    oLabel.DoLabel(oProject,
+                            "08_DOC PROV_LIST CORTE CAB UNIF_MAIN",
+                            "INTERNAL CONECTIONS_MAIN",
+                            "COLOR + SECCIÓN",
+                            "en_EN",
+                            pathProveedor + "\\MAIN_8_PLANO DE CORTE DE CABLE UNIFILAR.xlsx",
+                            1,
+                            1);
+
                     break;
 
                 case "CDI":
@@ -63,7 +175,7 @@ namespace EPLAN_API.API_Basic
                             ubicacion,                 // don't filter
                             "",                 // don't sort
                             "en_EN",            // use English language  
-                            path + "\\BOM_11200004366100_ENSAMBLAJE_CAJA_DERIV_INF_BASIC_Compras.xlsx", // destination file
+                            pathCompras + "\\BOM_11200004366100_ENSAMBLAJE_CAJA_DERIV_INF_BASIC_Compras.xlsx", // destination file
                             1,                  // Record Repeat = 2
                             1);                 // Task Repeat = 1
                     break;
