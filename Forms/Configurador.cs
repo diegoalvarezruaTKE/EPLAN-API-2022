@@ -890,7 +890,7 @@ namespace EPLAN_API_2022.Forms
 
         private void b_Test_Click(object sender, EventArgs e)
         {
-            ReleaseBasic releaseBasic = new ReleaseBasic();
+            ReleaseBasic releaseBasic = new ReleaseBasic(oProject,"MAIN");
         }
 
         #endregion
