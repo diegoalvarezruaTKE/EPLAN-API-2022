@@ -155,6 +155,7 @@
             this.b_Cables.TabIndex = 4;
             this.b_Cables.Text = "Test";
             this.b_Cables.UseVisualStyleBackColor = false;
+            this.b_Cables.Click += new System.EventHandler(this.b_Test_Click);
             // 
             // button1
             // 

@@ -1,5 +1,6 @@
 ﻿using Eplan.EplApi.Base;
 using Eplan.EplApi.DataModel;
+using EPLAN_API.API_Basic;
 using EPLAN_API.SAP;
 using EPLAN_API.User;
 using Microsoft.VisualBasic.Logging;
@@ -887,8 +888,13 @@ namespace EPLAN_API_2022.Forms
             }
         }
 
+        private void b_Test_Click(object sender, EventArgs e)
+        {
+            ReleaseBasic releaseBasic = new ReleaseBasic();
+        }
+
         #endregion
 
-        
+
     }
 }
