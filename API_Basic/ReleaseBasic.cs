@@ -19,7 +19,7 @@ namespace EPLAN_API.API_Basic
             Label oLabel = new Label();
             oLabel.DoLabel(oProject,
                 "11200004271300-ARMARIO INTERIOR BASIC GEC EN Compras", // use implicitly last used scheme
-                "MAIN_1",                 // don't filter
+                "MAIN_5",                 // don't filter
                 "",                 // don't sort
                 "en_EN",            // use English language  
                 oProject.ProjectDirectoryPath + "\\LabelledPrj_2.txt", // destination file
