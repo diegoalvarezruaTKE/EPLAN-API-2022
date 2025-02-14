@@ -68,6 +68,15 @@ namespace EPLAN_API.API_Basic
             oInsert.PageMacro(oPageMacro, oProject, null, PageMacro.Enums.NumerationMode.Ignore);
             draw_CDI_3D();
             draw_CDI_Basic_Cables();
+
+            Reports report = new Reports();
+            report.GenerateProject(oProject);
+
+            //Redraw
+            Edit edit = new Edit();
+            edit.RedrawGed();
+
+            ReleaseBasic releaseBasic = new ReleaseBasic(oProject, "CDI");
         }
 
         private void draw_CDI_Basic_Cables()
