@@ -866,7 +866,7 @@ namespace EPLAN_API_2022.Forms
             }
         }
 
-        private void b_Draw_Click(object sender, EventArgs e)
+        private void BDraw_Click(object sender, EventArgs e)
         {
             DrawTools.calcParmGEC_Basic(oProject, oElectricList[0]);
 
@@ -888,11 +888,15 @@ namespace EPLAN_API_2022.Forms
             }
         }
 
-        private void b_Test_Click(object sender, EventArgs e)
+        private void BTest_Click(object sender, EventArgs e)
         {
             ReleaseBasic releaseBasic = new ReleaseBasic(oProject,"MAIN");
         }
 
+        private void BCalc_Click(object sender, EventArgs e)
+        {
+            CalculateCaractIng();
+        }
         #endregion
 
 

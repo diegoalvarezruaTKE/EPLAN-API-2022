@@ -138,7 +138,7 @@
             this.b_Draw.TabIndex = 3;
             this.b_Draw.Text = "Dibujar";
             this.b_Draw.UseVisualStyleBackColor = false;
-            this.b_Draw.Click += new System.EventHandler(this.b_Draw_Click);
+            this.b_Draw.Click += new System.EventHandler(this.BDraw_Click);
             // 
             // b_Cables
             // 
@@ -155,7 +155,7 @@
             this.b_Cables.TabIndex = 4;
             this.b_Cables.Text = "Test";
             this.b_Cables.UseVisualStyleBackColor = false;
-            this.b_Cables.Click += new System.EventHandler(this.b_Test_Click);
+            this.b_Cables.Click += new System.EventHandler(this.BTest_Click);
             // 
             // button1
             // 
@@ -172,6 +172,7 @@
             this.button1.TabIndex = 5;
             this.button1.Text = "Calcular";
             this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.BCalc_Click);
             // 
             // panelApp
             // 
