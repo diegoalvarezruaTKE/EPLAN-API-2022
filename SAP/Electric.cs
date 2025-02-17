@@ -39,7 +39,6 @@ namespace EPLAN_API.SAP
             CreateCaractComercial();
             CreateCaractIng();
             createDefaultGECParam();
-            //createGECParamList();
 
         }
 
@@ -71,11 +70,17 @@ namespace EPLAN_API.SAP
             CaractComercial.Add("FMODELL", Caract);
             OrderCaractComercial.Add(10, Caract);
 
+            //Documento de ventas
+            Caract = new Caracteristic("TNCR_COM_COD_PEDIDO_CLIENTE", "Documento de ventas", true, "", false);
+            Caract.Textboxdata += new Caracteristic.TexboxDelegate(TextboxChanged);
+            CaractComercial.Add("TNCR_COM_COD_PEDIDO_CLIENTE", Caract);
+            OrderCaractComercial.Add(11, Caract);
+
             //Denominación de obra
             Caract = new Caracteristic("TNCR_COM_NOMBREOBRA_VBACK", "Denominación de obra",true,"",false);
             Caract.Textboxdata += new Caracteristic.TexboxDelegate(TextboxChanged);
             CaractComercial.Add("TNCR_COM_NOMBREOBRA_VBACK", Caract);
-            OrderCaractComercial.Add(11, Caract);
+            OrderCaractComercial.Add(12, Caract);
 
             //Desnivel
             Caract = new Caracteristic("FHOEHEV", "Desnivel", true, 0.0, true, "-.9");

@@ -80,6 +80,8 @@ namespace EPLAN_API.SAP
 
                 Dictionary<string, string> resultSet = rootData.GetFormattedResultSet()[0].AllGroupValues;
 
+                resultSet["TNCR_COM_COD_PEDIDO_CLIENTE"] = OE;
+
                 return resultSet;
             }
 

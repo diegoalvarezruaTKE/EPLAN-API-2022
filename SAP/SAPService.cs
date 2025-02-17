@@ -76,6 +76,7 @@ namespace EPLAN_API.User
                 }
 
                 Dictionary<string, string> res = ParseSoapResponseToDictionary(responseBody);
+                res["TNCR_COM_COD_PEDIDO_CLIENTE"] = OE;
                 return res;
 
             }

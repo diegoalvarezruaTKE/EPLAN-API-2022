@@ -223,6 +223,7 @@ namespace EPLAN_API_2022.Forms
         public void LoadSAPtoEPLAN(Dictionary<string, string> SAPCararct)
         {
             this.Text=SAPCararct["TNCR_COM_NOMBREOBRA_VBACK"].ToString();
+            this.tB_OE.Text = SAPCararct["TNCR_COM_COD_PEDIDO_CLIENTE"].ToString();
             foreach (string key in SAPCararct.Keys.Where(n => n != null))
             {
                 Caracteristic c = oElectricList[0].CaractComercial[key] as Caracteristic;
