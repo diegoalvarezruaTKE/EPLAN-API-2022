@@ -48,6 +48,8 @@ namespace EPLAN_API_2022.Forms
 
             AbrirFormEnPanel(new PanelCaracComercial(oElectricList));
 
+            LoadNameFromProject();
+
         }
 
         #region EPLAN Functions
@@ -136,6 +138,19 @@ namespace EPLAN_API_2022.Forms
             }
 
 
+        }
+
+        private void LoadNameFromProject()
+        {
+            try
+            {
+                this.Text = ((Caracteristic)oElectricList[0].CaractComercial["TNCR_COM_NOMBREOBRA_VBACK"]).TextVal;
+                this.tB_OE.Text = ((Caracteristic)oElectricList[0].CaractComercial["TNCR_COM_COD_PEDIDO_CLIENTE"]).TextVal;
+            }
+            catch (Exception ex)
+            {
+                ;
+            }
         }
 
         private void LoadCaractToProject()
