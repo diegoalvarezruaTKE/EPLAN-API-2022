@@ -72,6 +72,7 @@
             this.export_Button.TabIndex = 9;
             this.export_Button.Text = "Exportar";
             this.export_Button.UseVisualStyleBackColor = false;
+            this.export_Button.Click += new System.EventHandler(this.export_Button_Click);
             // 
             // tB_OE
             // 
@@ -149,7 +150,7 @@
             this.b_Cables.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.b_Cables.Font = new System.Drawing.Font("Arial", 8F);
             this.b_Cables.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.b_Cables.Location = new System.Drawing.Point(420, 3);
+            this.b_Cables.Location = new System.Drawing.Point(511, 31);
             this.b_Cables.Name = "b_Cables";
             this.b_Cables.Size = new System.Drawing.Size(75, 23);
             this.b_Cables.TabIndex = 4;
@@ -335,12 +336,13 @@
             this.ImportButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ImportButton.Font = new System.Drawing.Font("Arial", 8F);
             this.ImportButton.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.ImportButton.Location = new System.Drawing.Point(511, 30);
+            this.ImportButton.Location = new System.Drawing.Point(420, 2);
             this.ImportButton.Name = "ImportButton";
             this.ImportButton.Size = new System.Drawing.Size(75, 23);
             this.ImportButton.TabIndex = 9;
             this.ImportButton.Text = "Importar";
             this.ImportButton.UseVisualStyleBackColor = false;
+            this.ImportButton.Click += new System.EventHandler(this.ImportButton_Click);
             // 
             // openFileDialog1
             // 
