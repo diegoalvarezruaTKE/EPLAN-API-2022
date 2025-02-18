@@ -72,7 +72,7 @@
             this.export_Button.TabIndex = 9;
             this.export_Button.Text = "Exportar";
             this.export_Button.UseVisualStyleBackColor = false;
-            this.export_Button.Click += new System.EventHandler(this.export_Button_Click);
+            this.export_Button.Click += new System.EventHandler(this.BExport_Click);
             // 
             // tB_OE
             // 
@@ -342,7 +342,7 @@
             this.ImportButton.TabIndex = 9;
             this.ImportButton.Text = "Importar";
             this.ImportButton.UseVisualStyleBackColor = false;
-            this.ImportButton.Click += new System.EventHandler(this.ImportButton_Click);
+            this.ImportButton.Click += new System.EventHandler(this.BImport_Click);
             // 
             // openFileDialog1
             // 

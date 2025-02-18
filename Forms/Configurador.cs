@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -857,8 +858,6 @@ namespace EPLAN_API_2022.Forms
 
         private void BRead_Click(object sender, EventArgs e)
         {
-            //LoadSAPtoEPLAN(new SAPReader("1150015829").readCaracConfigElec());
-            //LoadSAPtoEPLAN(new SAPReader(tB_OE.Text).readCaracConfigElec());
             if (tB_OE.Text.Length == 10)
             {
                 try
@@ -914,14 +913,104 @@ namespace EPLAN_API_2022.Forms
             CalculateCaractIng();
         }
 
-        private void export_Button_Click(object sender, EventArgs e)
+        private void BExport_Click(object sender, EventArgs e)
         {
+            var filepath = "";
 
+            using (var fbd = new FolderBrowserDialog())
+            {
+                DialogResult result = fbd.ShowDialog();
+
+                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                {
+                    filepath = fbd.SelectedPath;
+                }
+            }
+
+            filepath = String.Concat(filepath, "\\Export.csv");
+
+            using (StreamWriter writer = new StreamWriter(new FileStream(filepath,
+            FileMode.Create, FileAccess.Write)))
+            {
+                foreach (Caracteristic c in oElectricList[0].CaractComercial.Values)
+                {
+                    if (c.IsNumeric)
+                        writer.WriteLine(String.Concat(c.NameReference, ";", c.NumVal.ToString(), ";", c.IsNumeric));
+                    else
+                    {
+                        if (c.Values != null)
+                            writer.WriteLine(String.Concat(c.NameReference, ";", c.CurrentReference, ";", c.IsNumeric));
+                        else
+                            writer.WriteLine(String.Concat(c.NameReference, ";", c.TextVal, ";", c.IsNumeric));
+                    }
+
+                }
+
+                foreach (Caracteristic c in oElectricList[0].CaractIng.Values)
+                {
+                    if (c.IsNumeric)
+                        writer.WriteLine(String.Concat(c.NameReference, ";", c.NumVal.ToString(), ";", c.IsNumeric));
+                    else
+                    {
+                        if (c.Values != null)
+                            writer.WriteLine(String.Concat(c.NameReference, ";", c.CurrentReference, ";", c.IsNumeric));
+                        else
+                            writer.WriteLine(String.Concat(c.NameReference, ";", c.TextVal, ";", c.IsNumeric));
+                    }
+
+                }
+            }
         }
 
-        private void ImportButton_Click(object sender, EventArgs e)
+        private void BImport_Click(object sender, EventArgs e)
         {
+            var filepath = "";
 
+            using (var fbd = new OpenFileDialog())
+            {
+                DialogResult result = fbd.ShowDialog();
+
+                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.FileName))
+                {
+                    filepath = fbd.FileName;
+                }
+            }
+
+
+
+            using (var reader = new StreamReader(filepath))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    var values = line.Split(';');
+                    double res;
+
+                    Caracteristic c = (Caracteristic)oElectricList[0].CaractComercial[values[0]];
+                    if (c != null)
+                    {
+                        if (values[2].Equals("False"))
+                            c.setActualValue(values[1]);
+                        else
+                        {
+                            Double.TryParse(values[1], out res);
+                            c.setActualNumVal(res);
+                        }
+                    }
+                    else
+                    {
+                        c = (Caracteristic)oElectricList[0].CaractIng[values[0]];
+                        if (values[2].Equals("False"))
+                            c.setActualValue(values[1]);
+                        else
+                        {
+                            Double.TryParse(values[1], out res);
+                            c.setActualNumVal(res);
+                        }
+                    }
+
+                }
+            }
         }
 
         #endregion
