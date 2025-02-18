@@ -1011,6 +1011,8 @@ namespace EPLAN_API_2022.Forms
 
                 }
             }
+
+            LoadNameFromProject();
         }
 
         #endregion
