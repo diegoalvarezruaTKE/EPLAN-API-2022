@@ -905,7 +905,8 @@ namespace EPLAN_API_2022.Forms
 
         private void BTest_Click(object sender, EventArgs e)
         {
-            ReleaseBasic releaseBasic = new ReleaseBasic(oProject,"MAIN");
+            SAPService sAPService = new SAPService();
+            sAPService.ReadSAPBOM("1150015558");
         }
 
         private void BCalc_Click(object sender, EventArgs e)
