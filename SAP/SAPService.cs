@@ -10,6 +10,10 @@ using System.Security.Policy;
 using System.Linq;
 using System.Xml.Linq;
 using System.Data.SqlTypes;
+using System.Diagnostics;
+using System.Globalization;
+using System.Text.RegularExpressions;
+using EPLAN_API.SAP;
 
 
 namespace EPLAN_API.User
@@ -98,7 +102,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void ReadSAPBOM(string OE)
+        public string ReadSAPBOM(string OE)
         {
             string pos = "10";
             int iOE = int.Parse(OE);
@@ -148,15 +152,18 @@ namespace EPLAN_API.User
             try
             {
                 string responseBody;
-                // Obtener la respuesta de la solicitud
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                 using (StreamReader reader = new StreamReader(response.GetResponseStream()))
                 {
                     responseBody = reader.ReadToEnd();
-                    Test(responseBody);
                 }
 
+                // Escribir el contenido de la respuesta en un archivo
+                string filePath = "C:\\Users\\10578494\\Desktop\\response.txt"; // Aquí puedes especificar la ruta donde deseas guardar el archivo
+                // Escribir la respuesta en el archivo mientras se lee
+                //WriteResponseToFile(responseBody, filePath);
 
+                return responseBody;
             }
             catch (WebException ex)
             {
@@ -169,32 +176,9 @@ namespace EPLAN_API.User
                     }
                 }
                 Console.WriteLine("Exception: " + ex.Message);
+
+                return null;
             }
-
-        }
-
-        public void Test(string xml)
-        {
-
-            XElement root = XElement.Parse(xml);
-
-            var gruposPorStufe = from item in root.Descendants("item")
-                                 let stufe = item.Element("Stufe")?.Value
-                                 group item by stufe into grupo
-                                 select grupo;
-
-            // Filtrar los elementos donde <Ojtxp> contiene la palabra "cable"
-            var resultados = from item in root.Descendants("item")
-                             let ojtxp = item.Element("Ojtxp")?.Value
-                             where ojtxp != null && ojtxp.IndexOf("cable", StringComparison.OrdinalIgnoreCase) >= 0
-                             select item;
-
-            // Mostrar los elementos filtrados
-            foreach (var item in resultados)
-            {
-                Console.WriteLine(item);
-            }
-
 
         }
 
@@ -225,6 +209,155 @@ namespace EPLAN_API.User
 
             return result;
         }
+
+        public string ParseBOM(string xmlData)
+        {
+            XDocument doc = XDocument.Parse(xmlData);
+
+            // Crear la nueva estructura XML
+            XElement etbom = new XElement("EtBom");
+
+            // Diccionario para rastrear los últimos elementos por nivel
+            Dictionary<int, XElement> lastElementsByLevel = new Dictionary<int, XElement>();
+            lastElementsByLevel[0] = etbom; // Nivel raíz
+
+            // Recorrer los elementos <item> manteniendo la estructura jerárquica
+            foreach (XElement item in doc.Descendants("item"))
+            {
+                int stufe = int.Parse(item.Element("Stufe")?.Value ?? "0");
+
+                // Buscar el padre correcto en el nivel anterior
+                XElement parent = lastElementsByLevel.ContainsKey(stufe - 1) ? lastElementsByLevel[stufe - 1] : etbom;
+
+                // Crear una copia del <item> sin modificar el original
+                XElement newItem = new XElement("item", item.Elements());
+
+                // Agregar el item al padre correcto
+                parent.Add(newItem);
+
+                // Actualizar el diccionario con el nuevo nivel
+                lastElementsByLevel[stufe] = newItem;
+            }
+
+            // Guardar el nuevo XML estructurado en un archivo
+            string outputPath = "C:\\Users\\10578494\\Desktop\\response_nested.xml";
+            etbom.Save(outputPath);
+
+            Debug.WriteLine($"XML generado correctamente: {outputPath}");
+
+            return etbom.ToString();
+        }
+
+        public Dictionary<string, Cable> BuscaCables(string xmlData)
+        {
+            XDocument doc = XDocument.Parse(xmlData);
+
+            // Filtrar los elementos <item> que cumplan con las condiciones:
+            // 1. El valor de <Ojtxp> comienza con "cable" (sin importar mayúsculas/minúsculas).
+            // 2. El valor de <Ojtxp> no contiene " 1x".
+            // 3. No es una lista de materiales
+            var matchingItems = doc.Descendants("item")
+                                    .Where(item => item.Element("Ojtxp") != null)
+                                    .Where(item => item.Element("Ojtxp").Value.StartsWith("cable", StringComparison.OrdinalIgnoreCase) &&
+                                                   !item.Element("Ojtxp").Value.Contains(" 1x"))
+                                    .Where(item => !item.Elements("item").Any())
+                                    .ToList();
+
+            Dictionary<string, Cable> cables = new Dictionary<string, Cable>();
+            int error = 1;
+            // Mostrar los resultados
+            foreach (var item in matchingItems)
+            {
+
+                string pattern = @"[WCP]\d+(\.[A-Za-z0-9])?";
+                MatchCollection matchesT1 = Regex.Matches(item.Element("Potx1").Value, pattern);
+                MatchCollection matchesT2 = Regex.Matches(item.Element("Potx2").Value, pattern);
+
+                //Lenght
+                double.TryParse(item.Element("Mngko").Value, NumberStyles.Any, CultureInfo.InvariantCulture, out double lenght);
+
+                //Name
+                string name = item.Element("Ojtxp").Value;
+
+                //Code
+                string code = item.Element("Idnrk").Value;
+
+                //Parent Name
+                string parentname = item.Parent.Element("Ojtxp").Value;
+
+                //Parent Code
+                string parentcode = item.Parent.Element("Idnrk").Value;
+
+
+                //Tiene el nombre del cable en su primera pos de texto
+                if (matchesT1.Count > 0)
+                {
+                    string IME = matchesT1[0].Value;
+                    if (!IME.StartsWith("W", StringComparison.OrdinalIgnoreCase))
+                        IME = "W" + IME;
+                    cables.Add(IME, new Cable(IME, name, code, "-", lenght, parentname, parentcode));
+                }
+
+                //Tiene el nombre del cable en su segunda pos de texto
+                else if (matchesT2.Count > 0)
+                {
+                    string IME = matchesT2[0].Value;
+                    if (!IME.StartsWith("W", StringComparison.OrdinalIgnoreCase))
+                        IME = "W" + IME;
+                    cables.Add(IME, new Cable(IME, name, code, "-", lenght, parentname, parentcode));
+                }
+
+                else
+                {
+                    //Tiene el nombre en su nodo solo si la pos es la misma
+                    if (item.NextNode != null)
+                    {
+                        if (((XElement)item.NextNode).Element("Posnr").Value == item.Element("Posnr").Value)
+                        {
+                            if (((XElement)item.NextNode).Elements("Potx1").Any())
+                            {
+                                MatchCollection matchesNext = Regex.Matches(((XElement)item.NextNode).Element("Potx1").Value, pattern);
+                                if (matchesNext.Count > 0)
+                                {
+                                    string IME = matchesNext[0].Value;
+                                    if (!IME.StartsWith("W", StringComparison.OrdinalIgnoreCase))
+                                        IME = "W" + IME;
+                                    cables.Add(IME, new Cable(IME, name, code, "-", lenght, parentname, parentcode));
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+
+                    //Tiene el nombre en su nodo anterior
+                    if (item.PreviousNode != null)
+                    {
+                        if (((XElement)item.PreviousNode).Elements("Potx1").Any())
+                        {
+                            MatchCollection matchesPrevious = Regex.Matches(((XElement)item.PreviousNode).Element("Potx1").Value, pattern);
+                            if (matchesPrevious.Count > 0)
+                            {
+                                string IME = matchesPrevious[0].Value;
+                                if (!IME.StartsWith("W", StringComparison.OrdinalIgnoreCase))
+                                    IME = "W" + IME;
+                                cables.Add(IME, new Cable(IME, name, code, "-", lenght, parentname, parentcode));
+                                continue;
+                            }
+                        }
+                    }
+
+                    //es desconocido
+                    string nameerr = "UK_" + error.ToString();
+                    error += 1;
+                    cables.Add(nameerr, new Cable(nameerr, name, code, "-", lenght, parentname, parentcode));
+                    //Debug.WriteLine("problema en cable:" + name + " que esta dentro de " + parentname);
+
+                }
+            }
+
+            return cables;
+        }
+
     }
 
 }

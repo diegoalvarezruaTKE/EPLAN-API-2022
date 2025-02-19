@@ -4,6 +4,8 @@ using EPLAN_API.API_Basic;
 using EPLAN_API.SAP;
 using EPLAN_API.User;
 using Microsoft.VisualBasic.Logging;
+using Newtonsoft.Json.Linq;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -906,7 +908,60 @@ namespace EPLAN_API_2022.Forms
         private void BTest_Click(object sender, EventArgs e)
         {
             SAPService sAPService = new SAPService();
-            sAPService.ReadSAPBOM("1150015558");
+            string materials = sAPService.ReadSAPBOM(tB_OE.Text);
+            Dictionary<string, Cable> cablesSAP = sAPService.BuscaCables(sAPService.ParseBOM(materials));
+
+            //Get Cables from project
+            FunctionsFilter ff = new FunctionsFilter();
+            ff.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.Cable;
+            DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
+
+            //now we have all functions having category 'MOTOR' placed on page p
+            Function[] cablesEPLAN = objFinder.GetFunctions(ff);
+
+            string[] visibleNames = cablesEPLAN.Select(cable => cable.VisibleName.TrimStart('-', '+')).ToArray();
+
+            string[] cablesSAPNAME = cablesSAP.Keys.ToArray();
+
+            string[] commonElements = visibleNames.Intersect(cablesSAPNAME).ToArray();
+
+            string[] differentElements = visibleNames.Except(cablesSAPNAME).Union(cablesSAPNAME.Except(visibleNames)).ToArray();
+
+            //Escribe en excel
+            // Escribir diferencias en Excel
+            string filePath = "C:\\Users\\10578494\\Desktop\\Diferencias.xlsx";
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Diferencias");
+
+                // Escribir encabezado
+                worksheet.Cells[1, 1].Value = "Elementos Diferentes";
+                worksheet.Cells[1, 2].Value = "SAP";
+                worksheet.Cells[1, 3].Value = "EPLAN";
+
+                // Escribir datos
+                for (int i = 0; i < differentElements.Length; i++)
+                {
+                    worksheet.Cells[i + 2, 1].Value = differentElements[i];
+
+                    var cableSAPDiff = cablesSAP.FirstOrDefault(cable => cable.Key == differentElements[i]);
+                    if(cableSAPDiff.Value!=null)
+                        worksheet.Cells[i + 2, 2].Value = cableSAPDiff;
+                    else
+                        worksheet.Cells[i + 2, 2].Value = "-";
+
+                    var cableEPLANDiff = cablesEPLAN.FirstOrDefault(cable => cable.VisibleName == differentElements[i]);
+                    if (cableEPLANDiff != null)
+                        worksheet.Cells[i + 2, 3].Value = cableEPLANDiff;
+                    else
+                        worksheet.Cells[i + 2, 3].Value = "-";
+
+                }
+
+                // Guardar archivo
+                package.SaveAs(new FileInfo(filePath));
+            }
+
         }
 
         private void BCalc_Click(object sender, EventArgs e)
