@@ -1092,7 +1092,7 @@ namespace EPLAN_API.User
             else
             {
                 //en página de "Motor"
-                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Termal_Protection.ema", 'K', "Motor", 300.0, 44.0);
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Termal_Protection.ema", 'K', "Motor", 300.0, 196.0);
 
                 log = String.Concat(log, "\r\nIncluido bimetal");
             }
@@ -1781,6 +1781,8 @@ namespace EPLAN_API.User
 
         private void Draw_Lubricacion_auto()
         {
+            Caracteristic AuxBrake = (Caracteristic)oElectric.CaractComercial["FZUSBREMSE"];
+
             //Compruebo si ya esta insertada la página "Oil pump & Traffic Lights"
             insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\Oil pump & Traffic Lights.emp", "Upper Keys", "Oil pump & Traffic Lights");
 
@@ -1788,7 +1790,11 @@ namespace EPLAN_API.User
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Oil_Pump.ema", 'C', "Oil pump & Traffic Lights", 16.0, 184.0);
 
             //en página de "Control Outputs II"
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Oil_Pump.ema", 'N', "Control Outputs III", 276.0, 184.0);
+            if (AuxBrake.CurrentReference.Equals("HWSPERRKMAGN") || AuxBrake.CurrentReference.Equals("NAB"))
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Oil_Pump.ema", 'I', "Control Outputs III", 276.0, 184.0);
+            else
+                insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Oil_Pump.ema", 'N', "Control Outputs III", 276.0, 184.0);
+
             insertDeviceLayout(oProject,"Q4.2.7", "Control Outputs III", "M1", 0, 'A', "A", "Layout", "QD2");
             
             SetGECParameter(oProject, oElectric, "O9", (uint)GEC.Param.Oil_pump_activation, true);
