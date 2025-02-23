@@ -37,7 +37,6 @@ namespace EPLAN_API.Forms
             oPages = oProject.Pages;
 
             FunctionsFilter functionsFilter = new FunctionsFilter();
-            //functionsFilter.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.DeviceEndTerminal;
             FunctionPropertyList functionsPropertyList = new FunctionPropertyList();
             functionsPropertyList.FUNC_MAINFUNCTION = true;
             functionsPropertyList.DESIGNATION_LOCATION = location;
@@ -65,25 +64,21 @@ namespace EPLAN_API.Forms
                     //SAP Description L2
                     LanguageList SAPDescriptionL2languageList = new LanguageList();
                     function.Properties.FUNC_TEXT.ToMultiLangString().GetLanguageList(ref SAPDescriptionL2languageList);
-                    //material.SAPDescriptionL2 = function.Properties.FUNC_TEXT.ToMultiLangString().GetStringToDisplay(SAPDescriptionL2languageList.);
+                    material.SAPDescriptionL2 = function.Properties.FUNC_TEXT.ToMultiLangString().GetStringToDisplay(ISOCode.Language.L_en_US);
                     if (SAPDescriptionL2languageList.Count > 1)
                         ;
+                    //Aporte
+                    if (articleReference.Properties.ARTICLE_SUPPLIER.ToString().Equals("PROV"))
+                        material.Aporte = "L";
+                    //Fabricante
+                    //Referencia Fabricante
+
+
 
                     materials.Add(material);
                 }
 
             }
-
-
-            //FunctionsFilter functionsFilter1 = new FunctionsFilter();
-            ////functionsFilter.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.DeviceEndTerminal;
-            //FunctionPropertyList functionsPropertyList1 = new FunctionPropertyList();
-            //functionsPropertyList1.FUNC_MAINFUNCTION = true;
-            //functionsFilter1.SetFilteredPropertyList(functionsPropertyList1);
-
-            //DMObjectsFinder DMObjectsFinder1 = new DMObjectsFinder(oProject);
-
-            //Function[] functions1 = DMObjectsFinder1.GetFunctions(functionsFilter1);
 
         }
 
