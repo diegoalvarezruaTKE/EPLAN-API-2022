@@ -42,20 +42,48 @@ namespace EPLAN_API.Forms
             functionsPropertyList.FUNC_MAINFUNCTION = true;
             functionsPropertyList.DESIGNATION_LOCATION = location;
             functionsFilter.SetFilteredPropertyList(functionsPropertyList);
-
             DMObjectsFinder DMObjectsFinder = new DMObjectsFinder(oProject);
-
             Function[] functions = DMObjectsFinder.GetFunctions(functionsFilter);
 
-            FunctionsFilter functionsFilter1 = new FunctionsFilter();
-            //functionsFilter.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.DeviceEndTerminal;
-            FunctionPropertyList functionsPropertyList1 = new FunctionPropertyList();
-            functionsPropertyList1.FUNC_MAINFUNCTION = true;
-            functionsFilter1.SetFilteredPropertyList(functionsPropertyList1);
+            List<SAPMaterial> materials = new List<SAPMaterial>();
 
-            DMObjectsFinder DMObjectsFinder1 = new DMObjectsFinder(oProject);
+            foreach (Function function in functions) 
+            {
+                foreach (ArticleReference articleReference in function.ArticleReferences)
+                {
+                    SAPMaterial material = new SAPMaterial();
+                    //SAP Code
+                    material.SAPCode = articleReference.Properties.ARTICLE_ERPNR.ToString();
+                    //SAP Name
+                    LanguageList SAPNamelanguageList = new LanguageList();
+                    articleReference.Properties.ARTICLE_DESCR2.ToMultiLangString().GetLanguageList(ref SAPNamelanguageList);
+                    material.SAPName = articleReference.Properties.ARTICLE_DESCR2.ToMultiLangString().GetStringToDisplay(SAPNamelanguageList.get_Language(0));
+                    if (SAPNamelanguageList.Count > 1)
+                        ;
+                    //SAP Description L1
+                    material.SAPDescriptionL1 = function.VisibleName;
+                    //SAP Description L2
+                    LanguageList SAPDescriptionL2languageList = new LanguageList();
+                    function.Properties.FUNC_TEXT.ToMultiLangString().GetLanguageList(ref SAPDescriptionL2languageList);
+                    //material.SAPDescriptionL2 = function.Properties.FUNC_TEXT.ToMultiLangString().GetStringToDisplay(SAPDescriptionL2languageList.);
+                    if (SAPDescriptionL2languageList.Count > 1)
+                        ;
 
-            Function[] functions1 = DMObjectsFinder1.GetFunctions(functionsFilter1);
+                    materials.Add(material);
+                }
+
+            }
+
+
+            //FunctionsFilter functionsFilter1 = new FunctionsFilter();
+            ////functionsFilter.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.DeviceEndTerminal;
+            //FunctionPropertyList functionsPropertyList1 = new FunctionPropertyList();
+            //functionsPropertyList1.FUNC_MAINFUNCTION = true;
+            //functionsFilter1.SetFilteredPropertyList(functionsPropertyList1);
+
+            //DMObjectsFinder DMObjectsFinder1 = new DMObjectsFinder(oProject);
+
+            //Function[] functions1 = DMObjectsFinder1.GetFunctions(functionsFilter1);
 
         }
 
@@ -70,6 +98,41 @@ namespace EPLAN_API.Forms
                 //5=cm
                 execute(cB_Locations.SelectedItem.ToString(), 1);
         }
+    }
+
+    /*
+     *                 oSheet.Cells[1, 3] = "SAP Code";
+                oSheet.Cells[1, 4] = "Description L1";
+                oSheet.Cells[1, 5] = "Description L2";
+                oSheet.Cells[1, 6] = "Count";
+                oSheet.Cells[1, 7] = "Aporte";
+                oSheet.Cells[1, 8] = "Relevancia Fab.";
+                oSheet.Cells[1, 9] = "Calculo Coste";
+                oSheet.Cells[1, 10] = "Nombre SAP";
+                oSheet.Cells[1, 11] = "Fabricante";
+                oSheet.Cells[1, 12] = "Referencia Fabricante";
+    */
+
+    public class SAPMaterial
+    {
+        public string SAPCode { get; set; }
+
+        public string SAPName { get; set; }
+
+        public string SAPDescriptionL1 { get; set; }
+
+        public string SAPDescriptionL2 { get; set; }
+
+        public double Count { get; set; }
+
+        public string Aporte { get; set; }
+
+        public string Fabricante { get; set; }
+
+        public string RefFabricante { get; set; }
+
+        public SAPMaterial() { }
+
     }
 
 }
