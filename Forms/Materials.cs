@@ -40,6 +40,7 @@ namespace EPLAN_API.Forms
             //functionsFilter.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.DeviceEndTerminal;
             FunctionPropertyList functionsPropertyList = new FunctionPropertyList();
             functionsPropertyList.FUNC_MAINFUNCTION = true;
+            functionsPropertyList.DESIGNATION_LOCATION = location;
             functionsFilter.SetFilteredPropertyList(functionsPropertyList);
 
             DMObjectsFinder DMObjectsFinder = new DMObjectsFinder(oProject);
@@ -49,6 +50,7 @@ namespace EPLAN_API.Forms
             FunctionsFilter functionsFilter1 = new FunctionsFilter();
             //functionsFilter.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.DeviceEndTerminal;
             FunctionPropertyList functionsPropertyList1 = new FunctionPropertyList();
+            functionsPropertyList1.FUNC_MAINFUNCTION = true;
             functionsFilter1.SetFilteredPropertyList(functionsPropertyList1);
 
             DMObjectsFinder DMObjectsFinder1 = new DMObjectsFinder(oProject);
