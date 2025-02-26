@@ -128,7 +128,7 @@ namespace EPLAN_API.User
 
 
             // URL del endpoint basado en el nuevo WSDL
-            string requestUri = "https://av000t2p.sap.tkelevator.com:44348/sap/bc/srt/rfc/sap/zws_read_sales_bom/010/zws_read_sales_bom/zws_read_sales_bom_binding";
+            string requestUri = "https://u000t2p.sap.tkelevator.com/sap/bc/srt/rfc/sap/zws_read_sales_bom/010/zws_read_sales_bom/zws_read_sales_bom_binding";
 
             // Crear una solicitud HTTP
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(requestUri);
