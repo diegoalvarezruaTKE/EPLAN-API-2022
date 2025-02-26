@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using EPLAN_API.SAP;
+using static System.Net.WebRequestMethods;
 
 
 namespace EPLAN_API.User
@@ -54,7 +55,8 @@ namespace EPLAN_API.User
                                     </soapenv:Envelope>";
 
             // URL del endpoint
-            string requestUri = "https://av000t2p.sap.tkelevator.com:44348/sap/bc/srt/rfc/sap/z_cv_read_sales_conf/010/z_cv_read_sales_conf/z_cv_read_salcv_binding";
+            string requestUri = "https://u000t2p.sap.tkelevator.com/sap/bc/srt/rfc/sap/z_cv_read_sales_conf/010/z_cv_read_sales_conf/z_cv_read_salcv_binding";
+            //string requestUri = "https://av000t2p.sap.tkelevator.com:44348/sap/bc/srt/rfc/sap/z_cv_read_sales_conf/010/z_cv_read_sales_conf/z_cv_read_salcv_binding";
 
             // Crear una solicitud HTTP
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(requestUri);
