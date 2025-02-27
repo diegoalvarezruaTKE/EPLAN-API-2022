@@ -15,11 +15,16 @@ namespace EPLAN_API.SAP
         public string Code { get; set; }
 
         public string Description { get; set; }
+
         public double Lenght { get; set; }
+
         public string ParentName { get; set; }
 
         public string ParentCode { get; set; }
-        public Cable(string IME, string name, string code, string description, double lenght, string parentName, string parentCode)
+
+        public string PosinParent {  get; set; }
+
+        public Cable(string IME, string name, string code, string description, double lenght, string parentName, string parentCode, string posinParent)
         {
             this.Name = name;
             this.Description = description;
@@ -28,6 +33,7 @@ namespace EPLAN_API.SAP
             ParentCode = parentCode;
             Code = code;
             this.IME = IME;
+            PosinParent = posinParent;
         }
     }
 }

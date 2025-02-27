@@ -161,7 +161,7 @@ namespace EPLAN_API.User
                 }
 
                 // Escribir el contenido de la respuesta en un archivo
-                string filePath = "C:\\Users\\10578494\\Desktop\\response.txt"; // Aquí puedes especificar la ruta donde deseas guardar el archivo
+                string filePath = "C:\\Users\\diego.alvarez\\Desktop\\response.txt"; // Aquí puedes especificar la ruta donde deseas guardar el archivo
                 // Escribir la respuesta en el archivo mientras se lee
                 //WriteResponseToFile(responseBody, filePath);
 
@@ -242,7 +242,7 @@ namespace EPLAN_API.User
             }
 
             // Guardar el nuevo XML estructurado en un archivo
-            string outputPath = "C:\\Users\\10578494\\Desktop\\response_nested.xml";
+            string outputPath = "C:\\Users\\diego.alvarez\\Desktop\\response_nested.xml";
             etbom.Save(outputPath);
 
             Debug.WriteLine($"XML generado correctamente: {outputPath}");
@@ -290,6 +290,9 @@ namespace EPLAN_API.User
                 //Parent Code
                 string parentcode = item.Parent.Element("Idnrk").Value;
 
+                //Pos inside parent
+                string posinparent = item.Element("Posnr").Value;
+
 
                 //Tiene el nombre del cable en su primera pos de texto
                 if (matchesT1.Count > 0)
@@ -297,7 +300,7 @@ namespace EPLAN_API.User
                     string IME = matchesT1[0].Value;
                     if (!IME.StartsWith("W", StringComparison.OrdinalIgnoreCase))
                         IME = "W" + IME;
-                    cables.Add(IME, new Cable(IME, name, code, "-", lenght, parentname, parentcode));
+                    cables.Add(IME, new Cable(IME, name, code, "-", lenght, parentname, parentcode, posinparent));
                 }
 
                 //Tiene el nombre del cable en su segunda pos de texto
@@ -306,7 +309,7 @@ namespace EPLAN_API.User
                     string IME = matchesT2[0].Value;
                     if (!IME.StartsWith("W", StringComparison.OrdinalIgnoreCase))
                         IME = "W" + IME;
-                    cables.Add(IME, new Cable(IME, name, code, "-", lenght, parentname, parentcode));
+                    cables.Add(IME, new Cable(IME, name, code, "-", lenght, parentname, parentcode, posinparent));
                 }
 
                 else
@@ -324,7 +327,7 @@ namespace EPLAN_API.User
                                     string IME = matchesNext[0].Value;
                                     if (!IME.StartsWith("W", StringComparison.OrdinalIgnoreCase))
                                         IME = "W" + IME;
-                                    cables.Add(IME, new Cable(IME, name, code, "-", lenght, parentname, parentcode));
+                                    cables.Add(IME, new Cable(IME, name, code, "-", lenght, parentname, parentcode, posinparent));
                                     continue;
                                 }
                             }
@@ -342,7 +345,7 @@ namespace EPLAN_API.User
                                 string IME = matchesPrevious[0].Value;
                                 if (!IME.StartsWith("W", StringComparison.OrdinalIgnoreCase))
                                     IME = "W" + IME;
-                                cables.Add(IME, new Cable(IME, name, code, "-", lenght, parentname, parentcode));
+                                cables.Add(IME, new Cable(IME, name, code, "-", lenght, parentname, parentcode, posinparent));
                                 continue;
                             }
                         }
@@ -351,7 +354,7 @@ namespace EPLAN_API.User
                     //es desconocido
                     string nameerr = "UK_" + error.ToString();
                     error += 1;
-                    cables.Add(nameerr, new Cable(nameerr, name, code, "-", lenght, parentname, parentcode));
+                    cables.Add(nameerr, new Cable(nameerr, name, code, "-", lenght, parentname, parentcode, posinparent));
                     //Debug.WriteLine("problema en cable:" + name + " que esta dentro de " + parentname);
 
                 }
