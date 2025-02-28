@@ -917,34 +917,39 @@ namespace EPLAN_API_2022.Forms
             //Get Cables from project
             FunctionsFilter ff = new FunctionsFilter();
             ff.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.Cable;
+            FunctionPropertyList ffList = new FunctionPropertyList();
+            ffList.FUNC_MAINFUNCTION.Set(true);
+            ff.SetFilteredPropertyList(ffList);
             DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
 
             //now we have all functions having category 'MOTOR' placed on page p
             Function[] cablesEPLAN = objFinder.GetFunctions(ff);
 
-            string[] visibleNames = cablesEPLAN.Select(cable => cable.VisibleName.TrimStart('-', '+')).ToArray();
+            string[] cablesEplanName = cablesEPLAN.Select(cable => cable.VisibleName.TrimStart('-', '+')).ToArray();
 
-            string[] cablesSAPNAME = cablesSAP.Keys.ToArray();
+            string[] cablesSAPName = cablesSAP.Keys.ToArray();
 
-            string[] commonElements = visibleNames.Intersect(cablesSAPNAME).ToArray();
+            string[] commonNames = cablesEplanName.Intersect(cablesSAPName).ToArray();
 
-            string[] differentElements = visibleNames.Except(cablesSAPNAME).Union(cablesSAPNAME.Except(visibleNames)).ToArray();
+            string[] differentNames = cablesEplanName.Except(cablesSAPName).Union(cablesSAPName.Except(cablesEplanName)).ToArray();
 
-            //string[] values = cablesEPLAN.Select(cable => cable.ArticleReferences[0].Properties.ARTICLE_ERPNR.ToString()).ToArray();
-            string[] values = cablesEPLAN.Select(cable => cable.ArticleReferences.Length > 0 ? cable.ArticleReferences[0].Properties.ARTICLE_ERPNR.ToString() : "-").ToArray();
+            string[] values = cablesEPLAN.Select(cable => cable.ArticleReferences.Length > 0 && !cable.ArticleReferences[0].Properties.ARTICLE_ERPNR.IsEmpty ? cable.ArticleReferences[0].Properties.ARTICLE_ERPNR.ToString() : "-").ToArray();
 
-            Dictionary<string, string> dictCablesEplan = visibleNames.Zip(values, (k, v) => new { k, v })
+            Dictionary<string, string> dictCablesEplan = cablesEplanName.Zip(values, (k, v) => new { k, v })
                                                   .ToDictionary(x => x.k, x => x.v);
 
             values = cablesSAP.Select(cable => cable.Value.Code.TrimStart('0')).ToArray();
 
-            Dictionary<string, string> dictCablesSAP = cablesSAPNAME.Zip(values, (k, v) => new { k, v })
+            Dictionary<string, string> dictCablesSAP = cablesSAPName.Zip(values, (k, v) => new { k, v })
                                                   .ToDictionary(x => x.k, x => x.v);
 
             var differentValues = dictCablesEplan.Keys.Where(k => dictCablesSAP.ContainsKey(k) && dictCablesEplan[k] != dictCablesSAP[k]).ToDictionary(k => k, k => (dictCablesEplan[k], dictCablesSAP[k]));
 
+            // Filtrar el diccionario
+            var filteredDifferentValues = differentValues
+                .Where(kv => !differentNames.Contains(kv.Key))
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-            //string[] eplanCableTypes = cablesEPLAN.Select(cable => cable.VisibleName.TrimStart('-', '+')).ToArray();
 
             //Escribe en excel
             // Escribir diferencias en Excel
@@ -962,42 +967,52 @@ namespace EPLAN_API_2022.Forms
                 worksheet.Cells[1, 4].Value = "EPLAN Name";
                 worksheet.Cells[1, 5].Value = "EPLAN Code";
 
-
-                // Escribir datos
-                for (int i = 0; i < differentElements.Length; i++)
+                int currentRow = 2;
+                // Escribir datos de nombres diferentes
+                for (int i = 0; i < differentNames.Length; i++)
                 {
-                    worksheet.Cells[i + 2, 1].Value = differentElements[i];
+                    worksheet.Cells[currentRow, 1].Value = differentNames[i];
 
-                    var cableSAPDiff = cablesSAP.FirstOrDefault(cable => cable.Key == differentElements[i]);
+                    var cableSAPDiff = cablesSAP.FirstOrDefault(cable => cable.Key == differentNames[i]);
                     if (cableSAPDiff.Value != null)
                     {
-                        worksheet.Cells[i + 2, 2].Value = cableSAPDiff.Value.ParentCode + " - " + cableSAPDiff.Value.ParentName + ": pos " + cableSAPDiff.Value.PosinParent;
-                        worksheet.Cells[i + 2, 3].Value = cableSAPDiff.Value.Code.TrimStart('0');
+                        worksheet.Cells[currentRow, 2].Value = cableSAPDiff.Value.ParentCode + " - " + cableSAPDiff.Value.ParentName + ": pos " + cableSAPDiff.Value.PosinParent;
+                        worksheet.Cells[currentRow, 3].Value = cableSAPDiff.Value.Code.TrimStart('0');
                     }
                     else
                     {
-                        worksheet.Cells[i + 2, 2].Value = "-";
-                        worksheet.Cells[i + 2, 3].Value = "-";
+                        worksheet.Cells[currentRow, 2].Value = "-";
+                        worksheet.Cells[currentRow, 3].Value = "-";
                     }
 
-                    var cableEPLANDiff = cablesEPLAN.FirstOrDefault(cable => cable.VisibleName.TrimStart('-', '+') == differentElements[i]);
+                    var cableEPLANDiff = cablesEPLAN.FirstOrDefault(cable => cable.VisibleName.TrimStart('-', '+') == differentNames[i]);
                     if (cableEPLANDiff != null)
                     {
                         if (!cableEPLANDiff.Properties.FUNC_TEXT.IsEmpty)
                         {
                             LanguageList language = new LanguageList();
                             cableEPLANDiff.Properties.FUNC_TEXT.ToMultiLangString().GetLanguageList(ref language);
-                            worksheet.Cells[i + 2, 4].Value = cableEPLANDiff.Properties.FUNC_TEXT.ToMultiLangString().GetStringToDisplay(language.get_Language(0));
+                            worksheet.Cells[currentRow, 4].Value = cableEPLANDiff.Properties.FUNC_TEXT.ToMultiLangString().GetStringToDisplay(language.get_Language(0));
                         }
                         if (cableEPLANDiff.ArticleReferences.Length > 0)
-                            worksheet.Cells[i + 2, 5].Value = cableEPLANDiff.ArticleReferences[0].Properties.ARTICLE_ERPNR.ToString();
+                            worksheet.Cells[currentRow, 5].Value = cableEPLANDiff.ArticleReferences[0].Properties.ARTICLE_ERPNR.ToString();
                     }
                     else
                     {
-                        worksheet.Cells[i + 2, 4].Value = "-";
-                        worksheet.Cells[i + 2, 5].Value = "-";
+                        worksheet.Cells[currentRow, 4].Value = "-";
+                        worksheet.Cells[currentRow, 5].Value = "-";
                     }
 
+                    currentRow++;
+                }
+
+                //Escribir datos de códigos diferentes
+                foreach(string cable in filteredDifferentValues.Keys)
+                {
+                    worksheet.Cells[currentRow, 1].Value = cable;
+                    worksheet.Cells[currentRow, 3].Value = filteredDifferentValues[cable].Item2;
+                    worksheet.Cells[currentRow, 5].Value = filteredDifferentValues[cable].Item1;
+                    currentRow++;
                 }
 
                 // Guardar archivo
