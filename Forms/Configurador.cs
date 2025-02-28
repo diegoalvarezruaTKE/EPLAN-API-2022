@@ -966,6 +966,7 @@ namespace EPLAN_API_2022.Forms
                 worksheet.Cells[1, 3].Value = "SAP Code";
                 worksheet.Cells[1, 4].Value = "EPLAN Name";
                 worksheet.Cells[1, 5].Value = "EPLAN Code";
+                worksheet.Cells[1, 6].Value = "Problema";
 
                 int currentRow = 2;
                 // Escribir datos de nombres diferentes
@@ -983,6 +984,7 @@ namespace EPLAN_API_2022.Forms
                     {
                         worksheet.Cells[currentRow, 2].Value = "-";
                         worksheet.Cells[currentRow, 3].Value = "-";
+                        worksheet.Cells[currentRow, 6].Value = "Cable no existe en SAP";
                     }
 
                     var cableEPLANDiff = cablesEPLAN.FirstOrDefault(cable => cable.VisibleName.TrimStart('-', '+') == differentNames[i]);
@@ -1001,6 +1003,7 @@ namespace EPLAN_API_2022.Forms
                     {
                         worksheet.Cells[currentRow, 4].Value = "-";
                         worksheet.Cells[currentRow, 5].Value = "-";
+                        worksheet.Cells[currentRow, 6].Value = "Cable no existe en EPLAN";
                     }
 
                     currentRow++;
@@ -1010,8 +1013,17 @@ namespace EPLAN_API_2022.Forms
                 foreach(string cable in filteredDifferentValues.Keys)
                 {
                     worksheet.Cells[currentRow, 1].Value = cable;
+                    worksheet.Cells[currentRow, 2].Value = cablesSAP[cable].ParentCode + " - " + cablesSAP[cable].ParentName + ": pos " + cablesSAP[cable].PosinParent;
                     worksheet.Cells[currentRow, 3].Value = filteredDifferentValues[cable].Item2;
+                    var eplanCable = cablesEPLAN.FirstOrDefault(x => x.VisibleName.TrimStart('-', '+') == cable);
+                    if (!eplanCable.Properties.FUNC_TEXT.IsEmpty)
+                    {
+                        LanguageList language = new LanguageList();
+                        eplanCable.Properties.FUNC_TEXT.ToMultiLangString().GetLanguageList(ref language);
+                        worksheet.Cells[currentRow, 4].Value = eplanCable.Properties.FUNC_TEXT.ToMultiLangString().GetStringToDisplay(language.get_Language(0));
+                    }
                     worksheet.Cells[currentRow, 5].Value = filteredDifferentValues[cable].Item1;
+                    worksheet.Cells[currentRow, 6].Value = "Tipos de cable diferentes en EPLAN y SAP";
                     currentRow++;
                 }
 
