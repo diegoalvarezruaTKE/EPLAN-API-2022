@@ -214,34 +214,6 @@ namespace EPLAN_API.Forms
         }
     }
 
-    /*
-     * 
-     * //Add table headers going cell by cell.
-                oSheet.Cells[1, 1] = "Position";
-                oSheet.Cells[1, 2] = "Position Type";
-                oSheet.Cells[1, 3] = "SAP Code";
-                oSheet.Cells[1, 4] = "Description L1";
-                oSheet.Cells[1, 5] = "Description L2";
-                oSheet.Cells[1, 6] = "Count";
-                oSheet.Cells[1, 7] = "Aporte";
-                oSheet.Cells[1, 8] = "Relevancia Fab.";
-                oSheet.Cells[1, 9] = "Calculo Coste";
-                oSheet.Cells[1, 10] = "Nombre SAP";
-                oSheet.Cells[1, 11] = "Fabricante";
-                oSheet.Cells[1, 12] = "Referencia Fabricante";
-     * 
-     *                 oSheet.Cells[1, 3] = "SAP Code";
-                oSheet.Cells[1, 4] = "Description L1";
-                oSheet.Cells[1, 5] = "Description L2";
-                oSheet.Cells[1, 6] = "Count";
-                oSheet.Cells[1, 7] = "Aporte";
-                oSheet.Cells[1, 8] = "Relevancia Fab.";
-                oSheet.Cells[1, 9] = "Calculo Coste";
-                oSheet.Cells[1, 10] = "Nombre SAP";
-                oSheet.Cells[1, 11] = "Fabricante";
-                oSheet.Cells[1, 12] = "Referencia Fabricante";
-    */
-
     public class SAPMaterial
     {
         public string SAPCode { get; set; }
