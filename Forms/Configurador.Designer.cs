@@ -47,10 +47,10 @@
             this.buttonFormCaracIng = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.PanelTitulo = new System.Windows.Forms.Panel();
-            this.cBox_Obra = new System.Windows.Forms.ComboBox();
             this.ImportButton = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.tbStatus = new System.Windows.Forms.TextBox();
+            this.check_Button = new System.Windows.Forms.Button();
             this.MenuVertical.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoTKE)).BeginInit();
             this.PanelTitulo.SuspendLayout();
@@ -150,7 +150,7 @@
             this.b_Cables.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.b_Cables.Font = new System.Drawing.Font("Arial", 8F);
             this.b_Cables.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.b_Cables.Location = new System.Drawing.Point(511, 31);
+            this.b_Cables.Location = new System.Drawing.Point(501, 31);
             this.b_Cables.Name = "b_Cables";
             this.b_Cables.Size = new System.Drawing.Size(75, 23);
             this.b_Cables.TabIndex = 4;
@@ -300,7 +300,7 @@
             // PanelTitulo
             // 
             this.PanelTitulo.BackColor = System.Drawing.Color.Black;
-            this.PanelTitulo.Controls.Add(this.cBox_Obra);
+            this.PanelTitulo.Controls.Add(this.check_Button);
             this.PanelTitulo.Controls.Add(this.ImportButton);
             this.PanelTitulo.Controls.Add(this.export_Button);
             this.PanelTitulo.Controls.Add(this.progressBar_Draw);
@@ -315,15 +315,6 @@
             this.PanelTitulo.Name = "PanelTitulo";
             this.PanelTitulo.Size = new System.Drawing.Size(1314, 59);
             this.PanelTitulo.TabIndex = 12;
-            // 
-            // cBox_Obra
-            // 
-            this.cBox_Obra.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cBox_Obra.FormattingEnabled = true;
-            this.cBox_Obra.Location = new System.Drawing.Point(511, 3);
-            this.cBox_Obra.Name = "cBox_Obra";
-            this.cBox_Obra.Size = new System.Drawing.Size(157, 21);
-            this.cBox_Obra.TabIndex = 11;
             // 
             // ImportButton
             // 
@@ -358,6 +349,23 @@
             this.tbStatus.Size = new System.Drawing.Size(1323, 13);
             this.tbStatus.TabIndex = 0;
             this.tbStatus.Text = "-";
+            // 
+            // check_Button
+            // 
+            this.check_Button.BackColor = System.Drawing.SystemColors.HighlightText;
+            this.check_Button.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.check_Button.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.check_Button.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(237)))), ((int)(((byte)(110)))), ((int)(((byte)(17)))));
+            this.check_Button.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.check_Button.Font = new System.Drawing.Font("Arial", 8F);
+            this.check_Button.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.check_Button.Location = new System.Drawing.Point(501, 2);
+            this.check_Button.Name = "check_Button";
+            this.check_Button.Size = new System.Drawing.Size(75, 23);
+            this.check_Button.TabIndex = 10;
+            this.check_Button.Text = "Check";
+            this.check_Button.UseVisualStyleBackColor = false;
+            this.check_Button.Click += new System.EventHandler(this.check_Button_Click);
             // 
             // Configurador
             // 
@@ -403,9 +411,9 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button buttonFormGEC;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.ComboBox cBox_Obra;
         private System.Windows.Forms.Button ImportButton;
         private System.Windows.Forms.Button buttonFormHC;
         public System.Windows.Forms.TextBox tbStatus;
+        private System.Windows.Forms.Button check_Button;
     }
 }

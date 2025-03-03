@@ -33,7 +33,7 @@ namespace EPLAN_API.Forms
 
         }
 
-        private void execute(string location, int cablemultiplier)
+        private void execute(string location)
         {
             oProject = new ProjectManager().CurrentProject;
             oPages = oProject.Pages;
@@ -199,18 +199,14 @@ namespace EPLAN_API.Forms
 
             }
 
+            MessageBox.Show("Operación completada con éxito.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+
         }
 
         private void b_List_Click(object sender, EventArgs e)
         {
-            ProjectSettings projectSettings = new ProjectSettings(oProject);
-            int unidadMedida = projectSettings.GetNumericSetting("CableLog.CableManuell.UnitOfCableLength", 0);
-            if (unidadMedida == 0)
-                //0=m
-                execute(cB_Locations.SelectedItem.ToString(), 100);
-            else
-                //5=cm
-                execute(cB_Locations.SelectedItem.ToString(), 1);
+            execute(cB_Locations.SelectedItem.ToString());
         }
     }
 

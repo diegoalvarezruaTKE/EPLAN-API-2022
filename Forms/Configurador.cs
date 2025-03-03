@@ -910,126 +910,7 @@ namespace EPLAN_API_2022.Forms
 
         private void BTest_Click(object sender, EventArgs e)
         {
-            SAPService sAPService = new SAPService();
-            string materials = sAPService.ReadSAPBOM(tB_OE.Text);
-            Dictionary<string, Cable> cablesSAP = sAPService.BuscaCables(sAPService.ParseBOM(materials));
-
-            //Get Cables from project
-            FunctionsFilter ff = new FunctionsFilter();
-            ff.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.Cable;
-            FunctionPropertyList ffList = new FunctionPropertyList();
-            ffList.FUNC_MAINFUNCTION.Set(true);
-            ff.SetFilteredPropertyList(ffList);
-            DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
-
-            //now we have all functions having category 'MOTOR' placed on page p
-            Function[] cablesEPLAN = objFinder.GetFunctions(ff);
-
-            string[] cablesEplanName = cablesEPLAN.Select(cable => cable.VisibleName.TrimStart('-', '+')).ToArray();
-
-            string[] cablesSAPName = cablesSAP.Keys.ToArray();
-
-            string[] commonNames = cablesEplanName.Intersect(cablesSAPName).ToArray();
-
-            string[] differentNames = cablesEplanName.Except(cablesSAPName).Union(cablesSAPName.Except(cablesEplanName)).ToArray();
-
-            string[] values = cablesEPLAN.Select(cable => cable.ArticleReferences.Length > 0 && !cable.ArticleReferences[0].Properties.ARTICLE_ERPNR.IsEmpty ? cable.ArticleReferences[0].Properties.ARTICLE_ERPNR.ToString() : "-").ToArray();
-
-            Dictionary<string, string> dictCablesEplan = cablesEplanName.Zip(values, (k, v) => new { k, v })
-                                                  .ToDictionary(x => x.k, x => x.v);
-
-            values = cablesSAP.Select(cable => cable.Value.Code.TrimStart('0')).ToArray();
-
-            Dictionary<string, string> dictCablesSAP = cablesSAPName.Zip(values, (k, v) => new { k, v })
-                                                  .ToDictionary(x => x.k, x => x.v);
-
-            var differentValues = dictCablesEplan.Keys.Where(k => dictCablesSAP.ContainsKey(k) && dictCablesEplan[k] != dictCablesSAP[k]).ToDictionary(k => k, k => (dictCablesEplan[k], dictCablesSAP[k]));
-
-            // Filtrar el diccionario
-            var filteredDifferentValues = differentValues
-                .Where(kv => !differentNames.Contains(kv.Key))
-                .ToDictionary(kv => kv.Key, kv => kv.Value);
-
-
-            //Escribe en excel
-            // Escribir diferencias en Excel
-            string filePath = "C:\\Users\\diego.alvarez\\Desktop\\NewDiferencias.xlsx";
-
-            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial; // Para uso no comercial
-            using (var package = new ExcelPackage())
-            {
-                var worksheet = package.Workbook.Worksheets.Add("Diferencias");
-
-                // Escribir encabezado
-                worksheet.Cells[1, 1].Value = "Elementos Diferentes";
-                worksheet.Cells[1, 2].Value = "SAP Parent";
-                worksheet.Cells[1, 3].Value = "SAP Code";
-                worksheet.Cells[1, 4].Value = "EPLAN Name";
-                worksheet.Cells[1, 5].Value = "EPLAN Code";
-                worksheet.Cells[1, 6].Value = "Problema";
-
-                int currentRow = 2;
-                // Escribir datos de nombres diferentes
-                for (int i = 0; i < differentNames.Length; i++)
-                {
-                    worksheet.Cells[currentRow, 1].Value = differentNames[i];
-
-                    var cableSAPDiff = cablesSAP.FirstOrDefault(cable => cable.Key == differentNames[i]);
-                    if (cableSAPDiff.Value != null)
-                    {
-                        worksheet.Cells[currentRow, 2].Value = cableSAPDiff.Value.ParentCode + " - " + cableSAPDiff.Value.ParentName + ": pos " + cableSAPDiff.Value.PosinParent;
-                        worksheet.Cells[currentRow, 3].Value = cableSAPDiff.Value.Code.TrimStart('0');
-                    }
-                    else
-                    {
-                        worksheet.Cells[currentRow, 2].Value = "-";
-                        worksheet.Cells[currentRow, 3].Value = "-";
-                        worksheet.Cells[currentRow, 6].Value = "Cable no existe en SAP";
-                    }
-
-                    var cableEPLANDiff = cablesEPLAN.FirstOrDefault(cable => cable.VisibleName.TrimStart('-', '+') == differentNames[i]);
-                    if (cableEPLANDiff != null)
-                    {
-                        if (!cableEPLANDiff.Properties.FUNC_TEXT.IsEmpty)
-                        {
-                            LanguageList language = new LanguageList();
-                            cableEPLANDiff.Properties.FUNC_TEXT.ToMultiLangString().GetLanguageList(ref language);
-                            worksheet.Cells[currentRow, 4].Value = cableEPLANDiff.Properties.FUNC_TEXT.ToMultiLangString().GetStringToDisplay(language.get_Language(0));
-                        }
-                        if (cableEPLANDiff.ArticleReferences.Length > 0)
-                            worksheet.Cells[currentRow, 5].Value = cableEPLANDiff.ArticleReferences[0].Properties.ARTICLE_ERPNR.ToString();
-                    }
-                    else
-                    {
-                        worksheet.Cells[currentRow, 4].Value = "-";
-                        worksheet.Cells[currentRow, 5].Value = "-";
-                        worksheet.Cells[currentRow, 6].Value = "Cable no existe en EPLAN";
-                    }
-
-                    currentRow++;
-                }
-
-                //Escribir datos de códigos diferentes
-                foreach(string cable in filteredDifferentValues.Keys)
-                {
-                    worksheet.Cells[currentRow, 1].Value = cable;
-                    worksheet.Cells[currentRow, 2].Value = cablesSAP[cable].ParentCode + " - " + cablesSAP[cable].ParentName + ": pos " + cablesSAP[cable].PosinParent;
-                    worksheet.Cells[currentRow, 3].Value = filteredDifferentValues[cable].Item2;
-                    var eplanCable = cablesEPLAN.FirstOrDefault(x => x.VisibleName.TrimStart('-', '+') == cable);
-                    if (!eplanCable.Properties.FUNC_TEXT.IsEmpty)
-                    {
-                        LanguageList language = new LanguageList();
-                        eplanCable.Properties.FUNC_TEXT.ToMultiLangString().GetLanguageList(ref language);
-                        worksheet.Cells[currentRow, 4].Value = eplanCable.Properties.FUNC_TEXT.ToMultiLangString().GetStringToDisplay(language.get_Language(0));
-                    }
-                    worksheet.Cells[currentRow, 5].Value = filteredDifferentValues[cable].Item1;
-                    worksheet.Cells[currentRow, 6].Value = "Tipos de cable diferentes en EPLAN y SAP";
-                    currentRow++;
-                }
-
-                // Guardar archivo
-                package.SaveAs(new FileInfo(filePath));
-            }
+            
 
         }
 
@@ -1140,8 +1021,139 @@ namespace EPLAN_API_2022.Forms
             LoadNameFromProject();
         }
 
+        private void check_Button_Click(object sender, EventArgs e)
+        {
+            SAPService sAPService = new SAPService();
+            string materials = sAPService.ReadSAPBOM(tB_OE.Text);
+            Dictionary<string, Cable> cablesSAP = sAPService.BuscaCables(sAPService.ParseBOM(materials));
+
+            //Get Cables from project
+            FunctionsFilter ff = new FunctionsFilter();
+            ff.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.Cable;
+            FunctionPropertyList ffList = new FunctionPropertyList();
+            ffList.FUNC_MAINFUNCTION.Set(true);
+            ff.SetFilteredPropertyList(ffList);
+            DMObjectsFinder objFinder = new DMObjectsFinder(oProject);
+
+            //now we have all functions having category 'MOTOR' placed on page p
+            Function[] cablesEPLAN = objFinder.GetFunctions(ff);
+
+            string[] cablesEplanName = cablesEPLAN.Select(cable => cable.VisibleName.TrimStart('-', '+')).ToArray();
+
+            string[] cablesSAPName = cablesSAP.Keys.ToArray();
+
+            string[] commonNames = cablesEplanName.Intersect(cablesSAPName).ToArray();
+
+            string[] differentNames = cablesEplanName.Except(cablesSAPName).Union(cablesSAPName.Except(cablesEplanName)).ToArray();
+
+            string[] values = cablesEPLAN.Select(cable => cable.ArticleReferences.Length > 0 && !cable.ArticleReferences[0].Properties.ARTICLE_ERPNR.IsEmpty ? cable.ArticleReferences[0].Properties.ARTICLE_ERPNR.ToString() : "-").ToArray();
+
+            Dictionary<string, string> dictCablesEplan = cablesEplanName.Zip(values, (k, v) => new { k, v })
+                                                  .ToDictionary(x => x.k, x => x.v);
+
+            values = cablesSAP.Select(cable => cable.Value.Code.TrimStart('0')).ToArray();
+
+            Dictionary<string, string> dictCablesSAP = cablesSAPName.Zip(values, (k, v) => new { k, v })
+                                                  .ToDictionary(x => x.k, x => x.v);
+
+            var differentValues = dictCablesEplan.Keys.Where(k => dictCablesSAP.ContainsKey(k) && dictCablesEplan[k] != dictCablesSAP[k]).ToDictionary(k => k, k => (dictCablesEplan[k], dictCablesSAP[k]));
+
+            // Filtrar el diccionario
+            var filteredDifferentValues = differentValues
+                .Where(kv => !differentNames.Contains(kv.Key))
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+
+            //Escribe en excel
+            // Escribir diferencias en Excel
+            //string filePath = "C:\\Users\\diego.alvarez\\Desktop\\NewDiferencias.xlsx";
+            string filePath = oProject.ProjectDirectoryPath + "\\CHECK";
+            if (!Directory.Exists(filePath))
+            {
+                // Crear la carpeta si no existe
+                Directory.CreateDirectory(filePath);
+            }
+            filePath = filePath + "\\Ckeck.xlsx";
+
+
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial; // Para uso no comercial
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Diferencias");
+
+                // Escribir encabezado
+                worksheet.Cells[1, 1].Value = "Elementos Diferentes";
+                worksheet.Cells[1, 2].Value = "SAP Parent";
+                worksheet.Cells[1, 3].Value = "SAP Code";
+                worksheet.Cells[1, 4].Value = "EPLAN Name";
+                worksheet.Cells[1, 5].Value = "EPLAN Code";
+                worksheet.Cells[1, 6].Value = "Problema";
+
+                int currentRow = 2;
+                // Escribir datos de nombres diferentes
+                for (int i = 0; i < differentNames.Length; i++)
+                {
+                    worksheet.Cells[currentRow, 1].Value = differentNames[i];
+
+                    var cableSAPDiff = cablesSAP.FirstOrDefault(cable => cable.Key == differentNames[i]);
+                    if (cableSAPDiff.Value != null)
+                    {
+                        worksheet.Cells[currentRow, 2].Value = cableSAPDiff.Value.ParentCode + " - " + cableSAPDiff.Value.ParentName + ": pos " + cableSAPDiff.Value.PosinParent;
+                        worksheet.Cells[currentRow, 3].Value = cableSAPDiff.Value.Code.TrimStart('0');
+                    }
+                    else
+                    {
+                        worksheet.Cells[currentRow, 2].Value = "-";
+                        worksheet.Cells[currentRow, 3].Value = "-";
+                        worksheet.Cells[currentRow, 6].Value = "Cable no existe en SAP";
+                    }
+
+                    var cableEPLANDiff = cablesEPLAN.FirstOrDefault(cable => cable.VisibleName.TrimStart('-', '+') == differentNames[i]);
+                    if (cableEPLANDiff != null)
+                    {
+                        if (!cableEPLANDiff.Properties.FUNC_TEXT.IsEmpty)
+                        {
+                            LanguageList language = new LanguageList();
+                            cableEPLANDiff.Properties.FUNC_TEXT.ToMultiLangString().GetLanguageList(ref language);
+                            worksheet.Cells[currentRow, 4].Value = cableEPLANDiff.Properties.FUNC_TEXT.ToMultiLangString().GetStringToDisplay(language.get_Language(0));
+                        }
+                        if (cableEPLANDiff.ArticleReferences.Length > 0)
+                            worksheet.Cells[currentRow, 5].Value = cableEPLANDiff.ArticleReferences[0].Properties.ARTICLE_ERPNR.ToString();
+                    }
+                    else
+                    {
+                        worksheet.Cells[currentRow, 4].Value = "-";
+                        worksheet.Cells[currentRow, 5].Value = "-";
+                        worksheet.Cells[currentRow, 6].Value = "Cable no existe en EPLAN";
+                    }
+
+                    currentRow++;
+                }
+
+                //Escribir datos de códigos diferentes
+                foreach (string cable in filteredDifferentValues.Keys)
+                {
+                    worksheet.Cells[currentRow, 1].Value = cable;
+                    worksheet.Cells[currentRow, 2].Value = cablesSAP[cable].ParentCode + " - " + cablesSAP[cable].ParentName + ": pos " + cablesSAP[cable].PosinParent;
+                    worksheet.Cells[currentRow, 3].Value = filteredDifferentValues[cable].Item2;
+                    var eplanCable = cablesEPLAN.FirstOrDefault(x => x.VisibleName.TrimStart('-', '+') == cable);
+                    if (!eplanCable.Properties.FUNC_TEXT.IsEmpty)
+                    {
+                        LanguageList language = new LanguageList();
+                        eplanCable.Properties.FUNC_TEXT.ToMultiLangString().GetLanguageList(ref language);
+                        worksheet.Cells[currentRow, 4].Value = eplanCable.Properties.FUNC_TEXT.ToMultiLangString().GetStringToDisplay(language.get_Language(0));
+                    }
+                    worksheet.Cells[currentRow, 5].Value = filteredDifferentValues[cable].Item1;
+                    worksheet.Cells[currentRow, 6].Value = "Tipos de cable diferentes en EPLAN y SAP";
+                    currentRow++;
+                }
+
+                // Guardar archivo
+                package.SaveAs(new FileInfo(filePath));
+
+                MessageBox.Show("Se ha generado un archivo en:\n" + filePath, "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
         #endregion
-
-
     }
 }
