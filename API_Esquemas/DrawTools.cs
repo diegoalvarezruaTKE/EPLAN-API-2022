@@ -1053,15 +1053,17 @@ namespace EPLAN_API.User
 
         public void InsertDeviceIntoPanel(Project oProject)
         {
-            //Cabinet oCabinet = new Cabinet();
-            //oCabinet.Create(oProject, "TS 8886.500", "1");
-            ////Parent will be set to installation space
-            //oCabinet.Parent = oProject.InstallationSpaces[0];
-            ////create identity matrix
-            //Matrix3D oMatrix = new Matrix3D();
-            ////change the location to (100, 150, 0)
-            //oMatrix.Transform(new Point3D(720, 703, 604));
-            //oCabinet.AbsoluteTransformation = oMatrix;
+
+            /*
+             *  There are two different types of mates: stored in database and generated in runtime. 
+                First can be created by user and assign to a Placement3D. 
+                Name of generated mate depends on type of object. 
+                Mate named 'V1'is placed on first vertex (lowest left in local coordinate system of the object). 
+                Numeration of those mates is done in counterclockwise direction. 
+                Very similar are mates which name starts with 'M', only those mates are placed in the middle of edges and the first on is the lowest one (in the local coordinate system). 
+                Third type of mate that can be found is named "C". This one is placed in the center of object. 
+                Check mate description for more information about current mate.
+             */
 
 
             //searching 3D functions having name '=EB3+ET1-U1'
@@ -1084,37 +1086,37 @@ namespace EPLAN_API.User
             oFunctionsFilter.SetFilteredPropertyList(functionPropertyList);
             Function[] oFunctions = new DMObjectsFinder(oProject).GetFunctions(oFunctionsFilter);
 
-            Component oTerminal = new Component();
-            oTerminal.Create(oProject, oFunctions[0].ArticleReferences[0].Article.PartNr, "1");
-            oTerminal.Name = oFunctions[0].Name;
-            oTerminal.Parent = oFunctions3D[0];
-
-            //Matrix3D terminalTransformation = terminal.RelativeTransformationOfMacro;
-            //var x_coordinate = terminalTransformation.Transform(new Point3D()).X;
+            MountingRail mountingRail = oFunctions3D[0] as MountingRail;
             double x = 0;
             foreach (Component c in oFunctions3D[0].Children)
             {
-                Matrix3D terminalTransformation = c.RelativeTransformationOfMacro;
-                double x_coordinate = terminalTransformation.Transform(new Point3D()).X;
-                if (x_coordinate >= x)
-                    x = x + x_coordinate;
+                double pos = c.FindSourceMate("M2", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
+                if (x < pos)
+                    x = pos;
             }
 
-            Vector3D oVector3D = new Vector3D();
-            oVector3D.X = 0.0;
-            oVector3D.Y = 0.0;
-            oVector3D.Z = 0.0;
-            //Quaternion oQuaternion = new Quaternion(oVector3D, 0.0);
-            Matrix3D oMatrix3D = new Matrix3D();
-            //oMatrix3D.Rotate(oQuaternion);
-            oMatrix3D.Translate(new Vector3D(50.0, 0.0, 0.0));
+
+            Component oComponent = new Component();
+            oComponent.Create(oProject, oFunctions[0].ArticleReferences[0].Article.PartNr, "1");
+            oComponent.Name = oFunctions[0].Name;
+            oComponent.Parent = oFunctions3D[0];
+            oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(mountingRail.BaseMate, 0);
+
+            //Vector3D oVector3D = new Vector3D();
+            //oVector3D.X = 0.0;
+            //oVector3D.Y = 0.0;
+            //oVector3D.Z = 0.0;
+            ////Quaternion oQuaternion = new Quaternion(oVector3D, 0.0);
+            //Matrix3D oMatrix3D = new Matrix3D();
+            ////oMatrix3D.Rotate(oQuaternion);
+            //oMatrix3D.Translate(new Vector3D(x, 0.0, 0.0));
 
 
-            //create identity matrix
-            Matrix3D oMatrix = new Matrix3D();
-            //change the location to (100, 150, 0)
-            oMatrix.Transform(new Point3D(1000, 1000, 1000));
-            oTerminal.RelativeTransformation = oMatrix3D;
+            ////create identity matrix
+            //Matrix3D oMatrix = new Matrix3D();
+            ////change the location to (100, 150, 0)
+            //oMatrix.Transform(new Point3D(1000, 1000, 1000));
+            //oComponent.RelativeTransformation = oMatrix3D;
 
         }
 
