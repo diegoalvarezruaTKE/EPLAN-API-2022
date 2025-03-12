@@ -14,6 +14,9 @@ using Eplan.EplApi.DataModel.Graphics;
 using System.IO;
 using Eplan.EplApi.Base.Enums;
 using System.Globalization;
+using System.Windows.Forms;
+using Eplan.EplApi.DataModel.EObjects;
+
 
 namespace EPLAN_API.User
 {
@@ -384,7 +387,7 @@ namespace EPLAN_API.User
             Quaternion oQaternion = new Quaternion(new Vector3D(x, y, z), 0.2);
             oMatrix.Rotate(oQaternion);
 
-            //preparing WindowMacro object
+            //preparing WindowMacro object                                                                  
             string strWindowMacroName = pathMacro;
             WindowMacro oWMacro = new WindowMacro();
             oWMacro.Open(strWindowMacroName, oProject, 0);
@@ -1048,6 +1051,72 @@ namespace EPLAN_API.User
 
         }
 
+        public void InsertDeviceIntoPanel(Project oProject)
+        {
+            //Cabinet oCabinet = new Cabinet();
+            //oCabinet.Create(oProject, "TS 8886.500", "1");
+            ////Parent will be set to installation space
+            //oCabinet.Parent = oProject.InstallationSpaces[0];
+            ////create identity matrix
+            //Matrix3D oMatrix = new Matrix3D();
+            ////change the location to (100, 150, 0)
+            //oMatrix.Transform(new Point3D(720, 703, 604));
+            //oCabinet.AbsoluteTransformation = oMatrix;
+
+
+            //searching 3D functions having name '=EB3+ET1-U1'
+            string str3DFunction = "U16";
+            Functions3DFilter oFunctions3DFilter = new Functions3DFilter();
+            Function3DPropertyList oFunction3DPropertyList = new Function3DPropertyList();
+            oFunction3DPropertyList.FUNC_VISIBLEDEVICETAG = str3DFunction;
+            oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList);
+            Function3D[] oFunctions3D = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
+            //searching 3D placements
+            Placements3DFilter oPlacements3DFilter = new Placements3DFilter();
+            oPlacements3DFilter.FunctionCategory = FunctionCategory.AreaDefinition;
+            Placement3D[] oPlacements3D = new DMObjectsFinder(oProject).GetPlacements3D(oPlacements3DFilter);
+
+            //searching 3D and 2D functions having name '=EB3+ET1-Q1'
+            FunctionsFilter oFunctionsFilter = new FunctionsFilter();
+            FunctionPropertyList functionPropertyList = new FunctionPropertyList();
+            functionPropertyList.FUNC_VISIBLEDEVICETAG = "-K1.1";
+            functionPropertyList.FUNC_MAINFUNCTION = true;
+            oFunctionsFilter.SetFilteredPropertyList(functionPropertyList);
+            Function[] oFunctions = new DMObjectsFinder(oProject).GetFunctions(oFunctionsFilter);
+
+            Component oTerminal = new Component();
+            oTerminal.Create(oProject, oFunctions[0].ArticleReferences[0].Article.PartNr, "1");
+            oTerminal.Name = oFunctions[0].Name;
+            oTerminal.Parent = oFunctions3D[0];
+
+            //Matrix3D terminalTransformation = terminal.RelativeTransformationOfMacro;
+            //var x_coordinate = terminalTransformation.Transform(new Point3D()).X;
+            double x = 0;
+            foreach (Component c in oFunctions3D[0].Children)
+            {
+                Matrix3D terminalTransformation = c.RelativeTransformationOfMacro;
+                double x_coordinate = terminalTransformation.Transform(new Point3D()).X;
+                if (x_coordinate >= x)
+                    x = x + x_coordinate;
+            }
+
+            Vector3D oVector3D = new Vector3D();
+            oVector3D.X = 0.0;
+            oVector3D.Y = 0.0;
+            oVector3D.Z = 0.0;
+            //Quaternion oQuaternion = new Quaternion(oVector3D, 0.0);
+            Matrix3D oMatrix3D = new Matrix3D();
+            //oMatrix3D.Rotate(oQuaternion);
+            oMatrix3D.Translate(new Vector3D(50.0, 0.0, 0.0));
+
+
+            //create identity matrix
+            Matrix3D oMatrix = new Matrix3D();
+            //change the location to (100, 150, 0)
+            oMatrix.Transform(new Point3D(1000, 1000, 1000));
+            oTerminal.RelativeTransformation = oMatrix3D;
+
+        }
 
         #region GEC Parameters
 

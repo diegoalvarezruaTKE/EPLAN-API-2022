@@ -910,7 +910,7 @@ namespace EPLAN_API_2022.Forms
 
         private void BTest_Click(object sender, EventArgs e)
         {
-            
+            DrawTools.InsertDeviceIntoPanel(oProject);
 
         }
 
