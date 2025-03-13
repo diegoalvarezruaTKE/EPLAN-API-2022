@@ -1140,7 +1140,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void InsertDeviceIntoDINRail(Project oProject, string DINRailName, string deviceName, double offset, bool forcedPos=false, double forcedPosOffset=0)
+        public void InsertDeviceIntoDINRail(Project oProject, string DINRailName, string deviceName, double offset, bool forcedPos=false, double forcedPosOffset=0, string rightTo=null)
         {
 
             /*
@@ -1173,11 +1173,17 @@ namespace EPLAN_API.User
             Function[] oFunctions = new DMObjectsFinder(oProject).GetFunctions(oFunctionsFilter);
             Function device = oFunctions[0];
 
+            //searching rightToDevice
+            oFunction3DPropertyList.FUNC_VISIBLEDEVICETAG = str3DFunction;
+            oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList);
+            oFunctions3D = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
+            Component rightToDevice3D = oFunctions3D[0] as Component;
+
 
             double pos = 0;
             double iniPos = 0;
             bool isfirst = true;
-            if (!forcedPos)
+            if (!forcedPos && rightTo == null)
             {
                 foreach (Component c in mountingRail.Children)
                 {
@@ -1193,17 +1199,31 @@ namespace EPLAN_API.User
                         pos = M2pos;
                 }
             }
-            else
+            else if (forcedPos)
             {
                 iniPos = 0;
                 pos = forcedPosOffset;
+            }
+            else if (rightTo != null)
+            {
+                foreach (Component c in mountingRail.Children)
+                {
+                    if (c.VisibleName.Equals(rightTo, StringComparison.OrdinalIgnoreCase))
+                    {
+                        pos = c.FindSourceMate("M2", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
+                        iniPos = c.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
+                        break;
+                    }
+                }
             }
 
             Component oComponent = new Component();
             oComponent.Create(oProject, device.ArticleReferences[0].Article.PartNr, "1");
             oComponent.Name = device.Name;
+            oComponent.VisibleName = deviceName;
             oComponent.Parent = mountingRail;
             oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(mountingRail.BaseMate, pos - iniPos + offset);
+            //oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(rightToDevice3D.FindTargetMate("M2", false,false), 0);
 
         }
 

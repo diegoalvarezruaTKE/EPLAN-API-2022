@@ -648,6 +648,14 @@ namespace EPLAN_API.User
         {
             Caracteristic envolvente = (Caracteristic)oElectric.CaractIng["ENVOLV_ARM_EXT"];
 
+            InstallationSpace installationSpace = new InstallationSpace();
+            foreach (InstallationSpace iSpace in oProject.InstallationSpaces)
+            {
+                if (iSpace.ToString().Equals("MAIN"))
+                    installationSpace = iSpace;
+            }
+
+            //2D
             if (envolvente.CurrentReference.Contains("1800x800x400"))
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Implantacion_Arm_Ext.ema", 'A', "Layout", 615, 2180);
 
@@ -657,16 +665,16 @@ namespace EPLAN_API.User
             if (envolvente.CurrentReference.Contains("1800x1200x400"))
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Implantacion_Arm_Ext.ema", 'C', "Layout", 615, 2180);
 
+            //3D
             if (envolvente.CurrentReference.Contains("1800x800x400")) 
-            {
-                InstallationSpace installationSpace = new InstallationSpace();
-                foreach (InstallationSpace iSpace in oProject.InstallationSpaces)
-                {
-                    if (iSpace.ToString().Equals("MAIN"))
-                        installationSpace = iSpace;
-                }
                 insert3DMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Implantacion_Arm_Ext.ema", 'A', installationSpace, 0, 0, 0);
-            }
+
+            if (envolvente.CurrentReference.Contains("1800x1000x400"))
+                insert3DMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Implantacion_Arm_Ext.ema", 'B', installationSpace, 0, 0, 0);
+
+            if (envolvente.CurrentReference.Contains("1800x1200x400"))
+                insert3DMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Implantacion_Arm_Ext.ema", 'C', installationSpace, 0, 0, 0);
+
 
         }
 
@@ -865,7 +873,7 @@ namespace EPLAN_API.User
 
             //Insertar implantación del termico
             insertDeviceLayout(oProject, "FR1", "Motor", "M1", 0, 'A', "A", "Layout", 1200, 765);
-            InsertDeviceIntoDINRail(oProject, "U17", "FR1",0,true,0);
+            InsertDeviceIntoDINRail(oProject, "U17", "-FR1",0,true,0);
 
         }
 
@@ -892,9 +900,11 @@ namespace EPLAN_API.User
                 oInsertedObjects = insertWindowMacro_ObjCont(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Contactores.ema", 'H', "Safety Inputs I", 100.0, 268.0);
                 SetRecordContactor(oInsertedObjects, iMotor);
                 //Layout
-                Function placement = insertDeviceLayout(oProject,"K1.1", "Control Outputs I", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
+                InsertDeviceIntoDINRail(oProject, "U17", "-K1.1", 0, rightTo: "-FR1");
+                InsertDeviceIntoDINRail(oProject, "U17", "-K1.2", 0, rightTo: "-K1.1");
+                Function placement = insertDeviceLayout(oProject, "K1.1", "Control Outputs I", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
-                placement = insertDeviceLayout(oProject,"K1.2", "Control Outputs I", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
+                placement = insertDeviceLayout(oProject, "K1.2", "Control Outputs I", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
             }
             else
@@ -906,6 +916,8 @@ namespace EPLAN_API.User
                 //en página de "Safety Inputs I"
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Reles.ema", 'B', "Safety Inputs I", 100.0, 268.0);
                 //Layout
+                InsertDeviceIntoDINRail(oProject, "U17", "-KA1.1", 0, rightTo: "-FR1");
+                InsertDeviceIntoDINRail(oProject, "U17", "-KA1.2", 0, rightTo: "-KA1.1");
                 Function placement = insertDeviceLayout(oProject,"KA1.1", "Control Outputs I", "M1", 1, 'A', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
                 placement = insertDeviceLayout(oProject,"KA1.2", "Control Outputs I", "M1", 1, 'A', "A", "Layout", 1259 + widthOffset, 763);
@@ -927,6 +939,8 @@ namespace EPLAN_API.User
                 SetRecordContactor(oInsertedObjects, iMotor);
 
                 //Layout
+                InsertDeviceIntoDINRail(oProject, "U17", "-K2.1", 0, rightTo: "-K1.2");
+                InsertDeviceIntoDINRail(oProject, "U17", "-K2.2", 0, rightTo: "-K2.1");
                 Function placement = insertDeviceLayout(oProject,"K2.1", "Control Outputs I", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
                 placement = insertDeviceLayout(oProject,"K2.2", "Control Outputs I", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
@@ -949,6 +963,13 @@ namespace EPLAN_API.User
                 SetRecordContactor(oInsertedObjects, iMotor);
 
                 //Layout
+                if (motorConnection.CurrentReference.Equals("YD") ||
+                    motorConnection.CurrentReference.Equals("VVF_YD"))
+                    InsertDeviceIntoDINRail(oProject, "U17", "-K10.1", 0, rightTo: "-K2.2");
+                else if (motorConnection.CurrentReference.Equals("VVF_YD"))
+                    InsertDeviceIntoDINRail(oProject, "U17", "-K10.1", 0, rightTo: "-KA1.2");
+                else
+                    InsertDeviceIntoDINRail(oProject, "U17", "-K10.1", 0, rightTo: "-K1.2");
                 Function placement = insertDeviceLayout(oProject,"K10.1", "Control Outputs II", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
             }
@@ -968,6 +989,7 @@ namespace EPLAN_API.User
                 SetRecordContactor(oInsertedObjects, iMotor);
 
                 //Layout
+                InsertDeviceIntoDINRail(oProject, "U17", "-K10.2", 0, rightTo: "-K10.1");
                 Function placement = insertDeviceLayout(oProject,"K10.2", "Control Outputs II", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
             }
@@ -979,11 +1001,14 @@ namespace EPLAN_API.User
                 //en página de "Control Outputs II"
                 oInsertedObjects = insertWindowMacro_ObjCont(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Contactores.ema", 'C', "Control Outputs II", 284.0, 76.0);
                 SetRecordContactor(oInsertedObjects, iMotor);
+
                 //Feedback
                 //en página de "Safety Inputs II"
                 oInsertedObjects = insertWindowMacro_ObjCont(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Contactores.ema", 'J', "Safety Inputs II", 64.0, 268.0);
                 SetRecordContactor(oInsertedObjects, iMotor);
 
+                //Layout
+                InsertDeviceIntoDINRail(oProject, "U17", "-K10.3", 0, rightTo: "-K10.1");
                 Function placement = insertDeviceLayout(oProject,"K10.3", "Control Outputs II", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
             }
