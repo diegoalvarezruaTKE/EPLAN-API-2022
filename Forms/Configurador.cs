@@ -910,7 +910,7 @@ namespace EPLAN_API_2022.Forms
 
         private void BTest_Click(object sender, EventArgs e)
         {
-            DrawTools.InsertDeviceIntoPanel(oProject);
+            //DrawTools.InsertDeviceIntoDINRail(oProject);
 
         }
 
@@ -1024,8 +1024,8 @@ namespace EPLAN_API_2022.Forms
         private void check_Button_Click(object sender, EventArgs e)
         {
             SAPService sAPService = new SAPService();
-            string materials = sAPService.ReadSAPBOM(tB_OE.Text);
-            Dictionary<string, Cable> cablesSAP = sAPService.BuscaCables(sAPService.ParseBOM(materials));
+            string materials = sAPService.ReadSAPBOM(tB_OE.Text, oProject);
+            Dictionary<string, Cable> cablesSAP = sAPService.BuscaCables(sAPService.ParseBOM(materials, oProject));
 
             //Get Cables from project
             FunctionsFilter ff = new FunctionsFilter();

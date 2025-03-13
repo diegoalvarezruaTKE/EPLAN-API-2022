@@ -399,6 +399,95 @@ namespace EPLAN_API.User
             return arrStorableObjects;
         }
 
+        public StorableObject[] insert3DMacro(Project oProject, string pathMacro, char variante, InstallationSpace oInstallationSpace, double x, double y, double z)
+        {
+            int nVariant = -1;
+            switch (variante)
+            {
+                case 'A':
+                    nVariant = 0;
+                    break;
+
+                case 'B':
+                    nVariant = 1;
+                    break;
+
+                case 'C':
+                    nVariant = 2;
+                    break;
+
+                case 'D':
+                    nVariant = 3;
+                    break;
+
+                case 'E':
+                    nVariant = 4;
+                    break;
+
+                case 'F':
+                    nVariant = 5;
+                    break;
+
+                case 'G':
+                    nVariant = 6;
+                    break;
+
+                case 'H':
+                    nVariant = 7;
+                    break;
+
+                case 'I':
+                    nVariant = 8;
+                    break;
+
+                case 'J':
+                    nVariant = 9;
+                    break;
+
+                case 'K':
+                    nVariant = 10;
+                    break;
+
+                case 'L':
+                    nVariant = 11;
+                    break;
+
+                case 'M':
+                    nVariant = 12;
+                    break;
+
+                case 'N':
+                    nVariant = 13;
+                    break;
+
+                case 'O':
+                    nVariant = 14;
+                    break;
+
+                case 'P':
+                    nVariant = 15;
+                    break;
+
+            }
+
+            //preparing transformation
+
+            Matrix3D oMatrix = new Matrix3D();
+            oMatrix.Translate(new Vector3D(x, y, z));
+
+            //preparing WindowMacro object                                                                  
+            string strWindowMacroName = pathMacro;
+            WindowMacro oWMacro = new WindowMacro();
+            oWMacro.Open(strWindowMacroName, oProject, 0);
+
+            //insert macro into an InstallationSpace
+            Insert3D oInsert3D = new Insert3D();
+            StorableObject[] arrStorableObjects = oInsert3D.WindowMacro(oWMacro, nVariant, oInstallationSpace,
+            oMatrix, Insert3D.MoveKind.Absolute, WindowMacro.Enums.NumerationMode.None);
+            return arrStorableObjects;
+        }
+
+
         public long insertSymbol(Project oProject, string symbol, string symbolLibrary, char variante, string page, double x, double y)
         {
             int key;
@@ -1051,7 +1140,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void InsertDeviceIntoPanel(Project oProject)
+        public void InsertDeviceIntoDINRail(Project oProject, string DINRailName, string deviceName, double offset, bool forcedPos=false, double forcedPosOffset=0)
         {
 
             /*
@@ -1066,57 +1155,55 @@ namespace EPLAN_API.User
              */
 
 
-            //searching 3D functions having name '=EB3+ET1-U1'
-            string str3DFunction = "U16";
+            //searching DIN Rail
+            string str3DFunction = DINRailName;
             Functions3DFilter oFunctions3DFilter = new Functions3DFilter();
             Function3DPropertyList oFunction3DPropertyList = new Function3DPropertyList();
             oFunction3DPropertyList.FUNC_VISIBLEDEVICETAG = str3DFunction;
             oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList);
             Function3D[] oFunctions3D = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
-            //searching 3D placements
-            Placements3DFilter oPlacements3DFilter = new Placements3DFilter();
-            oPlacements3DFilter.FunctionCategory = FunctionCategory.AreaDefinition;
-            Placement3D[] oPlacements3D = new DMObjectsFinder(oProject).GetPlacements3D(oPlacements3DFilter);
+            MountingRail mountingRail = oFunctions3D[0] as MountingRail;
 
-            //searching 3D and 2D functions having name '=EB3+ET1-Q1'
+            //searching device
             FunctionsFilter oFunctionsFilter = new FunctionsFilter();
             FunctionPropertyList functionPropertyList = new FunctionPropertyList();
-            functionPropertyList.FUNC_VISIBLEDEVICETAG = "-K1.1";
+            functionPropertyList.FUNC_VISIBLEDEVICETAG = deviceName;
             functionPropertyList.FUNC_MAINFUNCTION = true;
             oFunctionsFilter.SetFilteredPropertyList(functionPropertyList);
             Function[] oFunctions = new DMObjectsFinder(oProject).GetFunctions(oFunctionsFilter);
+            Function device = oFunctions[0];
 
-            MountingRail mountingRail = oFunctions3D[0] as MountingRail;
-            double x = 0;
-            foreach (Component c in oFunctions3D[0].Children)
+
+            double pos = 0;
+            double iniPos = 0;
+            bool isfirst = true;
+            if (!forcedPos)
             {
-                double pos = c.FindSourceMate("M2", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
-                if (x < pos)
-                    x = pos;
+                foreach (Component c in mountingRail.Children)
+                {
+                    //comprobar si es el primer elemento
+                    double M4Pos = c.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
+                    if (isfirst || M4Pos < iniPos)
+                        iniPos = M4Pos;
+
+                    isfirst = false;
+
+                    double M2pos = c.FindSourceMate("M2", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
+                    if (M2pos > pos)
+                        pos = M2pos;
+                }
+            }
+            else
+            {
+                iniPos = 0;
+                pos = forcedPosOffset;
             }
 
-
             Component oComponent = new Component();
-            oComponent.Create(oProject, oFunctions[0].ArticleReferences[0].Article.PartNr, "1");
-            oComponent.Name = oFunctions[0].Name;
-            oComponent.Parent = oFunctions3D[0];
-            oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(mountingRail.BaseMate, 0);
-
-            //Vector3D oVector3D = new Vector3D();
-            //oVector3D.X = 0.0;
-            //oVector3D.Y = 0.0;
-            //oVector3D.Z = 0.0;
-            ////Quaternion oQuaternion = new Quaternion(oVector3D, 0.0);
-            //Matrix3D oMatrix3D = new Matrix3D();
-            ////oMatrix3D.Rotate(oQuaternion);
-            //oMatrix3D.Translate(new Vector3D(x, 0.0, 0.0));
-
-
-            ////create identity matrix
-            //Matrix3D oMatrix = new Matrix3D();
-            ////change the location to (100, 150, 0)
-            //oMatrix.Transform(new Point3D(1000, 1000, 1000));
-            //oComponent.RelativeTransformation = oMatrix3D;
+            oComponent.Create(oProject, device.ArticleReferences[0].Article.PartNr, "1");
+            oComponent.Name = device.Name;
+            oComponent.Parent = mountingRail;
+            oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(mountingRail.BaseMate, pos - iniPos + offset);
 
         }
 

@@ -657,6 +657,17 @@ namespace EPLAN_API.User
             if (envolvente.CurrentReference.Contains("1800x1200x400"))
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Implantacion_Arm_Ext.ema", 'C', "Layout", 615, 2180);
 
+            if (envolvente.CurrentReference.Contains("1800x800x400")) 
+            {
+                InstallationSpace installationSpace = new InstallationSpace();
+                foreach (InstallationSpace iSpace in oProject.InstallationSpaces)
+                {
+                    if (iSpace.ToString().Equals("MAIN"))
+                        installationSpace = iSpace;
+                }
+                insert3DMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Implantacion_Arm_Ext.ema", 'A', installationSpace, 0, 0, 0);
+            }
+
         }
 
         private void Draw_Display()
@@ -853,7 +864,8 @@ namespace EPLAN_API.User
             }
 
             //Insertar implantación del termico
-            insertDeviceLayout(oProject,"FR1", "Motor", "M1", 0, 'A', "A", "Layout", 1200, 765);
+            insertDeviceLayout(oProject, "FR1", "Motor", "M1", 0, 'A', "A", "Layout", 1200, 765);
+            InsertDeviceIntoDINRail(oProject, "U17", "FR1",0,true,0);
 
         }
 

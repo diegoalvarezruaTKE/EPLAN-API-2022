@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using EPLAN_API.SAP;
 using static System.Net.WebRequestMethods;
+using Eplan.EplApi.DataModel;
 
 
 namespace EPLAN_API.User
@@ -104,7 +105,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public string ReadSAPBOM(string OE)
+        public string ReadSAPBOM(string OE, Project oProject)
         {
             string pos = "10";
             int iOE = int.Parse(OE);
@@ -161,9 +162,14 @@ namespace EPLAN_API.User
                 }
 
                 // Escribir el contenido de la respuesta en un archivo
-                string filePath = "C:\\Users\\diego.alvarez\\Desktop\\response.txt"; // Aquí puedes especificar la ruta donde deseas guardar el archivo
-                // Escribir la respuesta en el archivo mientras se lee
-                //WriteResponseToFile(responseBody, filePath);
+                string filePath = oProject.ProjectDirectoryPath + "\\CHECK";
+                if (!Directory.Exists(filePath))
+                {
+                    // Crear la carpeta si no existe
+                    Directory.CreateDirectory(filePath);
+                }
+                filePath = filePath + "\\response.txt";
+                //string filePath = "C:\\Users\\diego.alvarez\\Desktop\\response.txt"; // Aquí puedes especificar la ruta donde deseas guardar el archivo
 
                 return responseBody;
             }
@@ -212,7 +218,7 @@ namespace EPLAN_API.User
             return result;
         }
 
-        public string ParseBOM(string xmlData)
+        public string ParseBOM(string xmlData, Project oProject)
         {
             XDocument doc = XDocument.Parse(xmlData);
 
@@ -242,7 +248,14 @@ namespace EPLAN_API.User
             }
 
             // Guardar el nuevo XML estructurado en un archivo
-            string outputPath = "C:\\Users\\diego.alvarez\\Desktop\\response_nested.xml";
+            string outputPath = oProject.ProjectDirectoryPath + "\\CHECK";
+            if (!Directory.Exists(outputPath))
+            {
+                // Crear la carpeta si no existe
+                Directory.CreateDirectory(outputPath);
+            }
+            outputPath = outputPath + "\\response_nested.xml";
+            //string outputPath = "C:\\Users\\diego.alvarez\\Desktop\\response_nested.xml";
             etbom.Save(outputPath);
 
             Debug.WriteLine($"XML generado correctamente: {outputPath}");
