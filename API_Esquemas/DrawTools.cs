@@ -1140,7 +1140,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void InsertDeviceIntoDINRail(Project oProject, string DINRailName, string deviceName, double offset, bool forcedPos=false, double forcedPosOffset=0, string rightTo=null)
+        public void Insert3DDeviceIntoDINRail(Project oProject, string DINRailName, string deviceName, double offset, bool forcedPos=false, double forcedPosOffset=0, string rightTo=null)
         {
 
             /*
@@ -1174,10 +1174,21 @@ namespace EPLAN_API.User
             Function device = oFunctions[0];
 
             //searching rightToDevice
+            str3DFunction = rightTo;
+            oFunctions3DFilter = new Functions3DFilter();
+            oFunction3DPropertyList = new Function3DPropertyList();
             oFunction3DPropertyList.FUNC_VISIBLEDEVICETAG = str3DFunction;
             oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList);
             oFunctions3D = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
-            Component rightToDevice3D = oFunctions3D[0] as Component;
+            Component rightToDevice3D=null;
+            try
+            {
+                rightToDevice3D = oFunctions3D[0] as Component;
+            }
+            catch (Exception ex) 
+            {
+                ;
+            }
 
 
             double pos = 0;
@@ -1204,27 +1215,76 @@ namespace EPLAN_API.User
                 iniPos = 0;
                 pos = forcedPosOffset;
             }
-            else if (rightTo != null)
-            {
-                foreach (Component c in mountingRail.Children)
-                {
-                    if (c.VisibleName.Equals(rightTo, StringComparison.OrdinalIgnoreCase))
-                    {
-                        pos = c.FindSourceMate("M2", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
-                        iniPos = c.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
-                        break;
-                    }
-                }
-            }
 
             Component oComponent = new Component();
             oComponent.Create(oProject, device.ArticleReferences[0].Article.PartNr, "1");
             oComponent.Name = device.Name;
             oComponent.VisibleName = deviceName;
             oComponent.Parent = mountingRail;
-            oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(mountingRail.BaseMate, pos - iniPos + offset);
-            //oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(rightToDevice3D.FindTargetMate("M2", false,false), 0);
+            if (rightTo != null)
+                oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(rightToDevice3D.FindTargetMate("M2", false));
+            else
+                oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(mountingRail.BaseMate, pos - iniPos + offset);
+        }
 
+        public void Insert3DDeviceIntoMountingPlate(Project oProject, string deviceName, double x, double y, string rightTo = null, double rightToOffset=0)
+        {
+            /*
+             *  There are two different types of mates: stored in database and generated in runtime. 
+                First can be created by user and assign to a Placement3D. 
+                Name of generated mate depends on type of object. 
+                Mate named 'V1'is placed on first vertex (lowest left in local coordinate system of the object). 
+                Numeration of those mates is done in counterclockwise direction. 
+                Very similar are mates which name starts with 'M', only those mates are placed in the middle of edges and the first on is the lowest one (in the local coordinate system). 
+                Third type of mate that can be found is named "C". This one is placed in the center of object. 
+                Check mate description for more information about current mate.
+             */
+
+
+            //searching Mouning plate
+            Functions3DFilter oFunctions3DFilter = new Functions3DFilter();
+            Function3DPropertyList oFunction3DPropertyList = new Function3DPropertyList();
+            oFunctions3DFilter.FunctionCategory = FunctionCategory.MountingPlate;
+            //oFunctions3DFilter.InstallationSpace.VisibleName = "MAIN";
+            //oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList
+            Function3D[] oFunctions3D = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
+            MountingPanel mountingPanel = oProject.InstallationSpaces[0].Children[0] as MountingPanel;
+
+            //searching device
+            FunctionsFilter oFunctionsFilter = new FunctionsFilter();
+            FunctionPropertyList functionPropertyList = new FunctionPropertyList();
+            functionPropertyList.FUNC_VISIBLEDEVICETAG = deviceName;
+            functionPropertyList.FUNC_MAINFUNCTION = true;
+            oFunctionsFilter.SetFilteredPropertyList(functionPropertyList);
+            Function[] oFunctions = new DMObjectsFinder(oProject).GetFunctions(oFunctionsFilter);
+            Function device = oFunctions[0];
+
+            //searching rightToDevice
+            string str3DFunction = rightTo;
+            oFunctions3DFilter = new Functions3DFilter();
+            oFunction3DPropertyList = new Function3DPropertyList();
+            oFunction3DPropertyList.FUNC_VISIBLEDEVICETAG = str3DFunction;
+            oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList);
+            oFunctions3D = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
+            Component rightToDevice3D = null;
+            try
+            {
+                rightToDevice3D = oFunctions3D[0] as Component;
+            }
+            catch (Exception ex)
+            {
+                ;
+            }
+
+            Component oComponent = new Component();
+            oComponent.Create(oProject, device.ArticleReferences[0].Article.PartNr, "1");
+            oComponent.Name = device.Name;
+            oComponent.VisibleName = deviceName;
+            oComponent.Parent = mountingPanel;
+            if (rightTo==null)
+            {
+                oComponent.FindSourceMate("V4", Mate.Enums.PlacementOptions.None).SnapTo(mountingPanel.Planes[0].BaseMate, 0, x, y);
+            }
         }
 
         #region GEC Parameters

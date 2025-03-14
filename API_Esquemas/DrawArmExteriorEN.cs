@@ -873,7 +873,7 @@ namespace EPLAN_API.User
 
             //Insertar implantación del termico
             insertDeviceLayout(oProject, "FR1", "Motor", "M1", 0, 'A', "A", "Layout", 1200, 765);
-            InsertDeviceIntoDINRail(oProject, "U17", "-FR1",0,true,0);
+            Insert3DDeviceIntoDINRail(oProject, "U17", "-FR1",0,true,0);
 
         }
 
@@ -900,8 +900,8 @@ namespace EPLAN_API.User
                 oInsertedObjects = insertWindowMacro_ObjCont(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Contactores.ema", 'H', "Safety Inputs I", 100.0, 268.0);
                 SetRecordContactor(oInsertedObjects, iMotor);
                 //Layout
-                InsertDeviceIntoDINRail(oProject, "U17", "-K1.1", 0, rightTo: "-FR1");
-                InsertDeviceIntoDINRail(oProject, "U17", "-K1.2", 0, rightTo: "-K1.1");
+                Insert3DDeviceIntoDINRail(oProject, "U17", "-K1.1", 0, rightTo: "-FR1");
+                Insert3DDeviceIntoDINRail(oProject, "U17", "-K1.2", 0, rightTo: "-K1.1");
                 Function placement = insertDeviceLayout(oProject, "K1.1", "Control Outputs I", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
                 placement = insertDeviceLayout(oProject, "K1.2", "Control Outputs I", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
@@ -916,8 +916,8 @@ namespace EPLAN_API.User
                 //en página de "Safety Inputs I"
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Reles.ema", 'B', "Safety Inputs I", 100.0, 268.0);
                 //Layout
-                InsertDeviceIntoDINRail(oProject, "U17", "-KA1.1", 0, rightTo: "-FR1");
-                InsertDeviceIntoDINRail(oProject, "U17", "-KA1.2", 0, rightTo: "-KA1.1");
+                Insert3DDeviceIntoDINRail(oProject, "U17", "-KA1.1", 0, rightTo: "-FR1");
+                Insert3DDeviceIntoDINRail(oProject, "U17", "-KA1.2", 0, rightTo: "-KA1.1");
                 Function placement = insertDeviceLayout(oProject,"KA1.1", "Control Outputs I", "M1", 1, 'A', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
                 placement = insertDeviceLayout(oProject,"KA1.2", "Control Outputs I", "M1", 1, 'A', "A", "Layout", 1259 + widthOffset, 763);
@@ -939,8 +939,8 @@ namespace EPLAN_API.User
                 SetRecordContactor(oInsertedObjects, iMotor);
 
                 //Layout
-                InsertDeviceIntoDINRail(oProject, "U17", "-K2.1", 0, rightTo: "-K1.2");
-                InsertDeviceIntoDINRail(oProject, "U17", "-K2.2", 0, rightTo: "-K2.1");
+                Insert3DDeviceIntoDINRail(oProject, "U17", "-K2.1", 0, rightTo: "-K1.2");
+                Insert3DDeviceIntoDINRail(oProject, "U17", "-K2.2", 0, rightTo: "-K2.1");
                 Function placement = insertDeviceLayout(oProject,"K2.1", "Control Outputs I", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
                 placement = insertDeviceLayout(oProject,"K2.2", "Control Outputs I", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
@@ -965,11 +965,11 @@ namespace EPLAN_API.User
                 //Layout
                 if (motorConnection.CurrentReference.Equals("YD") ||
                     motorConnection.CurrentReference.Equals("VVF_YD"))
-                    InsertDeviceIntoDINRail(oProject, "U17", "-K10.1", 0, rightTo: "-K2.2");
+                    Insert3DDeviceIntoDINRail(oProject, "U17", "-K10.1", 0, rightTo: "-K2.2");
                 else if (motorConnection.CurrentReference.Equals("VVF_YD"))
-                    InsertDeviceIntoDINRail(oProject, "U17", "-K10.1", 0, rightTo: "-KA1.2");
+                    Insert3DDeviceIntoDINRail(oProject, "U17", "-K10.1", 0, rightTo: "-KA1.2");
                 else
-                    InsertDeviceIntoDINRail(oProject, "U17", "-K10.1", 0, rightTo: "-K1.2");
+                    Insert3DDeviceIntoDINRail(oProject, "U17", "-K10.1", 0, rightTo: "-K1.2");
                 Function placement = insertDeviceLayout(oProject,"K10.1", "Control Outputs II", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
             }
@@ -989,7 +989,7 @@ namespace EPLAN_API.User
                 SetRecordContactor(oInsertedObjects, iMotor);
 
                 //Layout
-                InsertDeviceIntoDINRail(oProject, "U17", "-K10.2", 0, rightTo: "-K10.1");
+                Insert3DDeviceIntoDINRail(oProject, "U17", "-K10.2", 0, rightTo: "-K10.1");
                 Function placement = insertDeviceLayout(oProject,"K10.2", "Control Outputs II", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
             }
@@ -1008,7 +1008,7 @@ namespace EPLAN_API.User
                 SetRecordContactor(oInsertedObjects, iMotor);
 
                 //Layout
-                InsertDeviceIntoDINRail(oProject, "U17", "-K10.3", 0, rightTo: "-K10.1");
+                Insert3DDeviceIntoDINRail(oProject, "U17", "-K10.3", 0, rightTo: "-K10.1");
                 Function placement = insertDeviceLayout(oProject,"K10.3", "Control Outputs II", "M1", 0, 'B', "A", "Layout", 1259 + widthOffset, 763);
                 widthOffset = widthOffset + placement.Articles[0].Properties.ARTICLE_WIDTH.ToInt();
             }
@@ -1079,6 +1079,7 @@ namespace EPLAN_API.User
 
                 //Insert VDF
                 insertDeviceLayout(oProject,"VDF", "VVF Power", "M1", 0, 'A', "A", "Layout", 1160, 2080);
+                Insert3DDeviceIntoMountingPlate(oProject, "-VDF", 50, 1600);
                 //Insert Ferrita
                 insertDeviceLayout(oProject,"VDF", "VVF Power", "M1", 1, 'A', "A", "Layout", 1197, 1562);
 
