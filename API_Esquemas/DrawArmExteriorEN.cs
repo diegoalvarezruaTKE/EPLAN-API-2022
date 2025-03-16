@@ -50,6 +50,7 @@ namespace EPLAN_API.User
             ProgressChanged(progress);
 
             Draw_Implantacion();
+            Draw_Aux_Implantacion();
             progress += step;
             ProgressChanged(progress);
 
@@ -678,6 +679,25 @@ namespace EPLAN_API.User
 
         }
 
+        private void Draw_Aux_Implantacion()
+        {
+            //Mover placas GEC hacia arriba
+            Functions3DFilter oFunctions3DFilter = new Functions3DFilter();
+            Function3DPropertyList oFunction3DPropertyList = new Function3DPropertyList();
+            oFunction3DPropertyList.FUNC_VISIBLENAME = "=ESC+MAIN-A28";
+            oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList);
+            Function3D[] oFunctions3D = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
+            Component A28 = oFunctions3D[0] as Component;
+            A28.MoveRelative(0, 0, 20);
+
+            oFunction3DPropertyList.FUNC_VISIBLENAME = "=ESC+MAIN-A29";
+            oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList);
+            oFunctions3D = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
+            Component A29 = oFunctions3D[0] as Component;
+            A29.MoveRelative(0, 0, 20);
+
+        }
+
         private void Draw_Display()
         {
             Caracteristic tipoDisplay = (Caracteristic)oElectric.CaractIng["TNCR_DO_DISPLAY_TYPE"];
@@ -701,7 +721,7 @@ namespace EPLAN_API.User
                             armario.CurrentReference.Contains("1800x1200"))
                             insertDeviceLayout(oProject,"U1", "Display", "M1", 0, 'A', "A", "Layout", 1204, 1243);
 
-
+                        Insert3DDeviceIntoMountingPlate(oProject, "-U1", 370, 1010,planeoffset:60);
                     }
                     else
                     {
@@ -1079,7 +1099,7 @@ namespace EPLAN_API.User
 
                 //Insert VDF
                 insertDeviceLayout(oProject,"VDF", "VVF Power", "M1", 0, 'A', "A", "Layout", 1160, 2080);
-                Insert3DDeviceIntoMountingPlate(oProject, "-VDF", 50, 1600);
+                Insert3DDeviceIntoMountingPlate(oProject, "-VDF", 30, 1600);
                 //Insert Ferrita
                 insertDeviceLayout(oProject,"VDF", "VVF Power", "M1", 1, 'A', "A", "Layout", 1197, 1562);
 

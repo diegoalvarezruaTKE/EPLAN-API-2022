@@ -1180,7 +1180,7 @@ namespace EPLAN_API.User
             oFunction3DPropertyList.FUNC_VISIBLEDEVICETAG = str3DFunction;
             oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList);
             oFunctions3D = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
-            Component rightToDevice3D=null;
+            Component rightToDevice3D = null;
             try
             {
                 rightToDevice3D = oFunctions3D[0] as Component;
@@ -1227,7 +1227,7 @@ namespace EPLAN_API.User
                 oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(mountingRail.BaseMate, pos - iniPos + offset);
         }
 
-        public void Insert3DDeviceIntoMountingPlate(Project oProject, string deviceName, double x, double y, string rightTo = null, double rightToOffset=0)
+        public void Insert3DDeviceIntoMountingPlate(Project oProject, string deviceName, double x, double y, string rightTo = null, double rightToOffset=0, string varianteRef="1", int articleRef=0, double planeoffset=0)
         {
             /*
              *  There are two different types of mates: stored in database and generated in runtime. 
@@ -1277,13 +1277,17 @@ namespace EPLAN_API.User
             }
 
             Component oComponent = new Component();
-            oComponent.Create(oProject, device.ArticleReferences[0].Article.PartNr, "1");
+            oComponent.Create(oProject, device.ArticleReferences[articleRef].Article.PartNr, varianteRef);
             oComponent.Name = device.Name;
             oComponent.VisibleName = deviceName;
             oComponent.Parent = mountingPanel;
             if (rightTo==null)
             {
                 oComponent.FindSourceMate("V4", Mate.Enums.PlacementOptions.None).SnapTo(mountingPanel.Planes[0].BaseMate, 0, x, y);
+            }
+            if (planeoffset > 0)
+            {
+                oComponent.MoveRelative(0,0,planeoffset);
             }
         }
 
