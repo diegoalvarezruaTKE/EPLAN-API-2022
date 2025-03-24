@@ -1140,7 +1140,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void Insert3DDeviceIntoDINRail(Project oProject, string DINRailName, string deviceName, double offset, bool forcedPos=false, double forcedPosOffset=0, string rightTo=null)
+        public void Insert3DDeviceIntoDINRail(Project oProject, string DINRailName, string deviceName, double offset, bool forcedPos=false, double forcedPosOffset=0, string rightTo=null, string varianteRef = "1", int articleRef = 0)
         {
 
             /*
@@ -1197,15 +1197,24 @@ namespace EPLAN_API.User
             Mate LastM2Mate = null;
             if (!forcedPos && rightTo == null)
             {
-                foreach (Component c in mountingRail.Children)
+                if (mountingRail.Children.Length > 0)
                 {
-                    //comprobar si es el primer elemento
-                    double M2Pos = c.FindSourceMate("M2", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
-                    if (isfirst || M2Pos > iniPos)
+                    foreach (Component c in mountingRail.Children)
                     {
-                        LastM2Mate = c.FindTargetMate("M2", false);
-                        iniPos = M2Pos;
+                        //comprobar si es el primer elemento
+                        double M2Pos = c.FindSourceMate("M2", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
+                        if (isfirst || M2Pos > iniPos)
+                        {
+                            LastM2Mate = c.FindTargetMate("M2", false);
+                            iniPos = M2Pos;
+                        }
+
+                        isfirst = false;
                     }
+                }
+                else
+                {
+                    LastM2Mate = mountingRail.FindTargetMate("M4", false);
                 }
             }
             else if (forcedPos)
@@ -1215,7 +1224,7 @@ namespace EPLAN_API.User
             }
 
             Component oComponent = new Component();
-            oComponent.Create(oProject, device.ArticleReferences[0].Article.PartNr, "1");
+            oComponent.Create(oProject, device.ArticleReferences[articleRef].Article.PartNr, varianteRef);
             oComponent.Name = device.Name;
             oComponent.VisibleName = deviceName;
             oComponent.Parent = mountingRail;

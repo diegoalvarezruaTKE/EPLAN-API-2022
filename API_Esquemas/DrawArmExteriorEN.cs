@@ -24,7 +24,7 @@ namespace EPLAN_API.User
         private Project oProject;
         private Page[] oPages;
         private Hashtable oHPages;
-        Dictionary<int, string> dictPages;
+        //Dictionary<int, string> dictPages;
         private Electric oElectric;
         private string log;
         public delegate void ProgressChangedDelegate(int value);
@@ -684,13 +684,13 @@ namespace EPLAN_API.User
             //Mover placas GEC hacia arriba
             Functions3DFilter oFunctions3DFilter = new Functions3DFilter();
             Function3DPropertyList oFunction3DPropertyList = new Function3DPropertyList();
-            oFunction3DPropertyList.FUNC_VISIBLENAME = "=ESC+MAIN-A28";
+            oFunction3DPropertyList.FUNC_VISIBLENAME = "-A28";
             oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList);
             Function3D[] oFunctions3D = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
             Component A28 = oFunctions3D[0] as Component;
             A28.MoveRelative(0, 0, 20);
 
-            oFunction3DPropertyList.FUNC_VISIBLENAME = "=ESC+MAIN-A29";
+            oFunction3DPropertyList.FUNC_VISIBLENAME = "-A29";
             oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList);
             oFunctions3D = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
             Component A29 = oFunctions3D[0] as Component;
@@ -893,7 +893,7 @@ namespace EPLAN_API.User
 
             //Insertar implantación del termico
             insertDeviceLayout(oProject, "FR1", "Motor", "M1", 0, 'A', "A", "Layout", 1200, 765);
-            Insert3DDeviceIntoDINRail(oProject, "U17", "-FR1",0,true,0);
+            Insert3DDeviceIntoDINRail(oProject, "U17", "-FR1",0);
 
         }
 
@@ -1703,6 +1703,7 @@ namespace EPLAN_API.User
             Insert3DDeviceIntoDINRail(oProject, "U13", "-QF5.1", 0);
             Insert3DDeviceIntoDINRail(oProject, "U13", "-QF5.2", 0);
 
+            Dictionary<int, string> dictPages = GetPageTable(oProject);
             //en página de "Control II"
             key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == "Control II");
 
@@ -1746,7 +1747,7 @@ namespace EPLAN_API.User
             insertDeviceLayout(oProject,"KA2", "Control II", "M1", 1, 'A', "A", "Layout", "UN3");
 
             Insert3DDeviceIntoDINRail(oProject, "U16", "-UN3", 0);
-            Insert3DDeviceIntoDINRail(oProject, "U16", "-KA2", 0);
+            Insert3DDeviceIntoDINRail(oProject, "U17", "-KA2", 0, articleRef: 1);
 
             //en página de "Control Outputs I"
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Pawl_Brake.ema", 'J', "Control Outputs I", 28.0, 88.0);
