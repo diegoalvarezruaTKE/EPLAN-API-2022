@@ -715,13 +715,13 @@ namespace EPLAN_API.User
                         insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Display.ema", 'G', "Display", 20.0, 252.0);
 
                         if (armario.CurrentReference.Contains("1800x800"))
-                            insertDeviceLayout(oProject,"U1", "Display", "M1", 0, 'A', "A", "Layout", 1220, 1410);
+                            insertDeviceLayout(oProject, "U1", "Display", "M1", 0, 'A', "A", "Layout", 1220, 1410);
 
                         if (armario.CurrentReference.Contains("1800x1000") ||
                             armario.CurrentReference.Contains("1800x1200"))
-                            insertDeviceLayout(oProject,"U1", "Display", "M1", 0, 'A', "A", "Layout", 1204, 1243);
+                            insertDeviceLayout(oProject, "U1", "Display", "M1", 0, 'A', "A", "Layout", 1204, 1243);
 
-                        Insert3DDeviceIntoMountingPlate(oProject, "-U1", 370, 1010,planeoffset:60);
+                        Insert3DDeviceIntoMountingPlate(oProject, "-U1", 370, 1010, planeoffset: 60);
                     }
                     else
                     {
@@ -1637,7 +1637,7 @@ namespace EPLAN_API.User
 
             //en página de "Control II"
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Brake_2.ema", 'N', "Control II", 176.0, 160.0);
-            insertDeviceLayout(oProject,"UN2", "Control II", "M1", 0, 'A', "A", "Layout", "UN1");
+            
 
             //Segundo freno
             insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\Brake_II.emp", "Brake I", "Brake II");
@@ -1657,6 +1657,9 @@ namespace EPLAN_API.User
                 log = String.Concat(log, "Inductivos");
             }
 
+            //Layout
+            insertDeviceLayout(oProject, "UN2", "Control II", "M1", 0, 'A', "A", "Layout", "UN1");
+            Insert3DDeviceIntoDINRail(oProject, "U16", "-UN2", 0);
             //Conexiones
             //en página de "Safety Inputs I"
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Brake_2.ema", 'F', "Safety Inputs I", 228.0, 184.0);
@@ -1690,12 +1693,15 @@ namespace EPLAN_API.User
             //Layout QF5.1, QF5.2 (SAI en la puerta)
             if (OilPump.CurrentReference.Equals("S") ||
                 OilPump.CurrentReference.Equals("C"))
-
                 insertDeviceLayout(oProject,"QF5.1", "Control I", "M1", 0, 'A', "A", "Layout", "Q4.2.7");
             else
                 insertDeviceLayout(oProject,"QF5.1", "Control I", "M1", 0, 'A', "A", "Layout", "QD2");
 
             insertDeviceLayout(oProject,"QF5.2", "Control I", "M1", 0, 'A', "A", "Layout", "QF5.1");
+
+
+            Insert3DDeviceIntoDINRail(oProject, "U13", "-QF5.1", 0);
+            Insert3DDeviceIntoDINRail(oProject, "U13", "-QF5.2", 0);
 
             //en página de "Control II"
             key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == "Control II");
@@ -1738,6 +1744,9 @@ namespace EPLAN_API.User
                 insertDeviceLayout(oProject,"UN3", "Control II", "M1", 0, 'A', "A", "Layout", "UN1");
 
             insertDeviceLayout(oProject,"KA2", "Control II", "M1", 1, 'A', "A", "Layout", "UN3");
+
+            Insert3DDeviceIntoDINRail(oProject, "U16", "-UN3", 0);
+            Insert3DDeviceIntoDINRail(oProject, "U16", "-KA2", 0);
 
             //en página de "Control Outputs I"
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Pawl_Brake.ema", 'J', "Control Outputs I", 28.0, 88.0);
@@ -1854,7 +1863,8 @@ namespace EPLAN_API.User
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Oil_Pump.ema", 'N', "Control Outputs III", 276.0, 184.0);
 
             insertDeviceLayout(oProject,"Q4.2.7", "Control Outputs III", "M1", 0, 'A', "A", "Layout", "QD2");
-            
+            Insert3DDeviceIntoDINRail(oProject, "U13", "-Q4.2.7", 0);
+
             SetGECParameter(oProject, oElectric, "O9", (uint)GEC.Param.Oil_pump_activation, true);
             Caracteristic modelo = (Caracteristic)oElectric.CaractComercial["FMODELL"];
             if (modelo.CurrentReference.Contains("CLASSIC"))
@@ -2068,6 +2078,8 @@ namespace EPLAN_API.User
                armario.CurrentReference.Contains("1800x1200"))
                 insertDeviceLayout(oProject,"A1", "PLC Input I", "M1", 0, 'A', "A", "Layout", 1825, 1250);
 
+            Insert3DDeviceIntoDINRail(oProject, "U16", "-A1", 0);
+
             //Despues de la página de "PLC Input I"
             insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\PLC_Output_I.emp", "PLC Input I", "PLC Output I");
 
@@ -2080,6 +2092,9 @@ namespace EPLAN_API.User
             if (armario.CurrentReference.Contains("1800x1000") ||
                 armario.CurrentReference.Contains("1800x1200"))
                 insertDeviceLayout(oProject,"U3", "Display", "M1", 0, 'A', "A", "Layout", 1525, 1253);
+
+            Insert3DDeviceIntoDINRail(oProject, "U16", "-A1", 0);
+            Insert3DDeviceIntoDINRail(oProject, "U16", "-U3", 0);
 
 
 

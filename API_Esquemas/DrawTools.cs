@@ -1194,20 +1194,18 @@ namespace EPLAN_API.User
             double pos = 0;
             double iniPos = 0;
             bool isfirst = true;
+            Mate LastM2Mate = null;
             if (!forcedPos && rightTo == null)
             {
                 foreach (Component c in mountingRail.Children)
                 {
                     //comprobar si es el primer elemento
-                    double M4Pos = c.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
-                    if (isfirst || M4Pos < iniPos)
-                        iniPos = M4Pos;
-
-                    isfirst = false;
-
-                    double M2pos = c.FindSourceMate("M2", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
-                    if (M2pos > pos)
-                        pos = M2pos;
+                    double M2Pos = c.FindSourceMate("M2", Mate.Enums.PlacementOptions.None).Transformation.OffsetX;
+                    if (isfirst || M2Pos > iniPos)
+                    {
+                        LastM2Mate = c.FindTargetMate("M2", false);
+                        iniPos = M2Pos;
+                    }
                 }
             }
             else if (forcedPos)
@@ -1224,7 +1222,7 @@ namespace EPLAN_API.User
             if (rightTo != null)
                 oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(rightToDevice3D.FindTargetMate("M2", false));
             else
-                oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(mountingRail.BaseMate, pos - iniPos + offset);
+                oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(LastM2Mate);
         }
 
         public void Insert3DDeviceIntoMountingPlate(Project oProject, string deviceName, double x, double y, string rightTo = null, double rightToOffset=0, string varianteRef="1", int articleRef=0, double planeoffset=0)
