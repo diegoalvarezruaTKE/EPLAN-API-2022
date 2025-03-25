@@ -1748,6 +1748,7 @@ namespace EPLAN_API.User
 
             Insert3DDeviceIntoDINRail(oProject, "U16", "-UN3", 0);
             Insert3DDeviceIntoDINRail(oProject, "U17", "-KA2", 0, articleRef: 1);
+            Insert3DDeviceIntoComponent(oProject, "-KA2", "-KA2", "V2", "MOUNTING POINT", articleRef: 0);
 
             //en página de "Control Outputs I"
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Pawl_Brake.ema", 'J', "Control Outputs I", 28.0, 88.0);

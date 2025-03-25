@@ -1195,6 +1195,7 @@ namespace EPLAN_API.User
             double iniPos = 0;
             bool isfirst = true;
             Mate LastM2Mate = null;
+            bool firstInRail = false;
             if (!forcedPos && rightTo == null)
             {
                 if (mountingRail.Children.Length > 0)
@@ -1214,7 +1215,11 @@ namespace EPLAN_API.User
                 }
                 else
                 {
-                    LastM2Mate = mountingRail.FindTargetMate("M4", false);
+                    firstInRail = true;
+                    if (mountingRail.FindTargetMate("M4", false).Transformation.OffsetX < mountingRail.FindTargetMate("M2", false).Transformation.OffsetX)
+                        LastM2Mate = mountingRail.FindTargetMate("M4", false);
+                    else
+                        LastM2Mate = mountingRail.FindTargetMate("M2", false);
                 }
             }
             else if (forcedPos)
@@ -1228,6 +1233,17 @@ namespace EPLAN_API.User
             oComponent.Name = device.Name;
             oComponent.VisibleName = deviceName;
             oComponent.Parent = mountingRail;
+            if (firstInRail)
+            {
+                //oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(mountingRail.BaseMate, 0);
+                //double M2xOffset = mountingRail.FindTargetMate("M2", false).Transformation.OffsetX;
+                //if (mountingRail.FindTargetMate("M4", false).Transformation.OffsetX < mountingRail.FindTargetMate("M2", false).Transformation.OffsetX)
+                //    LastM2Mate = mountingRail.FindTargetMate("M4", false);
+                //else
+                //    LastM2Mate = mountingRail.FindTargetMate("M2", false);
+                //return;
+                ;
+            }
             if (rightTo != null)
                 oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(rightToDevice3D.FindTargetMate("M2", false));
             else
@@ -1296,6 +1312,42 @@ namespace EPLAN_API.User
             {
                 oComponent.MoveRelative(0,0,planeoffset);
             }
+        }
+
+        public void Insert3DDeviceIntoComponent(Project oProject, string deviceName, string baseDevice, string diveceMateName, string baseMateName, string varianteRef= "1", int articleRef = 0)
+        {
+            //searching device
+            FunctionsFilter oFunctionsFilter = new FunctionsFilter();
+            FunctionPropertyList functionPropertyList = new FunctionPropertyList();
+            functionPropertyList.FUNC_VISIBLEDEVICETAG = deviceName;
+            functionPropertyList.FUNC_MAINFUNCTION = true;
+            oFunctionsFilter.SetFilteredPropertyList(functionPropertyList);
+            Function[] oFunctions = new DMObjectsFinder(oProject).GetFunctions(oFunctionsFilter);
+            Function device = oFunctions[0];
+
+            //searching rightToDevice
+            string str3DFunction = baseDevice;
+            Functions3DFilter oFunctions3DFilter = new Functions3DFilter();
+            Function3DPropertyList oFunction3DPropertyList = new Function3DPropertyList();
+            oFunction3DPropertyList.FUNC_VISIBLEDEVICETAG = str3DFunction;
+            oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList);
+            Function3D[] oFunctions3D = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
+            Component baseDevice3D = null;
+            try
+            {
+                baseDevice3D = oFunctions3D[0] as Component;
+            }
+            catch (Exception ex)
+            {
+                ;
+            }
+
+            Component oComponent = new Component();
+            oComponent.Create(oProject, device.ArticleReferences[articleRef].Article.PartNr, varianteRef);
+            oComponent.Name = device.Name;
+            oComponent.VisibleName = deviceName;
+            oComponent.Parent = baseDevice3D;
+            oComponent.FindSourceMate(diveceMateName, Mate.Enums.PlacementOptions.None).SnapTo(baseDevice3D.FindTargetMate(baseMateName, false));
         }
 
         #region GEC Parameters
