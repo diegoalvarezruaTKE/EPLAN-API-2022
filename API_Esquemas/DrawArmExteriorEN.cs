@@ -893,7 +893,7 @@ namespace EPLAN_API.User
 
             //Insertar implantación del termico
             insertDeviceLayout(oProject, "FR1", "Motor", "M1", 0, 'A', "A", "Layout", 1200, 765);
-            Insert3DDeviceIntoDINRail(oProject, "U17", "-FR1",0);
+            Insert3DDeviceIntoDINRail(oProject, "U17", "-FR1",0, firstInRail:true);
 
         }
 
@@ -1102,6 +1102,7 @@ namespace EPLAN_API.User
                 Insert3DDeviceIntoMountingPlate(oProject, "-VDF", 30, 1600);
                 //Insert Ferrita
                 insertDeviceLayout(oProject,"VDF", "VVF Power", "M1", 1, 'A', "A", "Layout", 1197, 1562);
+                Insert3DDeviceIntoMountingPlate(oProject, "-VDF", 70, 975, articleRef:1);
 
                 insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\VVF_Page_Control.emp", "Control II", "VVF Control");
 
@@ -1747,8 +1748,8 @@ namespace EPLAN_API.User
             insertDeviceLayout(oProject,"KA2", "Control II", "M1", 1, 'A', "A", "Layout", "UN3");
 
             Insert3DDeviceIntoDINRail(oProject, "U16", "-UN3", 0);
-            Insert3DDeviceIntoDINRail(oProject, "U17", "-KA2", 0, articleRef: 1);
-            Insert3DDeviceIntoComponent(oProject, "-KA2", "-KA2", "V2", "MOUNTING POINT", articleRef: 0);
+            Insert3DDeviceIntoDINRail(oProject, "U17", "-KA2", 0, articleRef: 1, leftTo:"-K25");
+            Insert3DDeviceIntoComponent(oProject, "-KA2", "-KA2", "G1", "MOUNTING POINT", articleRef: 0);
 
             //en página de "Control Outputs I"
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Pawl_Brake.ema", 'J', "Control Outputs I", 28.0, 88.0);
@@ -1890,6 +1891,11 @@ namespace EPLAN_API.User
             {
                 //Control Inputs II"
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Additional_Keys.ema", 'E', "Control Inputs II", 160.0, 268.0);
+
+                Insert3DDeviceIntoDINRail(oProject, "U14", "-SA4", 0, rightTo: "-SB28", articleRef: 2);
+                Insert3DDeviceIntoComponent(oProject, "-SA4", "-SA4", "C", "MONTAJE BOTONERÍA", articleRef: 0);
+                Insert3DDeviceIntoComponent(oProject, "-SA4", "-SA4", "C", "MONTAJE BOTONERÍA", articleRef: 1);
+
                 SetGECParameter(oProject, oElectric, "I12", (uint)GEC.Param.Automatic_key_top, true);
                 SetGECParameter(oProject, oElectric, "I13", (uint)GEC.Param.Continuous_key_top, true);
             }
