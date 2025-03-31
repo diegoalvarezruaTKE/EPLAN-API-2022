@@ -1118,7 +1118,17 @@ namespace EPLAN_API_2022.Forms
                             worksheet.Cells[currentRow, 4].Value = cableEPLANDiff.Properties.FUNC_TEXT.ToMultiLangString().GetStringToDisplay(language.get_Language(0));
                         }
                         if (cableEPLANDiff.ArticleReferences.Length > 0)
-                            worksheet.Cells[currentRow, 5].Value = cableEPLANDiff.ArticleReferences[0].Properties.ARTICLE_ERPNR.ToString();
+                        {
+                            try
+                            {
+                                worksheet.Cells[currentRow, 5].Value = cableEPLANDiff.ArticleReferences[0].Properties.ARTICLE_ERPNR.ToString();
+                            }
+                            catch 
+                            {
+                                worksheet.Cells[currentRow, 5].Value = "-";
+                            }
+
+                        }
                     }
                     else
                     {
@@ -1146,6 +1156,18 @@ namespace EPLAN_API_2022.Forms
                     worksheet.Cells[currentRow, 5].Value = filteredDifferentValues[cable].Item1;
                     worksheet.Cells[currentRow, 6].Value = "Tipos de cable diferentes en EPLAN y SAP";
                     currentRow++;
+                }
+
+                //Escribir Cables con longitud <1m
+                foreach (var cable in cablesSAP.Where(c => c.Value.Lenght < 0.5)) 
+                {
+                    worksheet.Cells[currentRow, 1].Value = cable.Value.Name;
+                    worksheet.Cells[currentRow, 2].Value = cable.Value.ParentCode + " - " + cable.Value.ParentName + ": pos " + cable.Value.PosinParent;
+                    worksheet.Cells[currentRow, 3].Value = cable.Value.Code;
+                    worksheet.Cells[currentRow, 4].Value = "-";
+                    worksheet.Cells[currentRow, 5].Value = "-";
+                    worksheet.Cells[currentRow, 6].Value = "Cable con longitud <0.5m";
+
                 }
 
                 // Guardar archivo

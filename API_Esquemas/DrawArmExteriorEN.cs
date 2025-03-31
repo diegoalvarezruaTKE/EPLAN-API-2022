@@ -1125,6 +1125,10 @@ namespace EPLAN_API.User
                     insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Bypass_VVF.ema", 'A', "Control Inputs II", 64.0, 268.0);
                     SetGECParameter(oProject, oElectric, "I9", (uint)GEC.Param.Bypass_VFD, true);
                     insertDeviceLayout(oProject,"S4.4.1", "Control Inputs II", "M1", 1, 'A', "A", "Layout", "SB28");
+
+                    Insert3DDeviceIntoDINRail(oProject, "U14", "-S4.4.1", 0, articleRef: 1);
+                    Insert3DDeviceIntoComponent(oProject, "-S4.4.1", "-S4.4.1", "C", "MONTAJE BOTONERÍA", articleRef: 0);
+
                 }
 
                 log = String.Concat(log, "\r\nIncluido VVF");
@@ -1892,7 +1896,7 @@ namespace EPLAN_API.User
                 //Control Inputs II"
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Additional_Keys.ema", 'E', "Control Inputs II", 160.0, 268.0);
 
-                Insert3DDeviceIntoDINRail(oProject, "U14", "-SA4", 0, rightTo: "-SB28", articleRef: 2);
+                Insert3DDeviceIntoDINRail(oProject, "U14", "-SA4", 0, articleRef: 2);
                 Insert3DDeviceIntoComponent(oProject, "-SA4", "-SA4", "C", "MONTAJE BOTONERÍA", articleRef: 0);
                 Insert3DDeviceIntoComponent(oProject, "-SA4", "-SA4", "C", "MONTAJE BOTONERÍA", articleRef: 1);
 
@@ -1920,6 +1924,11 @@ namespace EPLAN_API.User
             {
                 //Control Inputs I"
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Additional_Keys.ema", 'F', "Control Inputs I", 256.0, 268.0);
+
+                Insert3DDeviceIntoDINRail(oProject, "U14", "-SA3", 0, articleRef: 2);
+                Insert3DDeviceIntoComponent(oProject, "-SA3", "-SA3", "C", "MONTAJE BOTONERÍA", articleRef: 0);
+                Insert3DDeviceIntoComponent(oProject, "-SA3", "-SA3", "C", "MONTAJE BOTONERÍA", articleRef: 1);
+
                 SetGECParameter(oProject, oElectric, "I7", (uint)GEC.Param.Local_key_top, true);
                 SetGECParameter(oProject, oElectric, "I8", (uint)GEC.Param.Remote_key_top, true);
             }
@@ -1947,6 +1956,11 @@ namespace EPLAN_API.User
             {
                 //Control Inputs II"
                 insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Additional_Keys.ema", 'H', "Control Inputs II", 224.0, 268.0);
+
+                Insert3DDeviceIntoDINRail(oProject, "U14", "-SA5", 0, articleRef: 2);
+                Insert3DDeviceIntoComponent(oProject, "-SA5", "-SA5", "C", "MONTAJE BOTONERÍA", articleRef: 0);
+                Insert3DDeviceIntoComponent(oProject, "-SA5", "-SA5", "C", "MONTAJE BOTONERÍA", articleRef: 1);
+
                 //SetGECParameter(oProject, oElectric, "I14", (uint)GEC.Param.Stop_switch_for_safety_curtain, true); //Pendiente de correccion de bug. Previsto en R15
                 SetGECParameter(oProject, oElectric, "I14", (uint)GEC.Param.Top_operational_stop_local_B16, true);
             }
