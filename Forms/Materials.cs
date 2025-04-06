@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -344,7 +345,7 @@ namespace EPLAN_API.Forms
                     worksheet.Cells[row, 5].Value = material.SAPDescriptionL2;
 
                     //Count
-                    worksheet.Cells[row, 6].Value = material.Count;
+                    worksheet.Cells[row, 6].Value = material.Count.ToString("F2", CultureInfo.InvariantCulture);
 
                     //Aporte
                     worksheet.Cells[row, 7].Value = material.Aporte;
