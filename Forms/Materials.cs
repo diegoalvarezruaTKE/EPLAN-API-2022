@@ -1,5 +1,6 @@
 ﻿using Eplan.EplApi.Base;
 using Eplan.EplApi.DataModel;
+using Eplan.EplApi.DataModel.E3D;
 using EPLAN_API.SAP;
 using OfficeOpenXml;
 using System;
@@ -14,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Media3D;
+//using static Eplan.EplApi.DataModel.Properties;
 
 namespace EPLAN_API.Forms
 {
@@ -38,6 +40,7 @@ namespace EPLAN_API.Forms
             oProject = new ProjectManager().CurrentProject;
             oPages = oProject.Pages;
 
+            //Functions 2D
             FunctionsFilter functionsFilter = new FunctionsFilter();
             FunctionPropertyList functionsPropertyList = new FunctionPropertyList();
             functionsPropertyList.FUNC_MAINFUNCTION = true;
@@ -45,6 +48,20 @@ namespace EPLAN_API.Forms
             functionsFilter.SetFilteredPropertyList(functionsPropertyList);
             DMObjectsFinder DMObjectsFinder = new DMObjectsFinder(oProject);
             Function[] functions = DMObjectsFinder.GetFunctions(functionsFilter);
+
+            //Functions 3D
+            //Canaletas
+            Functions3DFilter oFunctions3DFilter = new Functions3DFilter();
+            Function3DPropertyList oFunction3DPropertyList = new Function3DPropertyList();
+            oFunction3DPropertyList.DESIGNATION_LOCATION = location;
+            oFunctions3DFilter.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.CabMechConduit;
+            oFunctions3DFilter.SetFilteredPropertyList(oFunction3DPropertyList);
+            Function3D[] oCounduicts = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
+
+            //Carriles DIN
+            oFunctions3DFilter.FunctionCategory = Eplan.EplApi.Base.Enums.FunctionCategory.CabMechBodyAccessoryInside;
+            Function3D[] oDinRail = new DMObjectsFinder(oProject).GetFunctions3D(oFunctions3DFilter);
+
 
             List<SAPMaterial> materials = new List<SAPMaterial>();
 
@@ -122,11 +139,168 @@ namespace EPLAN_API.Forms
                         material.RefFabricante = "";
                     }
 
+                    //Count
+                    if (function.FunctionCategory == Eplan.EplApi.Base.Enums.FunctionCategory.Cable)
+                        material.Count = function.Properties.FUNC_CABLELENGTH_VALUE.ToDouble();
+                    else
+                        material.Count = articleReference.Count;
+
 
                     materials.Add(material);
                 }
 
             }
+
+            if(oDinRail.Length > 0)
+            {
+                foreach (Function3D function3D in oDinRail)
+                {
+                    foreach (ArticleReference articleReference in function3D.ArticleReferences)
+                    {
+                        SAPMaterial material = new SAPMaterial();
+
+                        //SAP Code
+                        material.SAPCode = articleReference.Properties.ARTICLE_ERPNR.ToString();
+
+                        //SAP Name
+                        LanguageList SAPNamelanguageList = new LanguageList();
+                        articleReference.Properties.ARTICLE_DESCR2.ToMultiLangString().GetLanguageList(ref SAPNamelanguageList);
+                        if (SAPNamelanguageList.Count > 0)
+                        {
+                            if (SAPNamelanguageList.Contains(ISOCode.Language.L_en_US))
+                                material.SAPName = articleReference.Properties.ARTICLE_DESCR2.ToMultiLangString().GetStringToDisplay(ISOCode.Language.L_en_US);
+                            else
+                                material.SAPName = articleReference.Properties.ARTICLE_DESCR2.ToMultiLangString().GetStringToDisplay(SAPNamelanguageList.get_Language(0));
+                        }
+
+                        //SAP Description L1
+                        material.SAPDescriptionL1 = function3D.VisibleName;
+
+                        //SAP Description L2
+                        try
+                        {
+                            material.SAPDescriptionL2 = $"{Math.Round((function3D as MountingRail).Length)} mm";
+                        }
+                        catch (Exception ex)
+                        {
+                            material.SAPDescriptionL2 = "";
+                        }
+
+                        //Aporte
+                        if (articleReference.Properties.ARTICLE_SUPPLIER.ToString().Equals("PROV"))
+                            material.Aporte = "L";
+                        else
+                            material.Aporte = "";
+
+                        //Calculo de coste
+                        if (articleReference.Properties.ARTICLE_SUPPLIER.ToString().Equals("PROV"))
+                            material.CalculoCoste = "";
+                        else
+                            material.CalculoCoste = "X";
+
+                        //Fabricante
+                        try
+                        {
+                            material.Fabricante = articleReference.Article.Properties.ARTICLE_MANUFACTURER_NAME;
+                        }
+                        catch
+                        {
+                            material.Fabricante = "";
+                        }
+
+                        try
+                        {
+                            //Referencia Fabricante
+                            material.RefFabricante = articleReference.Properties.ARTICLE_ORDERNR.ToString();
+                        }
+                        catch
+                        {
+                            material.RefFabricante = "";
+                        }
+
+                        //Count
+                        material.Count = (function3D as MountingRail).Length/1000;
+
+                        materials.Add(material);
+                    }
+                }
+            }
+
+            if (oCounduicts.Length > 0)
+            {
+                foreach (Function3D function3D in oCounduicts)
+                {
+                    foreach (ArticleReference articleReference in function3D.ArticleReferences)
+                    {
+                        SAPMaterial material = new SAPMaterial();
+
+                        //SAP Code
+                        material.SAPCode = articleReference.Properties.ARTICLE_ERPNR.ToString();
+
+                        //SAP Name
+                        LanguageList SAPNamelanguageList = new LanguageList();
+                        articleReference.Properties.ARTICLE_DESCR2.ToMultiLangString().GetLanguageList(ref SAPNamelanguageList);
+                        if (SAPNamelanguageList.Count > 0)
+                        {
+                            if (SAPNamelanguageList.Contains(ISOCode.Language.L_en_US))
+                                material.SAPName = articleReference.Properties.ARTICLE_DESCR2.ToMultiLangString().GetStringToDisplay(ISOCode.Language.L_en_US);
+                            else
+                                material.SAPName = articleReference.Properties.ARTICLE_DESCR2.ToMultiLangString().GetStringToDisplay(SAPNamelanguageList.get_Language(0));
+                        }
+
+                        //SAP Description L1
+                        material.SAPDescriptionL1 = function3D.VisibleName;
+
+                        //SAP Description L2
+                        try
+                        {
+                            material.SAPDescriptionL2 = $"{Math.Round((function3D as Duct).Length)} mm";
+                        }
+                        catch (Exception ex)
+                        {
+                            material.SAPDescriptionL2 = "";
+                        }
+
+                        //Aporte
+                        if (articleReference.Properties.ARTICLE_SUPPLIER.ToString().Equals("PROV"))
+                            material.Aporte = "L";
+                        else
+                            material.Aporte = "";
+
+                        //Calculo de coste
+                        if (articleReference.Properties.ARTICLE_SUPPLIER.ToString().Equals("PROV"))
+                            material.CalculoCoste = "";
+                        else
+                            material.CalculoCoste = "X";
+
+                        //Fabricante
+                        try
+                        {
+                            material.Fabricante = articleReference.Article.Properties.ARTICLE_MANUFACTURER_NAME;
+                        }
+                        catch
+                        {
+                            material.Fabricante = "";
+                        }
+
+                        try
+                        {
+                            //Referencia Fabricante
+                            material.RefFabricante = articleReference.Properties.ARTICLE_ORDERNR.ToString();
+                        }
+                        catch
+                        {
+                            material.RefFabricante = "";
+                        }
+
+                        //Count
+                        material.Count = (function3D as Duct).Length/1000;
+
+                        materials.Add(material);
+                    }
+                }
+            }
+
 
             //Escribe en excel
             // Escribir diferencias en Excel
