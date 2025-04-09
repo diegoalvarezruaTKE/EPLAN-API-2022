@@ -345,7 +345,7 @@ namespace EPLAN_API.Forms
                     worksheet.Cells[row, 5].Value = material.SAPDescriptionL2;
 
                     //Count
-                    worksheet.Cells[row, 6].Value = material.Count.ToString("F2", CultureInfo.InvariantCulture);
+                    worksheet.Cells[row, 6].Value = material.Count.ToString("F2", new CultureInfo("es-ES"));
 
                     //Aporte
                     worksheet.Cells[row, 7].Value = material.Aporte;
