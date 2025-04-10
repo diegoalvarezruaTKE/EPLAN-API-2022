@@ -61,6 +61,7 @@
     <Compile Include="Actions\Assembly_CDI_Basic.cs" />
     <Compile Include="Actions\Assembly_CDS_Basic.cs" />
     <Compile Include="Actions\Assembly_Main_Cab_Basic.cs" />
+    <Compile Include="Actions\Generate_Doc.cs" />
     <Compile Include="Actions\MaterialesAction.cs" />
     <Compile Include="API_Basic\ReleaseBasic.cs" />
     <Compile Include="Connected Services\SAPConnection\Reference.cs">
@@ -135,6 +136,7 @@
     <Compile Include="API_Esquemas\IDrawable.cs" />
     <Compile Include="API_Esquemas\MotorCurrentData.cs" />
     <Compile Include="SAP\SAPService.cs" />
+    <Compile Include="Services\Generate_Doc_Service.cs" />
     <Compile Include="Services\MaterialesActionService.cs" />
   </ItemGroup>
   <ItemGroup>

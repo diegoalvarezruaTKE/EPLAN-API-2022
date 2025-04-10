@@ -1,4 +1,4 @@
-﻿namespace EPLAN_API_2022.Forms
+﻿namespace EPLAN_API_2024.Forms
 {
     partial class Configurador
     {

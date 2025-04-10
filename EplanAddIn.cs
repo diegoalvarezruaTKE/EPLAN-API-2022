@@ -33,6 +33,8 @@ namespace EplanAddIn
             ribbonCommandGroupBasic.AddCommand("Ensambla Armario Basic", "Assembly_Main_Cab_Basic");
             ribbonCommandGroupBasic.AddCommand("Ensambla CDS Basic", "Assembly_CDS_Basic");
             ribbonCommandGroupBasic.AddCommand("Ensambla CDI Basic", "Assembly_CDI_Basic");
+            var ribbonCommandGroupDoc = ribbonTab.AddCommandGroup("Documentacion");
+            ribbonCommandGroupDoc.AddCommand("Genera Doc", "Generate_Doc");
             return true;
         }
         public bool OnExit()

@@ -1,5 +1,5 @@
 ﻿using Eplan.EplApi.ApplicationFramework;
-using EPLAN_API_2022;
+using EPLAN_API_2024;
 
 namespace Eplan.EplAddin.Actions
 {

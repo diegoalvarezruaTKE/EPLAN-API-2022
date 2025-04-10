@@ -1,9 +1,15 @@
-﻿using Eplan.EplApi.ApplicationFramework;
+﻿using Eplan.EplAddin.Actions;
+using Eplan.EplApi.ApplicationFramework;
 using EPLAN_API_2024;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Eplan.EplAddin.Actions
+namespace EPLAN_API.Actions
 {
-    public class Assembly_CDS_Basic : IEplAction
+    public class Generate_Doc : IEplAction
     {
         ///<summary>
         ///This function is called when executing the action.
@@ -11,7 +17,7 @@ namespace Eplan.EplAddin.Actions
         ///<returns>true, if the action performed successfully</returns>
         public bool Execute(ActionCallingContext ctx)
         {
-            IActionService service = new Assembly_CDS_BasicAction_Service();
+            IActionService service = new Generate_Doc_Service();
 
             service.Execute();
 
@@ -25,8 +31,8 @@ namespace Eplan.EplAddin.Actions
         ///<returns>true, if OnRegister succeeds</returns>
         public bool OnRegister(ref string Name, ref int Ordinal)
         {
-            Name = "Assembly_CDS_Basic";
-            Ordinal = 22;
+            Name = "Generate_Doc";
+            Ordinal = 23;
             return true;
         }
         ///<summary>
@@ -38,7 +44,7 @@ namespace Eplan.EplAddin.Actions
         ///</param>
         public void GetActionProperties(ref ActionProperties actionProperties)
         {
-           
+
         }
 
         public bool Enabled(string strActionName, ActionCallingContext actionContext)
@@ -49,4 +55,5 @@ namespace Eplan.EplAddin.Actions
                 return true;
         }
     }
+
 }

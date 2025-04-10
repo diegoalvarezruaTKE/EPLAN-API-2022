@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using EPLAN_API_2022.Forms;
+using EPLAN_API_2024.Forms;
 
-namespace EPLAN_API_2022
+namespace EPLAN_API_2024
 {
     class ConfigAction_2024_Service : IActionService
     {

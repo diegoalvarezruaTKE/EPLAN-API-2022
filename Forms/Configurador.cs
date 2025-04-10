@@ -23,7 +23,7 @@ using OfficeOpenXml;
 using static OfficeOpenXml.ExcelErrorValue;
 using Eplan.EplApi.DataModel.E3D;
 
-namespace EPLAN_API_2022.Forms
+namespace EPLAN_API_2024.Forms
 {
     public partial class Configurador : Form
     {

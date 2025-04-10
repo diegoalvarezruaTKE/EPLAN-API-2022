@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace EPLAN_API_2022.Forms
+namespace EPLAN_API_2024.Forms
 {
     public partial class PanelCaracIngenieria : Form
     {
