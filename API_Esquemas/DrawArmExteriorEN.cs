@@ -64,10 +64,6 @@ namespace EPLAN_API.User
             progress += step;
             ProgressChanged(progress);
 
-            Draw_Display();
-            progress += step;
-            ProgressChanged(progress);
-
             CalculateCableSec();
             progress += step;
             ProgressChanged(progress);
@@ -534,6 +530,13 @@ namespace EPLAN_API.User
 
             #endregion
 
+            #region Paquetes especiales
+            c = (Caracteristic)oElectric.CaractIng["PAQUETE_ESP"];
+            refVal = c.CurrentReference;
+            if (refVal.Equals("SUBIDAS"))
+                draw_Subidas();
+            #endregion
+
             #region Armario
             Draw_Envolvente_Armario();
             progress += step;
@@ -547,6 +550,11 @@ namespace EPLAN_API.User
             ProgressChanged(100);
 
             #endregion
+
+            //Display
+            Draw_Display();
+            progress += step;
+            ProgressChanged(progress);
 
             Reports report = new Reports();
             report.GenerateProject(oProject);
@@ -715,13 +723,16 @@ namespace EPLAN_API.User
                         insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Display.ema", 'G', "Display", 20.0, 252.0);
 
                         if (armario.CurrentReference.Contains("1800x800"))
+                        {
                             insertDeviceLayout(oProject, "U1", "Display", "M1", 0, 'A', "A", "Layout", 1220, 1410);
+                            Insert3DDeviceIntoMountingPlate(oProject, "-U1", 370, 1010, planeoffset: 60);
+                        }
 
                         if (armario.CurrentReference.Contains("1800x1000") ||
                             armario.CurrentReference.Contains("1800x1200"))
                             insertDeviceLayout(oProject, "U1", "Display", "M1", 0, 'A', "A", "Layout", 1204, 1243);
 
-                        Insert3DDeviceIntoMountingPlate(oProject, "-U1", 370, 1010, planeoffset: 60);
+                        
                     }
                     else
                     {
@@ -740,6 +751,8 @@ namespace EPLAN_API.User
                         {
                             insertDeviceLayout(oProject,"U1", "Display", "M1", 0, 'A', "A", "Layout", 1220, 1410);
                             insertDeviceLayout(oProject,"U2", "Display", "M1", 0, 'A', "A", "Layout", 1316, 986);
+                            Insert3DDeviceIntoMountingPlate(oProject, "-U1", 370, 1010, planeoffset: 60);
+                            Insert3DDeviceIntoDINRail(oProject, "U16", "-U2", 10);
                         }
 
                         if (armario.CurrentReference.Contains("1800x1000") ||
@@ -769,26 +782,26 @@ namespace EPLAN_API.User
                 case "2,5":
                 case "4":
                 case "4A":
-                    insertArticle(oProject,"Main Supply", "WIRE", "W.1x4_BN_SH", 40);
-                    insertArticle(oProject,"Main Supply", "WIRE", "W.1x6_Y-BN_SH", 10);
+                    insertArticleInArticleDefPoint(oProject,"Main Supply", "WIRE", "W.1x4_BN_SH", 40);
+                    insertArticleInArticleDefPoint(oProject,"Main Supply", "WIRE", "W.1x6_Y-BN_SH", 10);
                     break;
 
                 case "6":
                 case "6A":
-                    insertArticle(oProject,"Main Supply", "WIRE", "W.1x6_BN_SH", 40);
-                    insertArticle(oProject,"Main Supply", "WIRE", "W.1x6_Y-BN_SH", 10);
+                    insertArticleInArticleDefPoint(oProject,"Main Supply", "WIRE", "W.1x6_BN_SH", 40);
+                    insertArticleInArticleDefPoint(oProject,"Main Supply", "WIRE", "W.1x6_Y-BN_SH", 10);
                     break;
 
                 case "10":
                 case "10A":
-                    insertArticle(oProject,"Main Supply", "WIRE", "W.1x10_BN_SH", 40);
-                    insertArticle(oProject,"Main Supply", "WIRE", "W.1x10_Y-BN_SH", 10);
+                    insertArticleInArticleDefPoint(oProject,"Main Supply", "WIRE", "W.1x10_BN_SH", 40);
+                    insertArticleInArticleDefPoint(oProject,"Main Supply", "WIRE", "W.1x10_Y-BN_SH", 10);
                     break;
 
                 case "16":
                 case "16A":
-                    insertArticle(oProject,"Main Supply", "WIRE", "W.1x16_BN_SH", 40);
-                    insertArticle(oProject,"Main Supply", "WIRE", "W.1x16_Y-BN_SH", 10);
+                    insertArticleInArticleDefPoint(oProject,"Main Supply", "WIRE", "W.1x16_BN_SH", 40);
+                    insertArticleInArticleDefPoint(oProject,"Main Supply", "WIRE", "W.1x16_Y-BN_SH", 10);
                     break;
             }
 
@@ -2088,6 +2101,51 @@ namespace EPLAN_API.User
 
         }
 
+        private void draw_Subidas()
+        {
+            Caracteristic Trinquete = (Caracteristic)oElectric.CaractComercial["FZUSBREMSE"];
+            bool hayTrinquete = Trinquete.CurrentReference.Equals("HWSPERRKMAGN") || Trinquete.CurrentReference.Equals("NAB");
+
+            //Relé de perdida de tension
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'A', "Main Supply", 108, 116);
+            deleteArea(oProject, "Safety Inputs II", 116, 132, 176, 200);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'B', "Safety Inputs II", 136, 268);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'C', "Safety Extension Inputs I", 60, 148);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'D', "Safety Inputs II", 184, 268);
+            insertArticle(oProject, "-QF9", "CHT.184994", 1);
+            insertArticle(oProject, "-QF1", "CHT.NM8-AX-T1/T4", 1);
+            insertArticle(oProject, "-QF5", "CHT.184994", 1);
+
+            //Conexion subir/bajar PLC-GEC
+            Draw_PLC();
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'E', "Safety Inputs II", 256, 164);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'F', "PLC Output I", 96, 212);
+
+            //Comunicacion Display-PLC
+            deleteArea(oProject, "Display", 300, 180, 356, 228);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'G', "Display", 232, 136);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'H', "Display", 292, 116);
+
+            //Termostato
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'I', "Lower Sensors I", 192, 108);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'J', "PLC Input I", 84, 100);
+
+
+            SetGECParameter(oProject, oElectric, "SI23", (uint)GEC.Param.Power_outage_asymmetry_control_relay, true);
+            SetGECParameter(oProject, oElectric, "SI24", (uint)GEC.Param.Power_outage_main_switch_contact, true);
+            SetGECParameter(oProject, oElectric, "SI30", (uint)GEC.Param.Top_open_floor_plate_1, true);
+            SetGECParameter(oProject, oElectric, "SI31", (uint)GEC.Param.Top_open_floor_plate_2, true);
+            SetGECParameter(oProject, oElectric, "SI27", (uint)GEC.Param.Up_key_order, true);
+            SetGECParameter(oProject, oElectric, "SI28", (uint)GEC.Param.Down_key_order, true);
+
+
+            if (hayTrinquete)
+                Insert3DDeviceIntoDINRail(oProject, "U17", "-KA3", 0, articleRef: 1, leftTo: "-KA2");
+            else
+                Insert3DDeviceIntoDINRail(oProject, "U17", "-KA3", 0, articleRef: 1, leftTo: "-K25");
+            Insert3DDeviceIntoComponent(oProject, "-KA3", "-KA3", "G1", "MOUNTING POINT", articleRef: 0);
+        }
+
         private void Draw_PLC()
         {
             Caracteristic armario = (Caracteristic)oElectric.CaractIng["ENVOLV_ARM_EXT"];
@@ -2099,8 +2157,6 @@ namespace EPLAN_API.User
             if (armario.CurrentReference.Contains("1800x1000") ||
                armario.CurrentReference.Contains("1800x1200"))
                 insertDeviceLayout(oProject,"A1", "PLC Input I", "M1", 0, 'A', "A", "Layout", 1825, 1250);
-
-            Insert3DDeviceIntoDINRail(oProject, "U16", "-A1", 0);
 
             //Despues de la página de "PLC Input I"
             insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\PLC_Output_I.emp", "PLC Input I", "PLC Output I");

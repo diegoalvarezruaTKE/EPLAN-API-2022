@@ -829,7 +829,7 @@ namespace EPLAN_API.User
             }
         }
 
-        public void insertArticle(Project oProject, string ipage, string ifunction, string articleref, uint cantidad)
+        public void insertArticleInArticleDefPoint(Project oProject, string ipage, string ifunction, string articleref, uint cantidad)
         {
             int key;
             Insert oInsert = new Insert();
@@ -860,6 +860,26 @@ namespace EPLAN_API.User
             ofunction.AddArticleReference(articleref, "1", cantidad);
 
         }
+
+        public void insertArticle(Project oProject, string deviceName, string articleref, uint cantidad, string variant="1")
+        {
+
+            //searching device
+            FunctionsFilter oFunctionsFilter = new FunctionsFilter();
+            FunctionPropertyList functionPropertyList = new FunctionPropertyList();
+            functionPropertyList.FUNC_VISIBLEDEVICETAG = deviceName;
+            functionPropertyList.FUNC_MAINFUNCTION = true;
+            oFunctionsFilter.SetFilteredPropertyList(functionPropertyList);
+            Function[] oFunctions = new DMObjectsFinder(oProject).GetFunctions(oFunctionsFilter);
+
+            if (oFunctions.Length > 0)
+            {
+                Function device = oFunctions[0];
+                device.AddArticleReference(articleref, "1", cantidad);
+            }
+
+        }
+
 
         public Function insertDeviceLayout(Project oProject, string functionName, string functionPage, string mountingPlate, int posArticle, char macroVariant, string variant, string layouyPage, int posX, int posY)
         {

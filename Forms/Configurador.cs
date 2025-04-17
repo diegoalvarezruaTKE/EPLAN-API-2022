@@ -836,7 +836,7 @@ namespace EPLAN_API_2024.Forms
 
         private void UpdateProgressBar(int progress)
         {
-            this.TopMost = true;
+            //this.TopMost = true;
             progressBar_Draw.Value=progress;
         }
 

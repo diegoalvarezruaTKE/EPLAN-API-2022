@@ -998,6 +998,7 @@ namespace EPLAN_API.SAP
             PAQUETE_ESP.Add("NO", new String[] { "Ninguno" });
             PAQUETE_ESP.Add("FRANCIA", new String[] { "Paquete Francia" });
             PAQUETE_ESP.Add("MERCADONA", new String[] { "Paquete Mercadona" });
+            PAQUETE_ESP.Add("SUBIDAS", new String[] { "Paquete Subidas" });
             Caract = new Caracteristic("PAQUETE_ESP", "Paquete especial", false, PAQUETE_ESP);
             Caract.Comboboxdata += new Caracteristic.ComboboxDelegate(ComboboxChanged);
             CaractIng.Add("PAQUETE_ESP", Caract);
