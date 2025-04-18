@@ -1004,7 +1004,7 @@ namespace EPLAN_API.SAP
             CaractIng.Add("PAQUETE_ESP", Caract);
             OrderCaractIng.Add(100, Caract);
 
-            // Rearranque tras corte tensión
+            //Rearranque tras corte tensión
             SortedList POWER_OUTAGE_RESTART = new SortedList();
             POWER_OUTAGE_RESTART.Add("NO", new String[] { "No" });
             POWER_OUTAGE_RESTART.Add("SI", new String[] { "Si" });

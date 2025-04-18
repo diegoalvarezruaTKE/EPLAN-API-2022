@@ -122,72 +122,15 @@ namespace EPLAN_API.User
             key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == page);
 
             int nVariante = -1;
-            switch (variante)
+            if (variante >= 'A' && variante <= 'Z')
             {
-                case 'A':
-                    nVariante = 0;
-                    break;
-
-                case 'B':
-                    nVariante = 1;
-                    break;
-
-                case 'C':
-                    nVariante = 2;
-                    break;
-
-                case 'D':
-                    nVariante = 3;
-                    break;
-
-                case 'E':
-                    nVariante = 4;
-                    break;
-
-                case 'F':
-                    nVariante = 5;
-                    break;
-
-                case 'G':
-                    nVariante = 6;
-                    break;
-
-                case 'H':
-                    nVariante = 7;
-                    break;
-
-                case 'I':
-                    nVariante = 8;
-                    break;
-
-                case 'J':
-                    nVariante = 9;
-                    break;
-
-                case 'K':
-                    nVariante = 10;
-                    break;
-
-                case 'L':
-                    nVariante = 11;
-                    break;
-
-                case 'M':
-                    nVariante = 12;
-                    break;
-
-                case 'N':
-                    nVariante = 13;
-                    break;
-
-                case 'O':
-                    nVariante = 14;
-                    break;
-                case 'P':
-                    nVariante = 15;
-                    break;
+                nVariante = variante - 'A';
             }
-
+            else
+            {
+                nVariante = -1; // Manejo de error
+            }
+            
             StorableObject[] oInsertedObjects = oInsert.WindowMacro(pathMacro, nVariante, oProject.Pages[key], new PointD(x, y), Insert.MoveKind.Absolute);
 
             return oInsertedObjects;
@@ -236,72 +179,15 @@ namespace EPLAN_API.User
             key = dictPages.Keys.OfType<int>().FirstOrDefault(s => dictPages[s] == page);
 
             int nVariante = -1;
-            switch (variante)
+            if (variante >= 'A' && variante <= 'Z')
             {
-                case 'A':
-                    nVariante = 0;
-                    break;
-
-                case 'B':
-                    nVariante = 1;
-                    break;
-
-                case 'C':
-                    nVariante = 2;
-                    break;
-
-                case 'D':
-                    nVariante = 3;
-                    break;
-
-                case 'E':
-                    nVariante = 4;
-                    break;
-
-                case 'F':
-                    nVariante = 5;
-                    break;
-
-                case 'G':
-                    nVariante = 6;
-                    break;
-
-                case 'H':
-                    nVariante = 7;
-                    break;
-
-                case 'I':
-                    nVariante = 8;
-                    break;
-
-                case 'J':
-                    nVariante = 9;
-                    break;
-
-                case 'K':
-                    nVariante = 10;
-                    break;
-
-                case 'L':
-                    nVariante = 11;
-                    break;
-
-                case 'M':
-                    nVariante = 12;
-                    break;
-
-                case 'N':
-                    nVariante = 13;
-                    break;
-
-                case 'O':
-                    nVariante = 14;
-                    break;
-                case 'P':
-                    nVariante = 15;
-                    break;
+                nVariante = variante - 'A';
             }
-
+            else
+            {
+                nVariante = -1; // Manejo de error
+            }
+            
             StorableObject[] oInsertedObjects = oInsert.WindowMacro(pathMacro, nVariante, oProject.Pages[key], new PointD(x, y), Insert.MoveKind.Absolute);
 
             Function f = oInsertedObjects[0] as Function;
@@ -312,73 +198,15 @@ namespace EPLAN_API.User
 
         public StorableObject[] insert3DMacro(Project oProject, string pathMacro, char variante, InstallationSpace oInstallationSpace, double x, double y, double z, double angle)
         {
-            int nVariant = -1;
-            switch (variante)
+            int nVariante = -1;
+            
+            if (variante >= 'A' && variante <= 'Z')
             {
-                case 'A':
-                    nVariant = 0;
-                    break;
-
-                case 'B':
-                    nVariant = 1;
-                    break;
-
-                case 'C':
-                    nVariant = 2;
-                    break;
-
-                case 'D':
-                    nVariant = 3;
-                    break;
-
-                case 'E':
-                    nVariant = 4;
-                    break;
-
-                case 'F':
-                    nVariant = 5;
-                    break;
-
-                case 'G':
-                    nVariant = 6;
-                    break;
-
-                case 'H':
-                    nVariant = 7;
-                    break;
-
-                case 'I':
-                    nVariant = 8;
-                    break;
-
-                case 'J':
-                    nVariant = 9;
-                    break;
-
-                case 'K':
-                    nVariant = 10;
-                    break;
-
-                case 'L':
-                    nVariant = 11;
-                    break;
-
-                case 'M':
-                    nVariant = 12;
-                    break;
-
-                case 'N':
-                    nVariant = 13;
-                    break;
-
-                case 'O':
-                    nVariant = 14;
-                    break;
-
-                case 'P':
-                    nVariant = 15;
-                    break;
-
+                nVariante = variante - 'A';
+            }
+            else
+            {
+                nVariante = -1; // Manejo de error
             }
 
             //preparing transformation
@@ -394,82 +222,23 @@ namespace EPLAN_API.User
 
             //insert macro into an InstallationSpace
             Insert3D oInsert3D = new Insert3D();
-            StorableObject[] arrStorableObjects = oInsert3D.WindowMacro(oWMacro, nVariant, oInstallationSpace,
+            StorableObject[] arrStorableObjects = oInsert3D.WindowMacro(oWMacro, nVariante, oInstallationSpace,
             oMatrix, Insert3D.MoveKind.Absolute, WindowMacro.Enums.NumerationMode.None);
             return arrStorableObjects;
         }
 
         public StorableObject[] insert3DMacro(Project oProject, string pathMacro, char variante, InstallationSpace oInstallationSpace, double x, double y, double z)
         {
-            int nVariant = -1;
-            switch (variante)
+            int nVariante = -1;
+            if (variante >= 'A' && variante <= 'Z')
             {
-                case 'A':
-                    nVariant = 0;
-                    break;
-
-                case 'B':
-                    nVariant = 1;
-                    break;
-
-                case 'C':
-                    nVariant = 2;
-                    break;
-
-                case 'D':
-                    nVariant = 3;
-                    break;
-
-                case 'E':
-                    nVariant = 4;
-                    break;
-
-                case 'F':
-                    nVariant = 5;
-                    break;
-
-                case 'G':
-                    nVariant = 6;
-                    break;
-
-                case 'H':
-                    nVariant = 7;
-                    break;
-
-                case 'I':
-                    nVariant = 8;
-                    break;
-
-                case 'J':
-                    nVariant = 9;
-                    break;
-
-                case 'K':
-                    nVariant = 10;
-                    break;
-
-                case 'L':
-                    nVariant = 11;
-                    break;
-
-                case 'M':
-                    nVariant = 12;
-                    break;
-
-                case 'N':
-                    nVariant = 13;
-                    break;
-
-                case 'O':
-                    nVariant = 14;
-                    break;
-
-                case 'P':
-                    nVariant = 15;
-                    break;
-
+                nVariante = variante - 'A';
             }
-
+            else
+            {
+                nVariante = -1; // Manejo de error
+            }
+           
             //preparing transformation
 
             Matrix3D oMatrix = new Matrix3D();
@@ -482,7 +251,7 @@ namespace EPLAN_API.User
 
             //insert macro into an InstallationSpace
             Insert3D oInsert3D = new Insert3D();
-            StorableObject[] arrStorableObjects = oInsert3D.WindowMacro(oWMacro, nVariant, oInstallationSpace,
+            StorableObject[] arrStorableObjects = oInsert3D.WindowMacro(oWMacro, nVariante, oInstallationSpace,
             oMatrix, Insert3D.MoveKind.Absolute, WindowMacro.Enums.NumerationMode.None);
             return arrStorableObjects;
         }
@@ -500,74 +269,15 @@ namespace EPLAN_API.User
             Symbol oSymbol = new Symbol(oSymbolLibrary, strSymbolName);
 
             int nVariante = -1;
-            switch (variante)
+            if (variante >= 'A' && variante <= 'Z')
             {
-                case 'A':
-                    nVariante = 0;
-                    break;
-
-                case 'B':
-                    nVariante = 1;
-                    break;
-
-                case 'C':
-                    nVariante = 2;
-                    break;
-
-                case 'D':
-                    nVariante = 3;
-                    break;
-
-                case 'E':
-                    nVariante = 4;
-                    break;
-
-                case 'F':
-                    nVariante = 5;
-                    break;
-
-                case 'G':
-                    nVariante = 6;
-                    break;
-
-                case 'H':
-                    nVariante = 7;
-                    break;
-
-                case 'I':
-                    nVariante = 8;
-                    break;
-
-                case 'J':
-                    nVariante = 9;
-                    break;
-
-                case 'K':
-                    nVariante = 10;
-                    break;
-
-                case 'L':
-                    nVariante = 11;
-                    break;
-
-                case 'M':
-                    nVariante = 12;
-                    break;
-
-                case 'N':
-                    nVariante = 13;
-                    break;
-
-                case 'O':
-                    nVariante = 14;
-                    break;
-
-                case 'P':
-                    nVariante = 15;
-                    break;
-
+                nVariante = variante - 'A';
             }
-
+            else
+            {
+                nVariante = -1; // Manejo de error
+            }
+           
             SymbolVariant oSymbolVariant = new SymbolVariant(oSymbol, nVariante);
             SymbolReference sr = oSymbolVariant.Create(oPage);
             sr.Location = new PointD(x, y);
@@ -880,7 +590,6 @@ namespace EPLAN_API.User
 
         }
 
-
         public Function insertDeviceLayout(Project oProject, string functionName, string functionPage, string mountingPlate, int posArticle, char macroVariant, string variant, string layouyPage, int posX, int posY)
         {
             int key;
@@ -1160,7 +869,7 @@ namespace EPLAN_API.User
 
         }
 
-        public void Insert3DDeviceIntoDINRail(Project oProject, string DINRailName, string deviceName, double offset, bool forcedPos=false, double forcedPosOffset=0, string rightTo=null, string leftTo=null, string varianteRef = "1", int articleRef = 0, bool firstInRail=false)
+        public void Insert3DDeviceIntoDINRail(Project oProject, string DINRailName, string deviceName, double offset, bool forcedPos=false, double forcedPosOffset=0, string rightTo=null, string leftTo=null, string varianteRef = "1", int articleRef = 0, bool firstInRail=false, bool lastInRail=false)
         {
 
             /*
@@ -1268,6 +977,8 @@ namespace EPLAN_API.User
                 oComponent.FindSourceMate("M2", Mate.Enums.PlacementOptions.None).SnapTo(leftToDevice3D.FindTargetMate("M4", false));
             else if(firstInRail)
                 oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(mountingRail.BaseMate, 0);
+            else if(lastInRail)
+                oComponent.FindSourceMate("M2", Mate.Enums.PlacementOptions.None).SnapTo(mountingRail.FindTargetMate("M2", false, false));
             else
                 oComponent.FindSourceMate("M4", Mate.Enums.PlacementOptions.None).SnapTo(LastM2Mate);
         }

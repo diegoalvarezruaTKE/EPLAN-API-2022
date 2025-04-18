@@ -324,6 +324,19 @@ namespace EPLAN_API.User
             }
             progress += step;
             ProgressChanged(progress);
+
+            c = (Caracteristic)oElectric.CaractComercial["TNCR_OT_NIVEL_AGUA"];
+            refVal = c.CurrentReference;
+            if (refVal != null)
+            {
+                if (refVal.Equals("S"))
+                {
+                    Draw_Nivel_Agua();
+                }
+            }
+            progress += step;
+            ProgressChanged(progress);
+
             #endregion
 
             #region Deteccion de personas
@@ -354,18 +367,6 @@ namespace EPLAN_API.User
                 {
                     Draw_Fotocelulas();
                     log = String.Concat(log, "\r\nIncluidas fotocelulas de peines");
-                }
-            }
-            progress += step;
-            ProgressChanged(progress);
-
-            c = (Caracteristic)oElectric.CaractComercial["TNCR_OT_NIVEL_AGUA"];
-            refVal = c.CurrentReference;
-            if (refVal != null)
-            {
-                if (refVal.Equals("S"))
-                {
-                    Draw_Nivel_Agua();
                 }
             }
             progress += step;
@@ -711,6 +712,7 @@ namespace EPLAN_API.User
             Caracteristic tipoDisplay = (Caracteristic)oElectric.CaractIng["TNCR_DO_DISPLAY_TYPE"];
             Caracteristic ubicacionDisplay = (Caracteristic)oElectric.CaractComercial["TNDIAGNOSTICO"];
             Caracteristic armario = (Caracteristic)oElectric.CaractIng["ENVOLV_ARM_EXT"];
+            bool hayPLC =((Caracteristic)oElectric.CaractIng["TNCR_DO_CONTROL"]).CurrentReference.Contains("PLC");
 
             if (!ubicacionDisplay.CurrentReference.Equals("NO"))
             {
@@ -745,14 +747,17 @@ namespace EPLAN_API.User
                         ubicacionDisplay.CurrentReference.Equals("AR_BA") ||
                         ubicacionDisplay.CurrentReference.Equals("AR_ZO"))
                     {
-                        insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Display.ema", 'E', "Display", 20.0, 252.0);
+                        if (hayPLC)
+                            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Display.ema", 'I', "Display", 20.0, 252.0);
+                        else
+                            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Display.ema", 'E', "Display", 20.0, 252.0);
 
                         if (armario.CurrentReference.Contains("1800x800"))
                         {
                             insertDeviceLayout(oProject,"U1", "Display", "M1", 0, 'A', "A", "Layout", 1220, 1410);
                             insertDeviceLayout(oProject,"U2", "Display", "M1", 0, 'A', "A", "Layout", 1316, 986);
                             Insert3DDeviceIntoMountingPlate(oProject, "-U1", 370, 1010, planeoffset: 60);
-                            Insert3DDeviceIntoDINRail(oProject, "U16", "-U2", 10);
+                            Insert3DDeviceIntoDINRail(oProject, "U16", "-U2", 0, rightTo: "-U3");
                         }
 
                         if (armario.CurrentReference.Contains("1800x1000") ||
@@ -764,7 +769,10 @@ namespace EPLAN_API.User
                     }
                     else
                     {
-                        insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Display.ema", 'D', "Display", 20.0, 252.0);
+                        if(hayPLC)
+                            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Display.ema", 'H', "Display", 20.0, 252.0);
+                        else
+                            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Display.ema", 'D', "Display", 20.0, 252.0);
                     }
                 }
             }
@@ -2099,6 +2107,25 @@ namespace EPLAN_API.User
             //en página de "Safety Curtain"
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Safety_Curtain_Arm_Ext.ema", 'B', "Safety Curtain", 16.0, 288.0);
 
+            Insert3DDeviceIntoDINRail(oProject, "U16", "-EE1", 0, lastInRail: true);
+
+            //POWER_OUTAGE_RESTART
+            Caracteristic perdida_Tension = (Caracteristic)oElectric.CaractIng["POWER_OUTAGE_RESTART"];
+            if (perdida_Tension.CurrentReference.Equals("SI"))
+                Draw_Rearranque_Tension();
+        }
+
+        private void Draw_Rearranque_Tension()
+        {
+            //Relé de perdida de tension
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Rearranque_Tension.ema", 'A', "Main Supply", 108, 116);
+            deleteArea(oProject, "Safety Inputs II", 116, 132, 176, 200);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Rearranque_Tension.ema", 'B', "Safety Inputs II", 136, 268);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Rearranque_Tension.ema", 'C', "Safety Extension Inputs I", 60, 148);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Rearranque_Tension.ema", 'D', "Safety Inputs II", 184, 268);
+            insertArticle(oProject, "-QF9", "CHT.184994", 1);
+            insertArticle(oProject, "-QF1", "CHT.NM8-AX-T1/T4", 1);
+            insertArticle(oProject, "-QF5", "CHT.184994", 1);
         }
 
         private void draw_Subidas()
@@ -2106,31 +2133,22 @@ namespace EPLAN_API.User
             Caracteristic Trinquete = (Caracteristic)oElectric.CaractComercial["FZUSBREMSE"];
             bool hayTrinquete = Trinquete.CurrentReference.Equals("HWSPERRKMAGN") || Trinquete.CurrentReference.Equals("NAB");
 
-            //Relé de perdida de tension
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'A', "Main Supply", 108, 116);
-            deleteArea(oProject, "Safety Inputs II", 116, 132, 176, 200);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'B', "Safety Inputs II", 136, 268);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'C', "Safety Extension Inputs I", 60, 148);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'D', "Safety Inputs II", 184, 268);
-            insertArticle(oProject, "-QF9", "CHT.184994", 1);
-            insertArticle(oProject, "-QF1", "CHT.NM8-AX-T1/T4", 1);
-            insertArticle(oProject, "-QF5", "CHT.184994", 1);
-
             //Conexion subir/bajar PLC-GEC
             Draw_PLC();
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'E', "Safety Inputs II", 256, 164);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'F', "PLC Output I", 96, 212);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'A', "Safety Inputs II", 256, 164);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'B', "PLC Output I", 96, 212);
+            changeFunctionTextPLCInput(oProject, "Q0.0", "Up Key Order to GEC");
+            changeFunctionTextPLCInput(oProject, "Q0.1", "Down Key Order to GEC");
 
             //Comunicacion Display-PLC
-            deleteArea(oProject, "Display", 300, 180, 356, 228);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'G', "Display", 232, 136);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'H', "Display", 292, 116);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'C', "Display", 232, 136);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'D', "Display", 292, 116);
 
             //Termostato
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'I', "Lower Sensors I", 192, 108);
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'J', "PLC Input I", 84, 100);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'E', "Lower Sensors I", 192, 108);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'F', "PLC Input I", 84, 100);
             changeFunctionTextPLCInput(oProject, "I0.0", "Thermostat");
-            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'K', "Control I", 172, 68);
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'G', "Control I", 172, 68);
 
 
             //GEC Parameter
