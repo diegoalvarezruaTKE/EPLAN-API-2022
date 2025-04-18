@@ -84,15 +84,6 @@ namespace EPLAN_API.User
             progress += step;
             ProgressChanged(progress);
 
-            //PLC
-            c = (Caracteristic)oElectric.CaractIng["TNCR_DO_CONTROL"];
-            if (c.CurrentReference.Equals("GEC+PLC"))
-            {
-                Draw_PLC();
-                log = String.Concat(log, "\nIncluido PLC");
-            }
-            progress += step;
-            ProgressChanged(progress);
 
             //Segundo freno
             c = (Caracteristic)oElectric.CaractComercial["FBREMSE2"];
@@ -551,6 +542,16 @@ namespace EPLAN_API.User
             ProgressChanged(100);
 
             #endregion
+
+            //PLC
+            c = (Caracteristic)oElectric.CaractIng["TNCR_DO_CONTROL"];
+            if (c.CurrentReference.Equals("GEC+PLC"))
+            {
+                Draw_PLC();
+                log = String.Concat(log, "\nIncluido PLC");
+            }
+            progress += step;
+            ProgressChanged(progress);
 
             //Display
             Draw_Display();
@@ -2134,7 +2135,6 @@ namespace EPLAN_API.User
             bool hayTrinquete = Trinquete.CurrentReference.Equals("HWSPERRKMAGN") || Trinquete.CurrentReference.Equals("NAB");
 
             //Conexion subir/bajar PLC-GEC
-            Draw_PLC();
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'A', "Safety Inputs II", 256, 164);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'B', "PLC Output I", 96, 212);
             changeFunctionTextPLCInput(oProject, "Q0.0", "Up Key Order to GEC");
@@ -2170,6 +2170,9 @@ namespace EPLAN_API.User
         private void Draw_PLC()
         {
             Caracteristic armario = (Caracteristic)oElectric.CaractIng["ENVOLV_ARM_EXT"];
+            bool hayDobleFreno = ((Caracteristic)oElectric.CaractComercial["FBREMSE2"]).CurrentReference.Equals("4/4");
+            bool hayTrinquete = ((Caracteristic)oElectric.CaractComercial["FZUSBREMSE"]).CurrentReference.Equals("HWSPERRKMAGN") ||
+                ((Caracteristic)oElectric.CaractComercial["FZUSBREMSE"]).CurrentReference.Equals("NAB");
 
             //Despues de la página de "Communication
             insertPageMacro(oProject, "$(MD_MACROS)\\_Esquema\\1_Pagina\\PLC_Input_I.emp", "Communication", "PLC Input I");
@@ -2192,8 +2195,16 @@ namespace EPLAN_API.User
                 armario.CurrentReference.Contains("1800x1200"))
                 insertDeviceLayout(oProject,"U3", "Display", "M1", 0, 'A', "A", "Layout", 1525, 1253);
 
-            Insert3DDeviceIntoDINRail(oProject, "U16", "-A1", 0);
-            Insert3DDeviceIntoDINRail(oProject, "U16", "-U3", 0);
+            if (hayTrinquete)
+                Insert3DDeviceIntoDINRail(oProject, "U16", "-A1", 0, rightTo: "-UN3");
+            else
+            {
+                if (hayDobleFreno)
+                    Insert3DDeviceIntoDINRail(oProject, "U16", "-A1", 0, rightTo: "-UN2");
+                else
+                    Insert3DDeviceIntoDINRail(oProject, "U16", "-A1", 0, rightTo: "-UN1");
+                Insert3DDeviceIntoDINRail(oProject, "U16", "-U3", 0, rightTo: "-A1");
+            }
 
 
 
