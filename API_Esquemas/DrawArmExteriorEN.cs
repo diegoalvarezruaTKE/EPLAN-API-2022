@@ -2129,8 +2129,11 @@ namespace EPLAN_API.User
             //Termostato
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'I', "Lower Sensors I", 192, 108);
             insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'J', "PLC Input I", 84, 100);
+            changeFunctionTextPLCInput(oProject, "I0.0", "Thermostat");
+            insertWindowMacro(oProject, "$(MD_MACROS)\\_Esquema\\2_Ventana\\Subidas.ema", 'K', "Control I", 172, 68);
 
 
+            //GEC Parameter
             SetGECParameter(oProject, oElectric, "SI23", (uint)GEC.Param.Power_outage_asymmetry_control_relay, true);
             SetGECParameter(oProject, oElectric, "SI24", (uint)GEC.Param.Power_outage_main_switch_contact, true);
             SetGECParameter(oProject, oElectric, "SI30", (uint)GEC.Param.Top_open_floor_plate_1, true);
