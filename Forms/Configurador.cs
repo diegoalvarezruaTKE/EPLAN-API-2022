@@ -760,6 +760,19 @@ namespace EPLAN_API_2024.Forms
             }
         }
 
+        public void SetRelatedCaract(Caracteristic c)
+        {
+            //Si Subidas: GEC+PLC y Rearranque tras corte de tension
+            if (c.NameReference.Equals("PAQUETE_ESP"))
+            {
+                if (c.CurrentReference.Equals("SUBIDAS"))
+                {
+                    (oElectricList[0].CaractIng["POWER_OUTAGE_RESTART"] as Caracteristic).setActualValue("SI");
+                    (oElectricList[0].CaractIng["TNCR_DO_CONTROL"] as Caracteristic).setActualValue("GEC+PLC");
+                }
+            }
+        }
+
         #endregion
 
         #region GUI Funtions
@@ -793,6 +806,9 @@ namespace EPLAN_API_2024.Forms
                 langString.AddString(ISOCode.Language.L_en_US, c.CurrentReference);
                 propertyValue.Set(langString);
             }
+
+            SetRelatedCaract(c);
+
         }
 
         private void TextboxChanged(string data, string reference)
