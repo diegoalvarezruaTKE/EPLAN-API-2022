@@ -116,6 +116,17 @@ namespace EPLAN_API.User
             progress += step;
             ProgressChanged(progress);
 
+            //PLC
+            c = (Caracteristic)oElectric.CaractIng["TNCR_DO_CONTROL"];
+            if (c.CurrentReference.Equals("GEC+PLC"))
+            {
+                Draw_PLC();
+                log = String.Concat(log, "\nIncluido PLC");
+            }
+            progress += step;
+            ProgressChanged(progress);
+
+
             #region linea de seguridad
 
             //Micros de Zócalo
@@ -542,16 +553,6 @@ namespace EPLAN_API.User
             ProgressChanged(100);
 
             #endregion
-
-            //PLC
-            c = (Caracteristic)oElectric.CaractIng["TNCR_DO_CONTROL"];
-            if (c.CurrentReference.Equals("GEC+PLC"))
-            {
-                Draw_PLC();
-                log = String.Concat(log, "\nIncluido PLC");
-            }
-            progress += step;
-            ProgressChanged(progress);
 
             //Display
             Draw_Display();
