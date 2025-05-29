@@ -13,7 +13,6 @@ using System.Globalization;
 using Eplan.EplApi.DataModel.E3D;
 using EPLAN_API.SAP;
 using System.IO;
-using static Eplan.EplApi.DataModel.Properties;
 using static EPLAN_API.SAP.GEC;
 //using System.Windows.Media.Media3D;
 //using static System.Windows.Forms.VisualStyles.VisualStyleElement;
