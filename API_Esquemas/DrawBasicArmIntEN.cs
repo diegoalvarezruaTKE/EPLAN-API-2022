@@ -48,8 +48,6 @@ namespace EPLAN_API.User
 
             try
             {
-                //Hola Soy Adri
-                //Hola Soy Diego
                 draw_Default_Param();
                 progress += step;
                 ProgressChanged(progress);
