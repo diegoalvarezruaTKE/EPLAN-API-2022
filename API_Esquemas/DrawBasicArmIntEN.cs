@@ -40,6 +40,7 @@ namespace EPLAN_API.User
         {
             //Hola¿?
             //Adios
+            //Hasta Mañana
             //Draw Basic Macros
             Insert oInsert = new Insert();
             PageMacro oPageMacro = new PageMacro();
