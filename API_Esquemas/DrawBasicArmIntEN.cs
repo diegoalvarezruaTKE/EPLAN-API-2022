@@ -38,7 +38,7 @@ namespace EPLAN_API.User
 
         public void DrawMacro()
         {
-
+            //Hola¿?
             //Draw Basic Macros
             Insert oInsert = new Insert();
             PageMacro oPageMacro = new PageMacro();
